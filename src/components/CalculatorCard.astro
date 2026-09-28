@@ -1,0 +1,49 @@
+---
+import { calculatorUrl, getCategory, type Calculator } from '../data/calculators';
+import Icon from './Icon.astro';
+
+interface Props {
+  calculator: Calculator;
+  /** Show the category above the name (used where cards from several categories mix). */
+  showCategory?: boolean;
+  /** Heading level for the card title, to keep the page outline in order. */
+  headingLevel?: 'h2' | 'h3';
+}
+const { calculator: c, showCategory = false, headingLevel: Heading = 'h3' } = Astro.props;
+const live = c.status === 'live';
+const Root = live ? 'a' : 'div';
+---
+
+<Root
+  href={live ? calculatorUrl(c) : undefined}
+  class:list={[
+    'group flex h-full flex-col rounded-xl border border-line bg-surface p-4 sm:p-5',
+    live && 'transition-[border-color,box-shadow] hover:border-line-strong hover:shadow-float active:bg-surface-2',
+  ]}
+>
+  {
+    showCategory && (
+      <p class="mb-2 flex items-center gap-1.5 text-[0.8125rem] font-medium text-accent-ink">
+        <Icon name={c.category} size={15} />
+        {getCategory(c.category).name}
+      </p>
+    )
+  }
+  <div class="flex items-start justify-between gap-3">
+    <Heading class:list={['text-[1.0625rem] leading-snug tracking-[-0.01em]', !live && 'text-muted']}>
+      {c.name}
+    </Heading>
+    {
+      live ? (
+        <Icon
+          name="arrow-right"
+          size={18}
+          class="mt-0.5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-ink"
+        />
+      ) : (
+        <span class="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">Soon</span>
+      )
+    }
+  </div>
+  <p class="mt-1.5 text-[0.9375rem] leading-snug text-muted">{c.description}</p>
+</Root>

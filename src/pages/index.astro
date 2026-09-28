@@ -1,6 +1,9 @@
 ---
+import AdSlot from '../components/AdSlot.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+import CategoryCard from '../components/CategoryCard.astro';
 import SiteSearch from '../components/SiteSearch.astro';
-import { calculatorUrl, calculatorsIn, categories, categoryUrl } from '../data/calculators';
+import { categories, featuredCalculators } from '../data/calculators';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { organizationSchema, websiteSchema } from '../lib/schema';
 
@@ -16,65 +19,51 @@ const description =
   showHeaderSearch={false}
 >
   <div class="wrap">
-    <div class="max-w-2xl pt-12 pb-12 sm:pt-16">
-      <h1 class="text-4xl sm:text-[2.75rem]">Free online calculators</h1>
-      <p class="mt-4 text-lg text-muted">
-        Time cards, dates, home projects, money, school grades and religious calendars. Each calculator
-        explains its formula and works through an example, so you can check the answer yourself.
+    <section class="max-w-2xl pt-8 pb-8 sm:pt-12 sm:pb-10">
+      <h1 class="text-[2rem] leading-tight sm:text-[2.75rem]">Free online calculators</h1>
+      <p class="mt-3 text-[1.0625rem] text-muted sm:text-lg">
+        Time cards, dates, home projects, money, grades and religious calendars. Every calculator explains
+        its formula and works through an example.
       </p>
-      <div class="mt-7">
+      <div class="mt-6">
         <SiteSearch id="home-search" label="Search all calculators" size="lg" />
       </div>
-    </div>
+    </section>
 
-    <div class="border-t border-line pt-12">
-      <h2 class="sr-only">All calculators</h2>
-      <div class="gap-x-12 md:columns-2 lg:columns-3">
+    <section aria-labelledby="categories-title">
+      <h2 id="categories-title" class="text-xl sm:text-2xl">Browse by category</h2>
+      <ul
+        class="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-7 [&>li:last-child:nth-child(odd)]:col-span-2 sm:[&>li:last-child:nth-child(odd)]:col-span-1"
+      >
         {
-          categories.map((category) => {
-            const items = calculatorsIn(category.slug);
-            return (
-              <section class="mb-12 break-inside-avoid" aria-labelledby={`cat-${category.slug}`}>
-                <h3
-                  id={`cat-${category.slug}`}
-                  class="flex items-baseline justify-between border-b-2 border-ink pb-2 text-xl"
-                >
-                  <a href={categoryUrl(category.slug)} class="hover:text-accent-ink">
-                    {category.name}
-                  </a>
-                  <span class="rounded-full bg-accent px-2 py-0.5 text-xs font-medium tracking-normal text-on-accent tabular-nums">
-                    {items.length}
-                  </span>
-                </h3>
-                <ul class="divide-y divide-line">
-                  {items.map((c) => (
-                    <li class="py-3.5">
-                      {c.status === 'live' ? (
-                        <a
-                          href={calculatorUrl(c)}
-                          class="font-medium decoration-accent decoration-2 underline-offset-4 hover:underline"
-                        >
-                          {c.name}
-                        </a>
-                      ) : (
-                        <span class="font-medium text-muted">
-                          {c.name}
-                          <span class="ml-2 text-xs font-normal">Coming soon</span>
-                        </span>
-                      )}
-                      <p class="mt-0.5 text-[0.9375rem] leading-snug text-muted">{c.description}</p>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })
+          categories.map((category) => (
+            <li>
+              <CategoryCard category={category} stacked />
+            </li>
+          ))
         }
-      </div>
-    </div>
+      </ul>
+    </section>
 
-    <section class="mt-4 grid gap-8 border-t border-line pt-12 lg:grid-cols-[1fr_2fr]" aria-labelledby="about-site">
-      <h2 id="about-site" class="text-2xl">About these calculators</h2>
+    <AdSlot unit="homeTop" format="banner" class="my-10" />
+
+    <section aria-labelledby="popular-title">
+      <h2 id="popular-title" class="text-xl sm:text-2xl">Popular calculators</h2>
+      <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          featuredCalculators.map((calculator) => (
+            <li>
+              <CalculatorCard calculator={calculator} showCategory />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <AdSlot unit="homeBottom" format="rectangle" class="my-10" />
+
+    <section class="grid gap-4 border-t border-line pt-10 lg:grid-cols-[1fr_2fr] lg:gap-8" aria-labelledby="about-site">
+      <h2 id="about-site" class="text-xl sm:text-2xl">About these calculators</h2>
       <div class="prose max-w-2xl">
         <p>
           Every calculator here runs in your browser. The numbers you type stay on your device, and nothing

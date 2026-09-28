@@ -1,5 +1,5 @@
 ---
-import { categories, categoryUrl, type CategorySlug } from '../data/calculators';
+import { calculatorsIn, categories, categoryUrl, type CategorySlug } from '../data/calculators';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import SiteSearch from './SiteSearch.astro';
@@ -11,72 +11,200 @@ interface Props {
   showSearch?: boolean;
 }
 const { currentCategory, showSearch = true } = Astro.props;
+
+// Desktop shows four categories as links and groups the faith and culture
+// calendars under one menu, so the header fits on a single row.
+const grouped: CategorySlug[] = ['islamic', 'christian', 'cultural'];
+const primary = categories.filter((c) => !grouped.includes(c.slug));
+const faith = categories.filter((c) => grouped.includes(c.slug));
+
+const path = Astro.url.pathname;
 const current = (slug: CategorySlug) =>
-  Astro.url.pathname === categoryUrl(slug) ? 'page' : slug === currentCategory ? 'true' : undefined;
+  path === categoryUrl(slug) ? 'page' : slug === currentCategory ? 'true' : undefined;
+const faithActive = faith.some((c) => current(c.slug));
+const count = (slug: CategorySlug) => calculatorsIn(slug).length;
 ---
 
-<header class="relative z-30 border-b border-line bg-surface">
-  <div class="wrap flex h-16 items-center gap-3">
-    <a href="/" class="mr-auto flex items-center gap-2.5 rounded-md py-1 pr-1">
-      <Logo size={30} />
-      <span class="text-[1.0625rem] font-semibold tracking-tight">Infinite Calculators</span>
+<header class="relative z-40 border-b border-line bg-surface">
+  <div class="wrap flex h-14 items-center gap-1 lg:h-16 lg:gap-6">
+    <a href="/" class="mr-auto flex shrink-0 items-center gap-2 rounded-md py-1 pr-1 lg:mr-0">
+      <Logo size={28} />
+      <span class="text-base font-semibold tracking-tight lg:text-[1.0625rem]">Infinite Calculators</span>
     </a>
 
-    {
-      showSearch && (
-        <>
-          <div
-            id="header-search"
-            class="absolute inset-x-0 top-16 hidden border-b border-line bg-surface p-3 data-[open]:block md:static md:block md:w-80 md:border-0 md:p-0 lg:w-96"
-          >
-            <SiteSearch id="header-search-input" />
-          </div>
+    <nav aria-label="Main" class="hidden lg:block">
+      <ul class="flex items-center gap-0.5">
+        {
+          primary.map((c) => (
+            <li>
+              <a href={categoryUrl(c.slug)} aria-current={current(c.slug)} class="nav-link">
+                {c.name}
+              </a>
+            </li>
+          ))
+        }
+        <li class="relative" data-dropdown>
           <button
             type="button"
-            class="inline-flex size-10 items-center justify-center rounded-lg text-ink hover:bg-surface-2 md:hidden"
-            aria-label="Search calculators"
-            aria-controls="header-search"
+            class="nav-link group"
             aria-expanded="false"
-            data-search-toggle
+            aria-controls="faith-menu"
+            data-active={faithActive ? '' : undefined}
+            data-disclosure="faith-menu"
           >
-            <Icon name="search" size={20} />
+            Faith &amp; Culture
+            <Icon name="chevron-down" size={16} class="transition-transform group-aria-expanded:rotate-180" />
           </button>
-        </>
-      )
-    }
-    <ThemeToggle />
+          <div
+            id="faith-menu"
+            class="absolute top-full left-0 mt-2 hidden w-64 rounded-xl border border-line bg-surface p-1.5 shadow-float data-[open]:block"
+          >
+            <ul>
+              {
+                faith.map((c) => (
+                  <li>
+                    <a
+                      href={categoryUrl(c.slug)}
+                      aria-current={current(c.slug)}
+                      class="flex items-center gap-3 rounded-lg px-2.5 py-2 hover:bg-surface-2 aria-[current]:bg-accent-soft"
+                    >
+                      <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
+                        <Icon name={c.slug} size={18} />
+                      </span>
+                      <span>
+                        <span class="block font-medium">{c.name}</span>
+                        <span class="block text-sm text-muted">
+                          {count(c.slug)} {count(c.slug) === 1 ? 'calculator' : 'calculators'}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-1 lg:ml-auto">
+      {
+        showSearch && (
+          <>
+            <div
+              id="header-search"
+              class="absolute inset-x-0 top-full hidden border-b border-line bg-surface p-3 shadow-float data-[open]:block xl:static xl:block xl:w-64 xl:border-0 xl:p-0 xl:shadow-none"
+            >
+              <SiteSearch id="header-search-input" />
+            </div>
+            <button
+              type="button"
+              class="icon-btn xl:hidden"
+              aria-label="Search calculators"
+              aria-expanded="false"
+              aria-controls="header-search"
+              data-disclosure="header-search"
+            >
+              <Icon name="search" size={20} />
+            </button>
+          </>
+        )
+      }
+      <ThemeToggle class="hidden lg:inline-flex" />
+      <button
+        type="button"
+        class="icon-btn group lg:hidden"
+        aria-label="Menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-disclosure="mobile-menu"
+      >
+        <Icon name="menu" size={22} class="group-aria-expanded:hidden" />
+        <Icon name="close" size={22} class="hidden group-aria-expanded:block" />
+      </button>
+    </div>
   </div>
 
-  <nav aria-label="Calculator categories" class="wrap">
-    <ul class="scroll-fade -mb-px flex gap-6 overflow-x-auto [scrollbar-width:none]">
-      {
-        categories.map((c) => (
-          <li class="shrink-0">
-            <a
-              href={categoryUrl(c.slug)}
-              aria-current={current(c.slug)}
-              class="inline-flex h-11 items-center border-b-[3px] border-transparent pt-[3px] text-[0.9375rem] whitespace-nowrap text-muted hover:text-ink aria-[current]:border-accent aria-[current]:font-medium aria-[current]:text-ink"
-            >
-              {c.name}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+  <nav
+    id="mobile-menu"
+    aria-label="Main"
+    class="absolute inset-x-0 top-full hidden max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-b border-line bg-surface shadow-float data-[open]:block lg:!hidden"
+  >
+    <div class="wrap py-3">
+      <p class="px-2 pt-1 pb-2 text-xs font-medium tracking-wide text-muted uppercase">Categories</p>
+      <ul class="grid gap-0.5 sm:grid-cols-2">
+        {
+          categories.map((c) => (
+            <li>
+              <a
+                href={categoryUrl(c.slug)}
+                aria-current={current(c.slug)}
+                class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-2 aria-[current]:bg-accent-soft"
+              >
+                <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
+                  <Icon name={c.slug} size={18} />
+                </span>
+                <span class="flex-1 font-medium">{c.name}</span>
+                <span class="text-sm text-muted tabular-nums">{count(c.slug)}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-3 flex items-center justify-between border-t border-line pt-3">
+        <div class="flex gap-1">
+          <a href="/about/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">About</a>
+          <a href="/contact/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">Contact</a>
+        </div>
+        <ThemeToggle withLabel />
+      </div>
+    </div>
   </nav>
 </header>
 
-{
-  showSearch && (
-    <script>
-      const toggle = document.querySelector<HTMLButtonElement>('[data-search-toggle]');
-      const panel = document.getElementById('header-search');
-      toggle?.addEventListener('click', () => {
-        const open = !panel!.hasAttribute('data-open');
-        panel!.toggleAttribute('data-open', open);
-        toggle.setAttribute('aria-expanded', String(open));
-        if (open) panel!.querySelector('input')?.focus();
-      });
-    </script>
-  )
-}
+<script>
+  // Header disclosures: search panel, mobile menu and the Faith & Culture
+  // dropdown. Only one is open at a time.
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-disclosure]')];
+  const panelOf = (b: HTMLButtonElement) => document.getElementById(b.dataset.disclosure!)!;
+  const isOpen = (b: HTMLButtonElement) => b.getAttribute('aria-expanded') === 'true';
+
+  function setOpen(button: HTMLButtonElement, open: boolean) {
+    panelOf(button).toggleAttribute('data-open', open);
+    button.setAttribute('aria-expanded', String(open));
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const open = !isOpen(button);
+      for (const other of buttons) if (other !== button) setOpen(other, false);
+      setOpen(button, open);
+      if (open && button.dataset.disclosure === 'header-search') {
+        panelOf(button).querySelector('input')?.focus();
+      }
+    });
+  }
+
+  // Escape closes whatever is open and returns focus to its button.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = buttons.find(isOpen);
+    if (!open) return;
+    setOpen(open, false);
+    open.focus();
+  });
+
+  // Taps outside close everything; keyboard focus leaving the dropdown closes it.
+  document.addEventListener('pointerdown', (e) => {
+    const target = e.target as Node;
+    for (const b of buttons) {
+      if (isOpen(b) && !b.contains(target) && !panelOf(b).contains(target)) setOpen(b, false);
+    }
+  });
+  const dropdown = document.querySelector<HTMLElement>('[data-dropdown]');
+  dropdown?.addEventListener('focusout', (e) => {
+    const next = e.relatedTarget as Node | null;
+    const b = dropdown.querySelector<HTMLButtonElement>('[data-disclosure]')!;
+    if (next && !dropdown.contains(next)) setOpen(b, false);
+  });
+</script>

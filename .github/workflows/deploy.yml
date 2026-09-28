@@ -16,6 +16,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Secrets can't be read in `if:`, so expose whether they exist.
+      HAS_FTP_SECRETS: ${{ secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -38,7 +41,12 @@ jobs:
       - name: Check SEO rules on built pages
         run: npm run check
 
+      - name: Skip upload (FTP secrets not set yet)
+        if: env.HAS_FTP_SECRETS != 'true'
+        run: echo "::notice::Build passed. Add FTP_SERVER, FTP_USERNAME and FTP_PASSWORD in Settings → Secrets and variables → Actions to deploy."
+
       - name: Upload to Hostinger
+        if: env.HAS_FTP_SECRETS == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}

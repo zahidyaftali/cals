@@ -1,0 +1,31 @@
+---
+import { calculatorsIn, categoryUrl, type Category } from '../data/calculators';
+import Icon from './Icon.astro';
+
+interface Props {
+  category: Category;
+  /** From 640px, stack the icon above the text (for narrow grid columns). */
+  stacked?: boolean;
+}
+const { category, stacked = false } = Astro.props;
+const count = calculatorsIn(category.slug).length;
+---
+
+<a
+  href={categoryUrl(category.slug)}
+  class:list={[
+    'flex h-full items-center gap-2.5 rounded-xl border border-line bg-surface p-3 transition-[border-color,box-shadow] hover:border-line-strong hover:shadow-float active:bg-surface-2',
+    stacked ? 'sm:flex-col sm:items-start sm:gap-3 sm:p-4' : 'sm:gap-3 sm:p-3.5',
+  ]}
+>
+  <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink sm:size-10">
+    <Icon name={category.slug} size={20} />
+  </span>
+  <span class="min-w-0">
+    <span class="block text-[0.9375rem] leading-tight font-semibold sm:text-base">{category.name}</span>
+    <span class="mt-0.5 block text-[0.8125rem] text-muted sm:text-sm">
+      {count}
+      {count === 1 ? 'calculator' : 'calculators'}
+    </span>
+  </span>
+</a>

@@ -22,10 +22,10 @@ const crumbs: Crumb[] = [{ name: 'Home', href: '/' }, { name: h1 }];
   description={description}
   jsonLd={[breadcrumbSchema(crumbs, Astro.url.pathname)]}
 >
-  <article class="wrap pt-6">
+  <article class="wrap pt-5 sm:pt-6">
     <Breadcrumbs crumbs={crumbs} />
-    <header class="max-w-2xl border-b border-line pt-8 pb-8">
-      <h1 class="text-4xl sm:text-[2.75rem]">{h1}</h1>
+    <header class="max-w-2xl border-b border-line pt-5 pb-6 sm:pt-8 sm:pb-8">
+      <h1 class="text-[2rem] leading-tight sm:text-[2.75rem]">{h1}</h1>
       {
         updated && (
           <p class="mt-3 text-[0.9375rem] text-muted">

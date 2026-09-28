@@ -13,9 +13,18 @@ export const site = {
   logo: { src: '/logo-512.png', width: 512, height: 512 },
   ads: {
     // Turn on after AdSense approval. While false, <AdSlot> renders nothing
-    // in production and a dashed placeholder in development.
+    // in production and a dashed placeholder in development, and the AdSense
+    // script is not loaded.
     enabled: false,
+    // TODO(owner): your publisher ID from AdSense → Account → Account information.
     client: 'ca-pub-0000000000000000',
+    // TODO(owner): one display ad unit per placement (AdSense → Ads → By ad
+    // unit), so each placement's earnings can be compared.
+    units: {
+      homeTop: '0000000000',
+      homeBottom: '0000000000',
+      categoryList: '0000000000',
+    },
   },
 } as const;
 

@@ -1,33 +1,33 @@
 ---
+// One AdSense unit with a fixed, reserved size (see .ad-unit in global.css).
+// While ads are off, production renders nothing and development shows a
+// dashed box of the exact size, so placements can be reviewed.
 import { site } from '../data/site';
 
 interface Props {
-  /** Reserved height in px, so the ad can't push content down when it loads. */
-  minHeight?: number;
+  /** Which ad unit ID to use (site.ads.units). */
+  unit: keyof typeof site.ads.units;
+  /** banner: 300×250 on phones, 728×90 from 768px. rectangle: 300×250, then 336×280. */
+  format?: 'banner' | 'rectangle';
   class?: string;
 }
-const { minHeight = 280, class: className } = Astro.props;
-const showPlaceholder = !site.ads.enabled && import.meta.env.DEV;
+const { unit, format = 'rectangle', class: className } = Astro.props;
+const { enabled, client, units } = site.ads;
+const placeholder = !enabled && import.meta.env.DEV;
 ---
 
 {
-  site.ads.enabled ? (
-    <aside aria-label="Advertisement" class:list={['my-8', className]}>
-      <p class="mb-1 text-center text-xs uppercase tracking-wider text-muted">Advertisement</p>
-      {/* The <ins class="adsbygoogle"> unit goes here once AdSense approves the site. */}
-      <div class="overflow-hidden" style={`min-height:${minHeight}px`} />
+  (enabled || placeholder) && (
+    <aside aria-label="Advertisement" class:list={['ad', `ad-${format}`, className]}>
+      <p class="ad-label">Advertisement</p>
+      {enabled ? (
+        <>
+          <ins class="adsbygoogle ad-unit" data-ad-client={client} data-ad-slot={units[unit]}></ins>
+          <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </>
+      ) : (
+        <div class="ad-unit ad-placeholder">Ad · {unit}</div>
+      )}
     </aside>
-  ) : (
-    showPlaceholder && (
-      <div
-        class:list={[
-          'my-8 flex items-center justify-center rounded-xl border-2 border-dashed border-line text-sm text-muted',
-          className,
-        ]}
-        style={`min-height:${minHeight}px`}
-      >
-        Ad slot ({minHeight}px reserved) — shown in development only
-      </div>
-    )
   )
 }

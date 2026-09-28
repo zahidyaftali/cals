@@ -65,3 +65,8 @@ test('every live calculator has a page, and no planned one does', () => {
     else assert.ok(!existsSync(page), `${c.slug}: page exists but status is planned`);
   }
 });
+
+test('4–8 calculators are featured on the homepage', () => {
+  const featured = calculators.filter((c) => c.featured).length;
+  assert.ok(featured >= 4 && featured <= 8, `${featured} featured`);
+});

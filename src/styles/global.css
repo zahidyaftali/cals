@@ -185,13 +185,79 @@
     box-shadow: var(--shadow);
   }
 
-  /* Fades the right edge of a horizontally scrolling row (the category tabs)
-     so it's clear there is more to scroll. All tabs fit from 64rem up. */
-  .scroll-fade {
-    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
-    @media (width >= 64rem) {
-      mask-image: none;
+  /* Header navigation links and icon-only buttons (40px tap targets). */
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 2.5rem;
+    padding-inline: 0.75rem;
+    border-radius: 0.5rem;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .nav-link:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  .nav-link[aria-current],
+  .nav-link[data-active] {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    color: var(--ink);
+  }
+  .icon-btn:hover {
+    background: var(--surface-2);
+  }
+
+  /* Ad slots. Each unit has a fixed size per breakpoint, so the space is
+     reserved before the ad loads and the page never shifts (CLS 0).
+     Phones: 300×250. From 768px: banner 728×90, rectangle 336×280. */
+  .ad {
+    margin-block: 2rem;
+    text-align: center;
+  }
+  .ad-label {
+    margin-bottom: 0.375rem;
+    color: var(--muted);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ad-unit {
+    display: inline-block;
+    width: 300px;
+    height: 250px;
+  }
+  @media (width >= 48rem) {
+    .ad-banner .ad-unit {
+      width: 728px;
+      height: 90px;
     }
+    .ad-rectangle .ad-unit {
+      width: 336px;
+      height: 280px;
+    }
+  }
+  .ad-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--line-strong);
+    border-radius: 0.5rem;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 0.8125rem;
   }
 
   .link {

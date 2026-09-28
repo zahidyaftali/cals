@@ -47,6 +47,8 @@ export interface Calculator {
   updated: string;
   /** `planned` entries are listed as "coming soon" and never linked. */
   status: 'live' | 'planned';
+  /** Shown under "Popular calculators" on the homepage. */
+  featured?: boolean;
 }
 
 export const categories: Category[] = [
@@ -134,6 +136,7 @@ export const calculators: Calculator[] = [
     related: ['time-duration-calculator', 'days-between-dates', 'date-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
   {
     slug: 'time-duration-calculator',
@@ -164,6 +167,7 @@ export const calculators: Calculator[] = [
     related: ['date-calculator', 'time-duration-calculator', 'hours-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
   {
     slug: 'date-calculator',
@@ -179,6 +183,7 @@ export const calculators: Calculator[] = [
     related: ['days-between-dates', 'time-duration-calculator', 'hours-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
 
   // ── Home & DIY ──────────────────────────────────────────────
@@ -196,6 +201,7 @@ export const calculators: Calculator[] = [
     related: ['square-footage-calculator', 'paint-calculator', 'sales-tax-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
   {
     slug: 'square-footage-calculator',
@@ -211,6 +217,7 @@ export const calculators: Calculator[] = [
     related: ['paint-calculator', 'concrete-calculator', 'sales-tax-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
   {
     slug: 'paint-calculator',
@@ -243,6 +250,7 @@ export const calculators: Calculator[] = [
     related: ['sales-tax-calculator', 'discount-calculator', 'hours-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
   {
     slug: 'discount-calculator',
@@ -273,6 +281,7 @@ export const calculators: Calculator[] = [
     related: ['discount-calculator', 'tip-calculator', 'concrete-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
 
   // ── School ──────────────────────────────────────────────────
@@ -307,6 +316,7 @@ export const calculators: Calculator[] = [
     related: ['hijri-date-converter', 'days-between-dates', 'date-calculator'],
     updated: '2026-09-28',
     status: 'planned',
+    featured: true,
   },
   {
     slug: 'hijri-date-converter',
@@ -362,6 +372,8 @@ export const calculators: Calculator[] = [
 // ── Helpers ───────────────────────────────────────────────────
 
 export const liveCalculators = calculators.filter((c) => c.status === 'live');
+
+export const featuredCalculators = calculators.filter((c) => c.featured);
 
 export function getCategory(slug: CategorySlug): Category {
   const category = categories.find((c) => c.slug === slug);

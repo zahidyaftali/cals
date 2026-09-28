@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import SEO from '../components/SEO.astro';
 import type { CategorySlug } from '../data/calculators';
+import { site } from '../data/site';
 import type { JsonLd } from '../lib/schema';
 
 interface Props {
@@ -18,6 +19,8 @@ interface Props {
   showHeaderSearch?: boolean;
 }
 const { title, description, noindex, jsonLd, ogType, currentCategory, showHeaderSearch = true } = Astro.props;
+// AdSense site verification tag: output once a real publisher ID is set.
+const hasAdsAccount = !/^ca-pub-0+$/.test(site.ads.client);
 ---
 
 <!doctype html>
@@ -43,6 +46,7 @@ const { title, description, noindex, jsonLd, ogType, currentCategory, showHeader
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {hasAdsAccount && <meta name="google-adsense-account" content={site.ads.client} />}
   </head>
   <body class="flex min-h-dvh flex-col font-sans antialiased">
     <a href="#main" class="skip-link">Skip to content</a>
@@ -51,5 +55,20 @@ const { title, description, noindex, jsonLd, ogType, currentCategory, showHeader
       <slot />
     </main>
     <Footer />
+    {
+      site.ads.enabled && (
+        <script is:inline define:vars={{ client: site.ads.client }}>
+          // Load AdSense only after the page has fully loaded, so it never
+          // competes with the page's own content for bandwidth.
+          window.addEventListener('load', function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.crossOrigin = 'anonymous';
+            s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + client;
+            document.head.appendChild(s);
+          });
+        </script>
+      )
+    }
   </body>
 </html>
