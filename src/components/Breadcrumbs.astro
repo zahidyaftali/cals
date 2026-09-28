@@ -17,12 +17,12 @@ const { crumbs } = Astro.props;
         return (
           <li class="flex items-center gap-1">
             {last ? (
-              <span aria-current="page" class="text-ink">
+              <span aria-current="page" class="font-medium text-ink">
                 {crumb.name}
               </span>
             ) : (
               <>
-                <a href={crumb.href} class="inline-block rounded py-1 hover:text-brand hover:underline">
+                <a href={crumb.href} class="inline-block rounded py-1 hover:text-ink">
                   {crumb.name}
                 </a>
                 <Icon name="chevron-right" size={14} class="opacity-60" />

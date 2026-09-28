@@ -4,55 +4,78 @@
    inline script in BaseLayout (system preference, or the saved toggle). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ── Design tokens ──────────────────────────────────────────── */
+/* ── Design tokens ──────────────────────────────────────────────
+   Lime and deep green on white, with cool grey panels and hairline borders.
+   Lime (--accent) is a fill colour only: it is too light for text on white,
+   so text accents and links use --accent-ink. */
 
 :root {
-  --bg: #f6f5f1;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #efede6;
-  --line: #dedbd1;
-  --ink: #17191e;
-  --muted: #555b66;
-  --brand: #0a6b5f;
-  --brand-strong: #07564c;
-  --brand-soft: #e3f1ed;
-  --on-brand: #ffffff;
-  --accent: #f0a53a;
-  --danger: #b42318;
+  --surface-2: #f2f5f5;
+  --field: #f7f8f8;
+  --line: #e8ebeb;
+  --line-strong: #d5dada;
+  --ink: #0b0d0f;
+  --muted: #676d74;
+  --accent: #b0ec6c;
+  --accent-hover: #a0e254;
+  --on-accent: #182c04;
+  --accent-soft: #f3fbea;
+  --accent-line: #dcf2c4;
+  --accent-ink: #4b7422;
+  --deep: #182c04;
+  --on-deep: #ffffff;
+  --danger: #c8264f;
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.04);
+  --shadow-float: 0 16px 40px -12px rgb(16 24 40 / 0.18);
   color-scheme: light;
 }
 
 .dark {
-  --bg: #0e1114;
-  --surface: #161a1f;
-  --surface-2: #1d2229;
-  --line: #2c323b;
-  --ink: #e9eaec;
-  --muted: #a3a9b3;
-  --brand: #5fd0bd;
-  --brand-strong: #8ae0d2;
-  --brand-soft: #122f2a;
-  --on-brand: #06201c;
-  --accent: #f2b457;
-  --danger: #ff8a80;
+  --bg: #0b0e09;
+  --surface: #12160f;
+  --surface-2: #181d14;
+  --field: #181d14;
+  --line: #252b20;
+  --line-strong: #353d2e;
+  --ink: #eef1ea;
+  --muted: #a1a898;
+  --accent: #b0ec6c;
+  --accent-hover: #c3f38b;
+  --on-accent: #182c04;
+  --accent-soft: #1a2610;
+  --accent-line: #2c4217;
+  --accent-ink: #b0ec6c;
+  --deep: #1c3308;
+  --on-deep: #ffffff;
+  --danger: #ff8fae;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-float: 0 16px 40px -12px rgb(0 0 0 / 0.6);
   color-scheme: dark;
 }
 
 @theme inline {
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-sans: var(--font-onest), system-ui, sans-serif;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-field: var(--field);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-brand: var(--brand);
-  --color-brand-strong: var(--brand-strong);
-  --color-brand-soft: var(--brand-soft);
-  --color-on-brand: var(--on-brand);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-accent-ink: var(--accent-ink);
+  --color-deep: var(--deep);
+  --color-on-deep: var(--on-deep);
   --color-danger: var(--danger);
+  --shadow-card: var(--shadow);
+  --shadow-float: var(--shadow-float);
 }
 
 @utility wrap {
@@ -76,25 +99,28 @@
   body {
     background-color: var(--bg);
     color: var(--ink);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     line-height: 1.6;
-  }
-
-  :focus-visible {
-    outline: 3px solid var(--brand);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  ::selection {
-    background-color: var(--brand-soft);
   }
 
   h1,
   h2,
   h3 {
-    line-height: 1.2;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
     text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--on-accent);
   }
 }
 
@@ -108,41 +134,96 @@
     z-index: 50;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    background: var(--brand);
-    color: var(--on-brand);
-    font-weight: 600;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 500;
   }
   .skip-link:focus {
     top: 0.75rem;
   }
 
+  /* Buttons: lime primary, white outline secondary, both 44px tall. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+  .btn-outline {
+    background: var(--surface);
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .btn-outline:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-2);
+  }
+
+  /* White card with a hairline border. */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow);
+  }
+
+  /* Fades the right edge of a horizontally scrolling row (the category tabs)
+     so it's clear there is more to scroll. All tabs fit from 64rem up. */
+  .scroll-fade {
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+    @media (width >= 64rem) {
+      mask-image: none;
+    }
+  }
+
   .link {
-    color: var(--brand);
+    color: var(--accent-ink);
+    font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
   }
   .link:hover {
-    color: var(--brand-strong);
     text-decoration-thickness: 2px;
   }
 
   /* Long-form content: guides, FAQs and site pages. */
   .prose {
     max-width: 44rem;
+    color: var(--ink);
   }
   .prose > * + * {
     margin-top: 1em;
   }
+  .prose p,
+  .prose li {
+    color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  }
   .prose h2 {
-    margin-top: 2.25rem;
+    margin-top: 2.5rem;
     font-size: 1.5rem;
-    font-weight: 700;
   }
   .prose h3 {
     margin-top: 1.75rem;
     font-size: 1.1875rem;
-    font-weight: 650;
   }
   .prose h2 + *,
   .prose h3 + * {
@@ -162,35 +243,44 @@
     margin-top: 0.4em;
   }
   .prose li::marker {
-    color: var(--muted);
+    color: var(--accent-ink);
   }
-  .prose a {
-    color: var(--brand);
+  .prose a:not(.btn) {
+    color: var(--accent-ink);
+    font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
   }
-  .prose a:hover {
-    color: var(--brand-strong);
+  .prose a:not(.btn):hover {
+    text-decoration-thickness: 2px;
   }
   .prose strong {
-    font-weight: 650;
+    color: var(--ink);
+    font-weight: 600;
   }
   .prose table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
     font-size: 0.9375rem;
     font-variant-numeric: tabular-nums;
   }
   .prose th,
   .prose td {
-    padding: 0.55rem 0.75rem;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--line);
     text-align: left;
   }
+  .prose tr:last-child td {
+    border-bottom: 0;
+  }
   .prose th {
-    font-weight: 650;
     background: var(--surface-2);
+    font-weight: 500;
   }
   .prose code {
     font-size: 0.9em;

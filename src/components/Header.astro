@@ -7,49 +7,55 @@ import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
   currentCategory?: CategorySlug;
+  /** The homepage has its own large search box, so it hides this one. */
+  showSearch?: boolean;
 }
-const { currentCategory } = Astro.props;
-const onHub = (slug: CategorySlug) => Astro.url.pathname === categoryUrl(slug);
+const { currentCategory, showSearch = true } = Astro.props;
+const current = (slug: CategorySlug) =>
+  Astro.url.pathname === categoryUrl(slug) ? 'page' : slug === currentCategory ? 'true' : undefined;
 ---
 
 <header class="relative z-30 border-b border-line bg-surface">
-  <div class="wrap flex h-16 items-center gap-2">
-    <a href="/" class="mr-auto flex items-center gap-2.5 rounded-lg py-1 pr-1 font-semibold tracking-tight">
-      <Logo size={34} />
-      <span class="text-lg leading-none">
-        Infinite<span class="font-normal text-muted"> Calculators</span>
-      </span>
+  <div class="wrap flex h-16 items-center gap-3">
+    <a href="/" class="mr-auto flex items-center gap-2.5 rounded-md py-1 pr-1">
+      <Logo size={30} />
+      <span class="text-[1.0625rem] font-semibold tracking-tight">Infinite Calculators</span>
     </a>
 
-    <div
-      id="header-search"
-      class="absolute inset-x-0 top-16 hidden border-b border-line bg-surface p-3 shadow-md data-[open]:block md:static md:block md:w-72 md:border-0 md:bg-transparent md:p-0 md:shadow-none lg:w-80"
-    >
-      <SiteSearch id="header-search-input" />
-    </div>
-
-    <button
-      type="button"
-      class="inline-flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface-2 hover:text-ink md:hidden"
-      aria-label="Search calculators"
-      aria-controls="header-search"
-      aria-expanded="false"
-      data-search-toggle
-    >
-      <Icon name="search" size={20} />
-    </button>
+    {
+      showSearch && (
+        <>
+          <div
+            id="header-search"
+            class="absolute inset-x-0 top-16 hidden border-b border-line bg-surface p-3 data-[open]:block md:static md:block md:w-80 md:border-0 md:p-0 lg:w-96"
+          >
+            <SiteSearch id="header-search-input" />
+          </div>
+          <button
+            type="button"
+            class="inline-flex size-10 items-center justify-center rounded-lg text-ink hover:bg-surface-2 md:hidden"
+            aria-label="Search calculators"
+            aria-controls="header-search"
+            aria-expanded="false"
+            data-search-toggle
+          >
+            <Icon name="search" size={20} />
+          </button>
+        </>
+      )
+    }
     <ThemeToggle />
   </div>
 
-  <nav aria-label="Calculator categories" class="border-t border-line">
-    <ul class="wrap flex gap-1 overflow-x-auto py-1.5 [scrollbar-width:none]">
+  <nav aria-label="Calculator categories" class="wrap">
+    <ul class="scroll-fade -mb-px flex gap-6 overflow-x-auto [scrollbar-width:none]">
       {
         categories.map((c) => (
           <li class="shrink-0">
             <a
               href={categoryUrl(c.slug)}
-              aria-current={onHub(c.slug) ? 'page' : c.slug === currentCategory ? 'true' : undefined}
-              class="inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[0.9375rem] font-medium text-muted hover:bg-surface-2 hover:text-ink aria-[current]:bg-brand-soft aria-[current]:text-brand"
+              aria-current={current(c.slug)}
+              class="inline-flex h-11 items-center border-b-[3px] border-transparent pt-[3px] text-[0.9375rem] whitespace-nowrap text-muted hover:text-ink aria-[current]:border-accent aria-[current]:font-medium aria-[current]:text-ink"
             >
               {c.name}
             </a>
@@ -60,13 +66,17 @@ const onHub = (slug: CategorySlug) => Astro.url.pathname === categoryUrl(slug);
   </nav>
 </header>
 
-<script>
-  const toggle = document.querySelector<HTMLButtonElement>('[data-search-toggle]');
-  const panel = document.getElementById('header-search');
-  toggle?.addEventListener('click', () => {
-    const open = !panel!.hasAttribute('data-open');
-    panel!.toggleAttribute('data-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    if (open) panel!.querySelector('input')?.focus();
-  });
-</script>
+{
+  showSearch && (
+    <script>
+      const toggle = document.querySelector<HTMLButtonElement>('[data-search-toggle]');
+      const panel = document.getElementById('header-search');
+      toggle?.addEventListener('click', () => {
+        const open = !panel!.hasAttribute('data-open');
+        panel!.toggleAttribute('data-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        if (open) panel!.querySelector('input')?.focus();
+      });
+    </script>
+  )
+}

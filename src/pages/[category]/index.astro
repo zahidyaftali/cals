@@ -1,8 +1,6 @@
 ---
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import CalculatorCard from '../../components/CalculatorCard.astro';
 import Icon from '../../components/Icon.astro';
-import { categoryTint } from '../../components/categoryStyles';
 import { calculatorUrl, calculatorsIn, categories, categoryUrl, type Category } from '../../data/calculators';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { breadcrumbSchema, collectionPageSchema, type Crumb } from '../../lib/schema';
@@ -39,38 +37,52 @@ const jsonLd = [
 >
   <div class="wrap pt-6">
     <Breadcrumbs crumbs={crumbs} />
-
-    <div class="mt-5 flex items-start gap-4">
-      <span class:list={['hidden size-14 shrink-0 items-center justify-center rounded-2xl sm:flex', categoryTint[category.slug]]}>
-        <Icon name={category.slug} size={28} />
-      </span>
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{category.h1}</h1>
-        <p class="mt-2 max-w-2xl text-lg text-muted">{category.intro}</p>
-      </div>
+    <div class="max-w-2xl pt-8 pb-10">
+      <h1 class="text-4xl sm:text-[2.75rem]">{category.h1}</h1>
+      <p class="mt-4 text-lg text-muted">{category.intro}</p>
     </div>
 
-    <ul class="mt-8 grid gap-4 md:grid-cols-2">
+    <ul class="max-w-3xl divide-y divide-line overflow-hidden rounded-xl border border-line">
       {
-        items.map((calculator) => (
+        items.map((c) => (
           <li>
-            <CalculatorCard calculator={calculator} headingLevel="h2" />
+            {c.status === 'live' ? (
+              <a
+                href={calculatorUrl(c)}
+                class="group flex items-center gap-4 bg-surface px-5 py-5 transition-colors hover:bg-surface-2"
+              >
+                <div class="min-w-0 flex-1">
+                  <h2 class="text-lg">{c.name}</h2>
+                  <p class="mt-1 text-[0.9375rem] text-muted">{c.description}</p>
+                </div>
+                <span class="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
+                  <Icon name="arrow-right" size={17} />
+                </span>
+              </a>
+            ) : (
+              <div class="flex items-center gap-4 px-5 py-5">
+                <div class="min-w-0 flex-1">
+                  <h2 class="text-lg text-muted">{c.name}</h2>
+                  <p class="mt-1 text-[0.9375rem] text-muted">{c.description}</p>
+                </div>
+                <span class="shrink-0 text-sm text-muted">Coming soon</span>
+              </div>
+            )}
           </li>
         ))
       }
     </ul>
 
-    <nav aria-labelledby="other-categories" class="mt-14 border-t border-line pt-8">
-      <h2 id="other-categories" class="text-xl font-semibold">Other categories</h2>
-      <ul class="mt-4 flex flex-wrap gap-2">
+    <nav aria-labelledby="other-categories" class="mt-16 max-w-3xl border-t border-line pt-8">
+      <h2 id="other-categories" class="text-sm font-medium tracking-normal text-muted">Other categories</h2>
+      <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2">
         {
           others.map((c) => (
             <li>
               <a
                 href={categoryUrl(c.slug)}
-                class="inline-flex h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 font-medium hover:border-brand hover:text-brand"
+                class="inline-block py-1 font-medium decoration-accent decoration-2 underline-offset-4 hover:underline"
               >
-                <Icon name={c.slug} size={18} />
                 {c.name}
               </a>
             </li>

@@ -176,7 +176,10 @@ For sales tax, keep the state base rates in a data file with a last-verified dat
 ## Decisions made so far
 
 - **Astro 7** (7.3.x). `compressHTML: true` is set because Astro 7's default (`'jsx'`) drops the space between a link and text on the next line.
-- **Tailwind 4** through its official Vite plugin (`@tailwindcss/vite`). Colors are CSS variables in `src/styles/global.css` (`bg-surface`, `text-muted`, `text-brand`, …), so dark mode mostly needs no `dark:` classes.
+- **Tailwind 4** through its official Vite plugin (`@tailwindcss/vite`). Colors are CSS variables in `src/styles/global.css` (`bg-surface`, `text-muted`, `bg-accent`, …), so dark mode mostly needs no `dark:` classes.
+- **Visual design** (decided 2026-09-28): colors, font and spacing follow a Nexwealth-style reference. Lime `#b0ec6c` is a fill only (buttons, active tab bar, tags), with dark `#182c04` text on it. Text accents and links use `--accent-ink` `#4b7422`, because lime is unreadable as text on white. Deep green `#182c04` for the footer, white pages, hairline `#e8ebeb` borders.
+- **Font**: Onest (variable, Latin subset, SIL OFL), self-hosted from `src/assets/fonts/` through Astro's Fonts API, which also generates a size-matched Arial fallback (CLS stays 0).
+- **Layout must look hand-built, not like a template.** Avoid: pill badges above headlines, slogan headlines with a highlighted word, stats rows, mock app windows, rows of icon feature cards, cards nested in cards, decorative background patterns, everything centred. Prefer: plain keyword headlines, left-aligned content, dense directory lists, hairline rules, and plain specific copy.
 - **Tests** use Node's built-in `node:test` with type stripping: no test framework dependency. Imports in files that tests load must use the `.ts` extension, and TypeScript must stay erasable (no enums or namespaces).
 - **Registry** entries have `status: 'live' | 'planned'`. Planned entries show as "Coming soon" and are never linked or put in the sitemap/search. The registry test fails if a live entry has no page or a planned one does.
 - **Site pages** (About, Contact, legal) use `src/layouts/InfoLayout.astro`.

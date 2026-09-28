@@ -1,4 +1,5 @@
 ---
+import { Font } from 'astro:assets';
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
@@ -14,8 +15,9 @@ interface Props {
   ogType?: 'website' | 'article';
   /** Highlights this category in the header navigation. */
   currentCategory?: CategorySlug;
+  showHeaderSearch?: boolean;
 }
-const { title, description, noindex, jsonLd, ogType, currentCategory } = Astro.props;
+const { title, description, noindex, jsonLd, ogType, currentCategory, showHeaderSearch = true } = Astro.props;
 ---
 
 <!doctype html>
@@ -24,7 +26,7 @@ const { title, description, noindex, jsonLd, ogType, currentCategory } = Astro.p
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f6f5f1" />
+    <meta name="theme-color" content="#ffffff" />
     <script is:inline>
       // Apply the saved or system theme before first paint to avoid a flash.
       (function () {
@@ -36,6 +38,7 @@ const { title, description, noindex, jsonLd, ogType, currentCategory } = Astro.p
         if (dark) document.documentElement.classList.add('dark');
       })();
     </script>
+    <Font cssVariable="--font-onest" preload />
     <SEO title={title} description={description} noindex={noindex} jsonLd={jsonLd} ogType={ogType} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -43,7 +46,7 @@ const { title, description, noindex, jsonLd, ogType, currentCategory } = Astro.p
   </head>
   <body class="flex min-h-dvh flex-col font-sans antialiased">
     <a href="#main" class="skip-link">Skip to content</a>
-    <Header currentCategory={currentCategory} />
+    <Header currentCategory={currentCategory} showSearch={showHeaderSearch} />
     <main id="main" class="flex-1">
       <slot />
     </main>

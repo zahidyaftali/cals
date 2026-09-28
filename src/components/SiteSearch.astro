@@ -28,20 +28,20 @@ const lg = size === 'lg';
       placeholder="Search calculators"
       aria-controls={`${id}-results`}
       class:list={[
-        'w-full rounded-xl border border-line bg-surface text-ink placeholder:text-muted',
-        'focus:border-brand focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-0',
-        lg ? 'h-14 pl-12 pr-4 text-lg shadow-sm' : 'h-11 pl-10 pr-3 text-base',
+        'w-full rounded-lg border border-line bg-field text-ink placeholder:text-muted',
+        'focus:border-accent-ink focus:bg-surface focus:outline-none',
+        lg ? 'h-13 pl-12 pr-4 text-base' : 'h-11 pl-10 pr-3 text-base',
       ]}
     />
   </div>
   <p class="sr-only" role="status" aria-live="polite" data-status></p>
   <div
     id={`${id}-results`}
-    class="absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-xl border border-line bg-surface shadow-lg"
+    class="absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-xl border border-line bg-surface shadow-float"
     hidden
     data-results
   >
-    <ul class="max-h-[60vh] overflow-y-auto py-1" data-list></ul>
+    <ul class="max-h-[60vh] overflow-y-auto p-1.5" data-list></ul>
   </div>
 </div>
 
@@ -85,7 +85,7 @@ const lg = size === 'lg';
     const a = document.createElement('a');
     a.href = entry.u;
     a.className =
-      'block px-4 py-2.5 hover:bg-surface-2 focus:bg-surface-2 focus:outline-none focus-visible:outline-none';
+      'block rounded-lg px-3 py-2.5 hover:bg-surface-2 focus:bg-accent-soft focus:outline-none focus-visible:outline-none';
     const name = document.createElement('span');
     name.className = 'block font-medium text-ink';
     name.textContent = entry.n;
@@ -156,7 +156,9 @@ const lg = size === 'lg';
       } else if (e.key === 'Enter' && first) {
         e.preventDefault();
         first.click();
-      } else if (e.key === 'Escape') {
+      } else if (e.key === 'Escape' && !panel.hidden) {
+        // First Escape closes the results; a second one reaches the header.
+        e.stopPropagation();
         open(false);
       }
     });
@@ -170,6 +172,7 @@ const lg = size === 'lg';
         e.preventDefault();
         (i <= 0 ? input : items[i - 1]).focus();
       } else if (e.key === 'Escape') {
+        e.stopPropagation();
         open(false);
         input.focus();
       }
