@@ -3,7 +3,7 @@
 // optional "last updated" line and a prose body.
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { formatDate } from '../data/site';
-import { breadcrumbSchema, type Crumb } from '../lib/schema';
+import { breadcrumbSchema, webPageSchema, type Crumb } from '../lib/schema';
 import BaseLayout from './BaseLayout.astro';
 
 interface Props {
@@ -12,15 +12,21 @@ interface Props {
   h1: string;
   /** ISO date (YYYY-MM-DD) shown under the heading. */
   updated?: string;
+  /** schema.org page type, e.g. AboutPage or ContactPage. */
+  pageType?: 'WebPage' | 'AboutPage' | 'ContactPage';
 }
-const { title, description, h1, updated } = Astro.props;
+const { title, description, h1, updated, pageType = 'WebPage' } = Astro.props;
 const crumbs: Crumb[] = [{ name: 'Home', href: '/' }, { name: h1 }];
+const path = Astro.url.pathname;
 ---
 
 <BaseLayout
   title={title}
   description={description}
-  jsonLd={[breadcrumbSchema(crumbs, Astro.url.pathname)]}
+  jsonLd={[
+    webPageSchema({ type: pageType, name: h1, description, path, dateModified: updated }),
+    breadcrumbSchema(crumbs, path),
+  ]}
 >
   <article class="wrap pt-5 sm:pt-6">
     <Breadcrumbs crumbs={crumbs} />

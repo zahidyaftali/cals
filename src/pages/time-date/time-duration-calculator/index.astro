@@ -56,16 +56,16 @@ const faqs = [
       ]}
     />
 
-    <Field name="start_time" label="Start time" type="time" step="1" value="09:15" size="quarter" mode="between" />
-    <Field name="start_date" label="Start date (optional)" type="date" size="quarter" mode="between" today />
-    <Field name="end_time" label="End time" type="time" step="1" value="17:45" size="quarter" mode="between" />
-    <Field name="end_date" label="End date (optional)" type="date" size="quarter" mode="between" today />
+    <Field name="start_time" label="Start time" type="time" step="1" value="09:15" size="quarter-wide" mode="between" />
+    <Field name="start_date" label="Start date" type="date" size="quarter-wide" mode="between" today />
+    <Field name="end_time" label="End time" type="time" step="1" value="17:45" size="quarter-wide" mode="between" />
+    <Field name="end_date" label="End date" type="date" size="quarter-wide" mode="between" today />
     <p class="field-hint f-full" data-mode="between">
       Leave the dates empty to measure within one day. An end time earlier than the start counts as the next day.
     </p>
 
-    <Field name="base_time" label="Start time" type="time" step="1" value="22:00" size="quarter" mode="add" />
-    <Field name="base_date" label="Date (optional)" type="date" size="quarter" mode="add" today />
+    <Field name="base_time" label="Start time" type="time" step="1" value="22:00" size="quarter-wide" mode="add" />
+    <Field name="base_date" label="Date" type="date" size="quarter-wide" mode="add" today hint="Optional." />
     <Segmented
       name="direction"
       legend="Operation"
@@ -73,7 +73,7 @@ const faqs = [
         { value: 'add', label: 'Add' },
         { value: 'subtract', label: 'Subtract' },
       ]}
-      size="quarter"
+      size="quarter-wide"
       mode="add"
     />
     <Field name="add_days" label="Days" type="integer" value="0" size="quarter" mode="add" />
@@ -186,7 +186,7 @@ const faqs = [
   import { clock12, describe, duration, hms, shiftTime, split, sumDurations } from '../../../scripts/calculators/time-duration';
   import { formatLong, parseISODate } from '../../../scripts/lib/dates';
   import { formatNumber } from '../../../scripts/lib/format';
-  import { out, rows, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
+  import { out, rows, setFieldError, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
 
   const n = (v: number) => formatNumber(v, 2);
 
@@ -293,7 +293,10 @@ const faqs = [
     const parts: string[] = [];
     for (let i = 0; i < 6; i++) {
       const raw = ['h', 'm', 's'].map((u) => read.input(`sum${i}_${u}`).value.trim());
-      if (raw.every((v) => v === '')) continue;
+      if (raw.every((v) => v === '')) {
+        setFieldError(read.input(`sum${i}_h`), '');
+        continue;
+      }
       const h = read.amount(`sum${i}_h`, { label: 'the hours', min: 0 });
       const m = read.amount(`sum${i}_m`, { label: 'the minutes', min: 0 });
       const s = read.amount(`sum${i}_s`, { label: 'the seconds', min: 0 });
@@ -301,6 +304,7 @@ const faqs = [
       items.push(secs);
       parts.push(hms(secs));
     }
+    if (read.ok && items.length === 0 && read.isStrict) read.fail('sum0_h', 'Enter at least one duration.');
     if (!read.ok || items.length === 0) return null;
 
     const total = sumDurations(items);

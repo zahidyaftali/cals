@@ -80,3 +80,16 @@ test('number and money formatting', () => {
   assert.equal(hoursMinutes(480), '8 h');
   assert.equal(clockDuration(2310), '38:30');
 });
+
+test('typed numbers: thousands separators and decimal commas', async () => {
+  const { parseLocaleNumber } = await import('../ui/calculator.ts');
+  assert.equal(parseLocaleNumber('1,250.50'), '1250.50');
+  assert.equal(parseLocaleNumber('1,250'), '1250');
+  assert.equal(parseLocaleNumber('12,5'), '12.5');
+  assert.equal(parseLocaleNumber('2,75'), '2.75');
+  assert.equal(parseLocaleNumber('1.250,50'), '1250.50');
+  assert.equal(parseLocaleNumber(' $40 '), '40');
+  assert.equal(parseLocaleNumber('15%'), '15');
+  assert.equal(parseLocaleNumber('10,000'), '10000');
+  assert.equal(parseLocaleNumber(''), '');
+});

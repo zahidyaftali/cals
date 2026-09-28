@@ -1,4 +1,7 @@
+# robots.txt for infinitecalculators.com
+# All pages may be crawled. The internal search index is not a page.
 User-agent: *
 Allow: /
+Disallow: /search-index.json
 
-Sitemap: https://infinitecalculators.com/sitemap-index.xml
+Sitemap: https://infinitecalculators.com/sitemap.xml

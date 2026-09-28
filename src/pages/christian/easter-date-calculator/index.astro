@@ -181,6 +181,7 @@ const faqs = [
         table('range', body, years.indexOf(thisYear));
         return {
           announce: `Easter dates for ${years.length} years listed.`,
+          summary: `Easter dates for ${years[0]} to ${years[years.length - 1]} are in the table below.`,
           copy: body.map((r) => `${r[0]}: Western ${r[1]}, Orthodox ${r[2]}`).join('\n'),
         };
       }

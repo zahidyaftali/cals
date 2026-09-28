@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     q: 'How do I split a bill with a tip?',
-    a: 'Add the tip to the bill, then divide the total by the number of people. $84 with a 20% tip is $100.80, which is $50.40 each for two people. If the total doesn’t divide into equal cents, one or two people pay a cent more; choose "Round each person up" to make everyone’s share a whole dollar.',
+    a: 'Add the tip to the bill, then divide the total by the number of people. $84 with a 20% tip is $100.80, which is $50.40 each for two people. If the total doesn’t divide into equal cents, one or two people pay a cent more; choose "Each person’s share" under "Round up to a whole dollar" to make every share a whole dollar.',
   },
   {
     q: 'What is a quick way to work out a 20% tip?',
@@ -60,12 +60,12 @@ const faqs = [
     />
     <SelectField
       name="rounding"
-      label="Rounding"
+      label="Round up to a whole dollar"
       options={[
-        { value: 'none', label: 'No rounding (exact cents)' },
-        { value: 'tip', label: 'Round the tip up to a whole dollar' },
-        { value: 'total', label: 'Round the total up to a whole dollar' },
-        { value: 'person', label: 'Round each person up to a whole dollar' },
+        { value: 'none', label: 'No, keep exact cents' },
+        { value: 'tip', label: 'The tip' },
+        { value: 'total', label: 'The total' },
+        { value: 'person', label: 'Each person’s share' },
       ]}
       mode="percent"
     />

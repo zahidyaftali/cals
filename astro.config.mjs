@@ -1,8 +1,30 @@
 // @ts-check
+import { readFile, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { lastUpdatedFor } from './src/data/calculators.ts';
+import { pageUpdated } from './src/data/site.ts';
+
+/**
+ * @astrojs/sitemap writes sitemap-index.xml + sitemap-0.xml. The site has far
+ * fewer than 45,000 URLs, so there is only ever one chunk: publish it as the
+ * standard /sitemap.xml (which robots.txt points to) and drop the index.
+ */
+const singleSitemap = {
+  name: 'single-sitemap',
+  hooks: {
+    /** @param {{ dir: URL }} options */
+    'astro:build:done': async ({ dir }) => {
+      const chunk = new URL('sitemap-0.xml', dir);
+      if (!existsSync(chunk) || existsSync(new URL('sitemap-1.xml', dir))) return;
+      await writeFile(new URL('sitemap.xml', dir), await readFile(chunk, 'utf8'));
+      await rm(chunk);
+      await rm(new URL('sitemap-index.xml', dir), { force: true });
+    },
+  },
+};
 
 export default defineConfig({
   site: 'https://infinitecalculators.com',
@@ -35,11 +57,15 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) => !page.endsWith('/404/'),
+      // Plain <urlset>: no image, news, video or hreflang namespaces.
+      namespaces: { news: false, xhtml: false, image: false, video: false },
       serialize(item) {
-        const updated = lastUpdatedFor(new URL(item.url).pathname);
+        const path = new URL(item.url).pathname;
+        const updated = lastUpdatedFor(path) ?? pageUpdated(path);
         return updated ? { ...item, lastmod: updated } : item;
       },
     }),
+    singleSitemap,
   ],
   vite: {
     plugins: [tailwindcss()],

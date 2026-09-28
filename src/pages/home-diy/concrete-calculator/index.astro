@@ -1,5 +1,6 @@
 ---
 import CalcShell from '../../../components/calc/CalcShell.astro';
+import Diagram from '../../../components/calc/Diagram.astro';
 import Field from '../../../components/calc/Field.astro';
 import MeasureField from '../../../components/calc/MeasureField.astro';
 import SelectField from '../../../components/calc/SelectField.astro';
@@ -68,9 +69,11 @@ const faqs = [
       hint="For a wall, enter its height here and its thickness as the width."
       mode="slab"
     />
+    <Diagram name="slab" mode="slab" />
 
     <MeasureField name="diameter" label="Diameter" units={L} imperial="in" metric="cm" defaults={{ imperial: 12, metric: 30 }} mode="column" />
     <MeasureField name="height" label="Height or depth" units={L} imperial="ft" metric="m" defaults={{ imperial: 4, metric: 1.2 }} mode="column" />
+    <Diagram name="column" mode="column" />
 
     <MeasureField name="outer" label="Outer diameter" units={L} imperial="in" metric="cm" defaults={{ imperial: 24, metric: 60 }} mode="tube" />
     <MeasureField
@@ -84,6 +87,7 @@ const faqs = [
       mode="tube"
     />
     <MeasureField name="tube_height" label="Height or thickness" units={L} imperial="ft" metric="m" defaults={{ imperial: 4, metric: 1.2 }} mode="tube" />
+    <Diagram name="tube" mode="tube" />
 
     <Field name="steps" label="Number of steps" type="integer" value="3" size="auto" mode="stairs" />
     <MeasureField name="rise" label="Rise (height of each step)" units={L} imperial="in" metric="cm" defaults={{ imperial: 7, metric: 18 }} mode="stairs" />
@@ -99,6 +103,7 @@ const faqs = [
       hint="The depth of the top step or landing. Use the run if there is no landing."
       mode="stairs"
     />
+    <Diagram name="stairs" mode="stairs" />
 
     <MeasureField name="hole_diameter" label="Hole diameter" units={L} imperial="in" metric="cm" defaults={{ imperial: 10, metric: 25 }} mode="posthole" />
     <MeasureField name="hole_depth" label="Hole depth" units={L} imperial="in" metric="cm" defaults={{ imperial: 24, metric: 60 }} mode="posthole" />
@@ -122,6 +127,7 @@ const faqs = [
       hint="A 4×4 post is 3.5 in (89 mm) wide."
       mode="posthole"
     />
+    <Diagram name="posthole" mode="posthole" />
 
     <p class="calc-subhead">Amount and cost</p>
     <Field name="quantity" label="Quantity" type="integer" value="1" size="quarter" hint="Identical pieces or holes." />
@@ -368,6 +374,7 @@ const faqs = [
     ].join('\n');
     return {
       announce: `${f(r.cubicYards)} cubic yards, ${f(r.cubicMetres, 2)} cubic meters, or ${bagHint.count} ${bagHint.label} bags.`,
+      summary: `${f(r.cubicYards)} yd³ (${f(r.cubicFeet)} ft³, ${f(r.cubicMetres, 2)} m³) · ${bagHint.count} bags of ${bagHint.label}`,
       copy,
     };
   });

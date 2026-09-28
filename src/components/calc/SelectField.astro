@@ -9,7 +9,8 @@ interface Props {
   options: Option[];
   value?: string;
   hint?: string;
-  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  /** quarter-wide: full width on phones, half on tablets, a quarter on desktop. */
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter' | 'quarter-wide';
   mode?: string;
   /** For unit menus: the values the Imperial / Metric switch selects. */
   unitSystem?: { imperial: string; metric: string };

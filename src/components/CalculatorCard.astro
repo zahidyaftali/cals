@@ -17,8 +17,8 @@ const Root = live ? 'a' : 'div';
 <Root
   href={live ? calculatorUrl(c) : undefined}
   class:list={[
-    'group flex h-full flex-col rounded-xl border border-line bg-surface p-4 sm:p-5',
-    live && 'transition-[border-color,box-shadow] hover:border-line-strong hover:shadow-float active:bg-surface-2',
+    'soft-card group flex h-full flex-col p-4 sm:p-5',
+    live && 'soft-card-link',
   ]}
 >
   {

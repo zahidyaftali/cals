@@ -5,8 +5,9 @@
 import AdSlot from '../components/AdSlot.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import FAQ, { type FaqItem } from '../components/FAQ.astro';
+import Icon from '../components/Icon.astro';
 import RelatedCalculators from '../components/RelatedCalculators.astro';
-import { calculatorUrl, categoryUrl, getCalculator, getCategory } from '../data/calculators';
+import { calculatorsIn, calculatorUrl, categoryUrl, getCalculator, getCategory, popularCalculators } from '../data/calculators';
 import { formatDate, site } from '../data/site';
 import { breadcrumbSchema, faqSchema, webApplicationSchema, type Crumb } from '../lib/schema';
 import BaseLayout from './BaseLayout.astro';
@@ -34,6 +35,12 @@ const jsonLd = [
   faqSchema(faqs),
   breadcrumbSchema(crumbs, path),
 ];
+// Sidebar links (desktop): the rest of this category, then popular calculators
+// not already listed.
+const siblings = calculatorsIn(calc.category).filter((c) => c.slug !== calc.slug && c.status === 'live');
+const popular = popularCalculators
+  .filter((c) => c.slug !== calc.slug && c.status === 'live' && !siblings.includes(c))
+  .slice(0, 6);
 const reportHref = `mailto:${site.email}?subject=${encodeURIComponent(`Result check: ${calc.name}`)}&body=${encodeURIComponent(
   `Page: ${new URL(path, site.url).href}\n\nValues I entered:\n\nResult shown:\n\nResult I expected:\n`,
 )}`;
@@ -51,17 +58,57 @@ const reportHref = `mailto:${site.email}?subject=${encodeURIComponent(`Result ch
       <slot />
     </section>
 
-    <AdSlot unit="calculatorTop" format="banner" class="my-10" />
+    <AdSlot unit="calculatorTop" format="banner" class="mt-10 mb-0" />
 
-    <div class="prose mt-10 sm:mt-12">
-      <slot name="content" />
+    <div class="mt-10 grid gap-12 sm:mt-12 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:gap-14">
+      <div class="min-w-0">
+        <div class="prose">
+          <slot name="content" />
+        </div>
+        <div class="max-w-3xl">
+          <FAQ items={faqs} />
+        </div>
+      </div>
+
+      <aside class="hidden lg:block" aria-label="More calculators">
+        <div class="sticky top-6 space-y-5">
+          {
+            siblings.length > 0 && (
+              <nav class="soft-card p-5" aria-labelledby="side-category">
+                <h2 id="side-category" class="text-base tracking-[-0.01em]">
+                  More {category.name} calculators
+                </h2>
+                <ul class="mt-3 space-y-0.5">
+                  {siblings.map((c) => (
+                    <li>
+                      <a href={calculatorUrl(c)} class="side-link">
+                        <Icon name={c.category} size={16} class="shrink-0 text-accent-ink" />
+                        <span>{c.name}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )
+          }
+          <nav class="soft-card p-5" aria-labelledby="side-popular">
+            <h2 id="side-popular" class="text-base tracking-[-0.01em]">Popular calculators</h2>
+            <ul class="mt-3 space-y-0.5">
+              {popular.map((c) => (
+                <li>
+                  <a href={calculatorUrl(c)} class="side-link">
+                    <Icon name={c.category} size={16} class="shrink-0 text-accent-ink" />
+                    <span>{c.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </aside>
     </div>
 
-    <div class="max-w-3xl">
-      <FAQ items={faqs} />
-    </div>
-
-    <AdSlot unit="calculatorBottom" format="rectangle" class="my-10" />
+    <AdSlot unit="calculatorBottom" format="rectangle" class="mt-10 mb-0" />
 
     <RelatedCalculators calculator={calc} />
 

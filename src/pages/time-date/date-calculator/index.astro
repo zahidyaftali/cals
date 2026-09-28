@@ -219,7 +219,7 @@ const faqs = [
           ['Count the days from a known date (January 1, 1970, a Thursday)', `${formatNumber(daysBetween({ y: 1970, m: 1, d: 1 }, date), 0)} days`],
           ['The remainder after dividing by 7 gives the weekday', weekdayName(date)],
         ]);
-        return { announce: `${formatLong(date)}.`, copy: formatLong(date) };
+        return { announce: `${formatLong(date)}.`, summary: `${formatLong(date).replace(/^w+, /, '')} is a ${weekdayName(date)}`, copy: formatLong(date) };
       }
 
       const startISO = read.date('start', { label: 'a start date', min: '0001-01-01', max: '9999-12-31' });
@@ -276,6 +276,7 @@ const faqs = [
 
       return {
         announce: `${formatLong(r.date)}.`,
+        summary: `${change.length ? changeText : 'No change'} ${direction > 0 ? 'after' : 'before'} ${formatLong(start).replace(/^w+, /, '')}: ${formatLong(r.date)}`,
         copy: `${formatLong(start)} ${sign} ${changeText} = ${formatLong(r.date)}`,
       };
     },

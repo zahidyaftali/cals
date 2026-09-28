@@ -73,11 +73,11 @@ const gridClass = [
       }
     </ul>
 
-    <AdSlot unit="categoryList" format="banner" class="my-10" />
+    <AdSlot unit="categoryList" format="banner" class="mt-10 mb-0" />
 
     {
       rest.length > 0 && (
-        <ul class={gridClass}>
+        <ul class={`${gridClass} mt-10`}>
           {rest.map((calculator) => (
             <li>
               <CalculatorCard calculator={calculator} headingLevel="h2" />
@@ -86,6 +86,11 @@ const gridClass = [
         </ul>
       )
     }
+
+    <section aria-labelledby="about-category" class="prose mt-12">
+      <h2 id="about-category">About these {category.h1.toLowerCase()}</h2>
+      {category.about.map((p) => <p>{p}</p>)}
+    </section>
 
     <nav aria-labelledby="other-categories" class="mt-12 border-t border-line pt-8">
       <h2 id="other-categories" class="text-xl">Other categories</h2>

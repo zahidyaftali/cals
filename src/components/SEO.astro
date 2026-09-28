@@ -30,7 +30,16 @@ const graph = jsonLd.length
 
 <title>{title}</title>
 <meta name="description" content={description} />
-{noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+{
+  noindex ? (
+    <meta name="robots" content="noindex, follow" />
+  ) : (
+    <>
+      <link rel="canonical" href={canonical} />
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    </>
+  )
+}
 
 <meta property="og:site_name" content={site.name} />
 <meta property="og:type" content={ogType} />

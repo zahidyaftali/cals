@@ -162,10 +162,18 @@ for (const file of files) {
   }
 }
 
-// Sitemap must not list noindex pages
-const sitemap = existsSync(path.join(dist, 'sitemap-0.xml')) ? readFileSync(path.join(dist, 'sitemap-0.xml'), 'utf8') : '';
-if (!sitemap) errors.push('sitemap-0.xml missing');
+// sitemap.xml must exist, list every indexable page and nothing else, and robots.txt must point to it
+const sitemapPath = path.join(dist, 'sitemap.xml');
+const sitemap = existsSync(sitemapPath) ? readFileSync(sitemapPath, 'utf8') : '';
+if (!sitemap) errors.push('sitemap.xml missing');
 if (sitemap.includes('/404')) errors.push('sitemap lists the 404 page');
+const listed = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+for (const [, pagePath] of titles) {
+  if (!listed.has(`${SITE}${pagePath}`)) errors.push(`${pagePath}: not in sitemap.xml`);
+}
+if (listed.size !== titles.size) errors.push(`sitemap.xml lists ${listed.size} URLs but there are ${titles.size} indexable pages`);
+const robots = existsSync(path.join(dist, 'robots.txt')) ? readFileSync(path.join(dist, 'robots.txt'), 'utf8') : '';
+if (!robots.includes(`Sitemap: ${SITE}/sitemap.xml`)) errors.push('robots.txt does not point to /sitemap.xml');
 
 if (process.argv.includes('--words')) for (const w of wordCounts) console.log(`words ${w}`);
 for (const note of notes) console.log(`note  ${note}`);

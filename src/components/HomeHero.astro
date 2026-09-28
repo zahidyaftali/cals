@@ -1,0 +1,111 @@
+---
+// Homepage hero: text and actions on the left; on the right, three example
+// results from real calculators, each linking to its calculator. Every number
+// shown is what that calculator returns for the stated inputs:
+//   Concrete: 10 × 10 ft slab, 4 in thick, +10% waste = 1.36 yd³; bags
+//             40 lb 123, 50 lb 98, 60 lb 82, 80 lb 62.
+//   Tip:      20% of $84.00 = $16.80; $100.80 total, $50.40 each for 2.
+//   Zakat:    $10,000 cash + 20 g of 22k gold at $100/g − $1,000 debts
+//             = $10,833.33 net; 2.5% = $270.83.
+import Icon from './Icon.astro';
+import { calculators } from '../data/calculators';
+
+const count = calculators.filter((c) => c.status === 'live').length;
+const bags = [
+  { label: '40 lb', count: 123 },
+  { label: '50 lb', count: 98 },
+  { label: '60 lb', count: 82 },
+  { label: '80 lb', count: 62 },
+];
+const maxBags = Math.max(...bags.map((b) => b.count));
+---
+
+<section class="hero">
+  <div class="wrap grid items-center gap-10 pt-10 pb-12 sm:pt-14 lg:grid-cols-[1.25fr_1fr] lg:gap-12 lg:pt-16 lg:pb-16">
+    <div>
+      <p class="hero-eyebrow">
+        <span class="hero-dot" aria-hidden="true"></span>
+        {count} free calculators, no sign-up
+      </p>
+      <h1 class="hero-title">
+        Free online calculators.
+        <span class="block text-accent-ink">Answers with the working shown.</span>
+      </h1>
+      <p class="mt-5 max-w-lg text-[1.0625rem] text-muted sm:text-lg">
+        Time cards, concrete, tips, sales tax, grades, zakat and more. Instant results on any device, with every step
+        of the calculation laid out so you can check it.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+        <a href="#categories" class="btn hero-cta">
+          Browse calculators
+          <Icon name="arrow-right" size={18} />
+        </a>
+        <a href="#popular" class="hero-link">
+          Popular calculators
+          <Icon name="arrow-right" size={16} />
+        </a>
+      </div>
+      <ul class="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted">
+        {
+          ['Free to use', 'No account needed', 'Runs in your browser'].map((t) => (
+            <li class="flex items-center gap-1.5">
+              <span class="flex size-4 items-center justify-center rounded-full bg-accent text-on-accent">
+                <svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true">
+                  <path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              {t}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="hero-visual">
+      <a href="/home-diy/concrete-calculator/" class="hero-main" aria-label="Concrete Calculator example: 1.36 cubic yards for a 10 by 10 foot slab">
+        <div class="flex flex-wrap gap-1.5" aria-hidden="true">
+          <span class="hero-chip is-active">Slab</span>
+          <span class="hero-chip">Column</span>
+          <span class="hero-chip">Stairs</span>
+        </div>
+        <p class="mt-4 text-sm text-muted">Concrete needed</p>
+        <p class="text-[2rem] leading-tight font-semibold tracking-tight">1.36 yd³</p>
+        <p class="text-[0.8125rem] text-muted">10 × 10 ft slab, 4 in thick, +10% waste</p>
+        <div class="hero-bars" aria-hidden="true">
+          {
+            bags.map((b) => (
+              <div class="hero-bar">
+                <span class="hero-bar-value">{b.count}</span>
+                <span class="hero-bar-track">
+                  <span class="hero-bar-fill" style={`height:${Math.round((b.count / maxBags) * 100)}%`}></span>
+                </span>
+                <span class="hero-bar-label">{b.label}</span>
+              </div>
+            ))
+          }
+        </div>
+        <p class="mt-1 text-center text-xs text-muted" aria-hidden="true">Bags needed by size</p>
+      </a>
+
+      <a href="/money/tip-calculator/" class="hero-float hero-float-top" aria-label="Tip Calculator example: a 20% tip on $84 is $16.80">
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-ink">
+          <Icon name="money" size={18} />
+        </span>
+        <span class="min-w-0">
+          <span class="block text-xs text-muted">20% tip on $84.00</span>
+          <span class="block font-semibold">$16.80 · $50.40 each</span>
+        </span>
+      </a>
+
+      <a href="/islamic/zakat-calculator/" class="hero-float hero-float-bottom" aria-label="Zakat Calculator example: zakat due is $270.83">
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-ink">
+          <Icon name="islamic" size={18} />
+        </span>
+        <span class="min-w-0">
+          <span class="block text-xs text-muted">Zakat due at 2.5%</span>
+          <span class="block font-semibold">$270.83</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>

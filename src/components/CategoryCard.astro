@@ -14,7 +14,7 @@ const count = calculatorsIn(category.slug).length;
 <a
   href={categoryUrl(category.slug)}
   class:list={[
-    'flex h-full items-center gap-2.5 rounded-xl border border-line bg-surface p-3 transition-[border-color,box-shadow] hover:border-line-strong hover:shadow-float active:bg-surface-2',
+    'soft-card soft-card-link flex h-full items-center gap-2.5 p-3',
     stacked ? 'sm:flex-col sm:items-start sm:gap-3 sm:p-4' : 'sm:gap-3 sm:p-3.5',
   ]}
 >

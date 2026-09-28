@@ -63,16 +63,16 @@ const faqs = [
     </div>
 
     <p class="calc-subhead">Pay and rounding (optional)</p>
-    <Field name="rate" label="Hourly rate" prefix="$" placeholder="e.g. 20" size="quarter" />
+    <Field name="rate" label="Hourly rate" prefix="$" placeholder="e.g. 20" size="quarter-wide" />
     <SelectField
       name="rounding"
       label="Round clock times"
-      size="quarter"
+      size="quarter-wide"
       options={[
         { value: '1', label: 'No rounding' },
-        { value: '5', label: 'Nearest 5 minutes' },
-        { value: '6', label: 'Nearest 6 minutes (0.1 h)' },
-        { value: '15', label: 'Nearest 15 minutes' },
+        { value: '5', label: 'Nearest 5 min' },
+        { value: '6', label: 'Nearest 6 min (0.1 h)' },
+        { value: '15', label: 'Nearest 15 min' },
       ]}
     />
     <Field name="ot_after" label="Overtime after" type="number" value="40" suffix="h/week" size="quarter" />
@@ -178,7 +178,7 @@ const faqs = [
 <script>
   import { roundClock, shift, week } from '../../../scripts/calculators/hours';
   import { barRows } from '../../../scripts/ui/chart';
-  import { out, setupCalculator, steps, table, type Step } from '../../../scripts/ui/calculator';
+  import { out, setFieldError, setupCalculator, steps, table, type Step } from '../../../scripts/ui/calculator';
   import { clockDuration, formatMoney, formatNumber, hoursMinutes } from '../../../scripts/lib/format';
 
   const DAYS = [
@@ -211,7 +211,12 @@ const faqs = [
       const hasStart = startEl.value !== '';
       const hasEnd = endEl.value !== '';
       out(`${key}-total`, '');
-      if (!hasStart && !hasEnd) continue;
+      if (!hasStart && !hasEnd) {
+        // A day off: clear any earlier message on this row.
+        setFieldError(startEl, '');
+        setFieldError(endEl, '');
+        continue;
+      }
 
       const start = read.time(`${key}_start`, { label: `a start time for ${name}` });
       const end = read.time(`${key}_end`, { label: `an end time for ${name}` });
@@ -248,6 +253,7 @@ const faqs = [
     const overtime = read.checked('overtime');
     const threshold = read.number('ot_after', { label: 'the overtime threshold', min: 0, max: 168, optional: !overtime }) ?? 40;
     const multiplier = read.number('ot_rate', { label: 'the overtime rate', min: 1, max: 5, optional: !overtime }) ?? 1.5;
+    if (read.ok && worked.length === 0 && read.isStrict) read.fail('mon_start', 'Enter times for at least one day.');
     if (!read.ok || worked.length === 0) return null;
 
     const w = week(worked, { rate: rate ?? undefined, overtime, thresholdHours: threshold, multiplier });

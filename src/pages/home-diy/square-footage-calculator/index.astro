@@ -1,5 +1,6 @@
 ---
 import CalcShell from '../../../components/calc/CalcShell.astro';
+import Diagram from '../../../components/calc/Diagram.astro';
 import Field from '../../../components/calc/Field.astro';
 import MeasureField from '../../../components/calc/MeasureField.astro';
 import SelectField from '../../../components/calc/SelectField.astro';
@@ -10,7 +11,7 @@ import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
 
 const MAX_AREAS = 10;
 const shapes = [
-  { value: 'rectangle', label: 'Rectangle or square' },
+  { value: 'rectangle', label: 'Rectangle' },
   { value: 'lshape', label: 'L-shape' },
   { value: 'triangle', label: 'Triangle' },
   { value: 'circle', label: 'Circle' },
@@ -18,12 +19,12 @@ const shapes = [
   { value: 'trapezoid', label: 'Trapezoid' },
 ];
 const units = [
-  { value: 'ft', label: 'Feet (ft)' },
-  { value: 'in', label: 'Inches (in)' },
-  { value: 'yd', label: 'Yards (yd)' },
-  { value: 'm', label: 'Meters (m)' },
-  { value: 'cm', label: 'Centimeters (cm)' },
-  { value: 'mm', label: 'Millimeters (mm)' },
+  { value: 'ft', label: 'ft' },
+  { value: 'in', label: 'in' },
+  { value: 'yd', label: 'yd' },
+  { value: 'm', label: 'm' },
+  { value: 'cm', label: 'cm' },
+  { value: 'mm', label: 'mm' },
 ];
 
 const faqs = [
@@ -84,6 +85,7 @@ const faqs = [
             <Field name={`a${i}_b`} label="Width" srPrefix={`Area ${i + 1}`} defaults={i === 0 ? { imperial: 15, metric: 5 } : undefined} />
             <Field name={`a${i}_c`} label="Cut-out length" srPrefix={`Area ${i + 1}`} />
             <Field name={`a${i}_d`} label="Cut-out width" srPrefix={`Area ${i + 1}`} />
+            <figure class="calc-diagram f-full" data-diagram-slot></figure>
           </div>
         ))
       }
@@ -91,6 +93,7 @@ const faqs = [
     <div class="f-full">
       <button type="button" class="btn btn-outline" data-add-area>+ Add another area</button>
     </div>
+    {shapes.map((s) => <Diagram name={s.value as 'rectangle'} template />)}
 
     <p class="calc-subhead">Waste and cost (optional)</p>
     <Field name="waste" label="Extra for waste" type="number" value="0" suffix="%" hint="Try 10% for flooring, 15% for diagonal layouts." />
@@ -260,6 +263,14 @@ const faqs = [
         const shape = read.choice(`a${i}_shape`) as AreaShape;
         const unit = read.choice(`a${i}_unit`) as LengthUnit;
         const labels = LABELS[shape];
+
+        // Show the diagram for this shape.
+        const slot = el.querySelector<HTMLElement>('[data-diagram-slot]');
+        if (slot && slot.dataset.shape !== shape) {
+          const tpl = document.querySelector<HTMLTemplateElement>(`template[data-diagram="${shape}"]`);
+          if (tpl) slot.replaceChildren(tpl.content.cloneNode(true));
+          slot.dataset.shape = shape;
+        }
 
         // Relabel and show only the measurements this shape needs.
         ['a', 'b', 'c', 'd'].forEach((key, k) => {

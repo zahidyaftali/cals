@@ -12,7 +12,7 @@ interface Props {
   emptyMessage?: string;
   resultTitle?: string;
 }
-const { name, emptyMessage = 'Fill in the fields above to see the result.', resultTitle = 'Results' } = Astro.props;
+const { name, emptyMessage = 'Enter your numbers to see the answer.', resultTitle = 'Results' } = Astro.props;
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const reportHref = `mailto:${site.email}?subject=${encodeURIComponent(`Result check: ${name}`)}&body=${encodeURIComponent(
   `Page: ${pageUrl}\n\nValues I entered:\n\nResult shown:\n\nResult I expected:\n`,
@@ -35,6 +35,11 @@ const hasTop = Astro.slots.has('top');
     <div class="calc-actions">
       <button type="submit" class="btn btn-primary">Calculate</button>
       <button type="reset" class="btn btn-outline">Reset</button>
+      <div class="calc-answer" data-answer data-state="empty">
+        <span class="calc-answer-label">Answer</span>
+        <span class="calc-answer-text" data-answer-text>{emptyMessage}</span>
+        <a href="#result-title" class="calc-answer-link">Full results ↓</a>
+      </div>
     </div>
   </form>
 
@@ -43,6 +48,7 @@ const hasTop = Astro.slots.has('top');
       <h2 id="result-title">{resultTitle}</h2>
       <button type="button" class="btn btn-outline btn-sm" data-copy disabled>Copy result</button>
     </div>
+    <p class="result-stale">This is the result for your previous entries. Finish entering your numbers to update it.</p>
     <p class="result-empty" data-empty>{emptyMessage}</p>
     <div class="result-body" data-output>
       <slot name="result" />

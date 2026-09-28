@@ -14,7 +14,8 @@ interface Props {
   min?: string;
   max?: string;
   step?: string | number;
-  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  /** quarter-wide: full width on phones, half on tablets, a quarter on desktop. */
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter' | 'quarter-wide';
   /** Show only in these modes (space-separated). */
   mode?: string;
   /** Adds a "Today" button that fills in today's date. */

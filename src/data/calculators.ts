@@ -27,6 +27,8 @@ export interface Category {
   metaDescription: string;
   /** One or two sentences shown under the H1 and on the homepage. */
   intro: string;
+  /** Paragraphs shown below the calculators on the category page. */
+  about: string[];
 }
 
 export interface Calculator {
@@ -66,6 +68,10 @@ export const categories: Category[] = [
       'Free time and date calculators: total the hours on a time card, find the time between two times, count the days between dates, and add days to a date.',
     intro:
       'Total the hours on a time card, measure the time between two moments, and count or add days on the calendar.',
+    about: [
+      'These calculators handle the everyday arithmetic of clocks and calendars: how many hours are on a time card, how long a shift or a trip lasts, how many days are left until a deadline, and what date falls a set number of days, weeks or months from now.',
+      'They count whole calendar days and clock times, so leap years are handled correctly and daylight saving changes never move a date. Durations are shown both as hours and minutes and as decimal hours, because payroll and timesheet systems usually ask for the decimal figure.',
+    ],
   },
   {
     slug: 'home-diy',
@@ -76,6 +82,10 @@ export const categories: Category[] = [
       'Free home and DIY calculators for concrete, square footage and paint. Enter your measurements in feet or meters and see how much material to buy.',
     intro:
       'Measure a room, a slab or a wall and find out how much concrete, flooring or paint to buy before you head to the store.',
+    about: [
+      'These calculators turn tape-measure numbers into the quantities you actually buy: cubic yards and bags of concrete, square feet of flooring or turf, and gallons or liters of paint.',
+      'Every measurement has its own unit menu, so you can enter feet, inches, yards, meters or centimeters just as they come off your tape. Results include a waste allowance where it matters, and bag and can counts are rounded up to whole units you can buy.',
+    ],
   },
   {
     slug: 'money',
@@ -85,6 +95,10 @@ export const categories: Category[] = [
     metaDescription:
       'Free money calculators for everyday spending: work out a tip and split the bill, find a sale price after a discount, and add US state sales tax.',
     intro: 'Quick answers at the checkout and the restaurant table: tips, discounts and sales tax.',
+    about: [
+      'Quick answers for everyday spending: the tip and each person’s share of a bill, the real price after a discount (including two discounts stacked together), and the sales tax on a purchase in any US state.',
+      'Amounts are worked out in whole cents, the way a register does. Sales tax uses the state rates and average local rates published by the Tax Foundation, with the date they were last checked shown on the page.',
+    ],
   },
   {
     slug: 'school',
@@ -94,6 +108,10 @@ export const categories: Category[] = [
     metaDescription:
       'Free school and grade calculators for students. Find the score you need on your final exam to get the course grade you want, with the formula shown.',
     intro: 'Work out the scores you need and see exactly how your grade is put together.',
+    about: [
+      'Work out exactly what you need on a final exam to reach the grade you want, or see what a given final score will do to your course grade, using the same weighted-average formula teachers use.',
+      'The final grade calculator also lists the score needed for each letter grade and draws your course grade for every possible final score, so you can see how much the final can move your grade.',
+    ],
   },
   {
     slug: 'islamic',
@@ -104,6 +122,10 @@ export const categories: Category[] = [
       'Free Islamic calculators: work out the zakat due on your wealth with the gold or silver nisab, and convert dates between Hijri and Gregorian calendars.',
     intro:
       'Calculate zakat and convert Hijri dates, with the method used stated clearly on every page.',
+    about: [
+      'Calculate zakat on your savings, gold, silver and investments with the gold or silver nisab, and convert dates between the Gregorian and Hijri calendars using the Umm al-Qura calendar.',
+      'Each page states the method it follows and notes where scholars or local practice differ, such as the choice of nisab or the start of a month by moon sighting. The results are a guide; for your own zakat, please consult a qualified scholar.',
+    ],
   },
   {
     slug: 'christian',
@@ -113,6 +135,10 @@ export const categories: Category[] = [
     metaDescription:
       'Free Christian calendar calculators. Find the date of Easter Sunday in any year for both the Western and Orthodox churches, with the method explained.',
     intro: 'Find the dates of Easter and other moveable feasts for Western and Orthodox churches.',
+    about: [
+      'Find the date of Easter for any year from 1583, for Western churches (Catholic and Protestant) and for Orthodox churches, together with the days that move with it, such as Ash Wednesday, Good Friday, Ascension and Pentecost.',
+      'Dates are calculated with the standard church methods: the Gregorian computus for Western Easter, and the Julian computus for Orthodox Easter converted to the modern calendar. Every step of the calculation is shown.',
+    ],
   },
   {
     slug: 'cultural',
@@ -122,6 +148,10 @@ export const categories: Category[] = [
     metaDescription:
       'Free calculators for religious and cultural calendars, starting with a Chinese zodiac calculator that uses your full birth date and the Lunar New Year.',
     intro: 'Calendars and traditions from other faiths and cultures, starting with the Chinese zodiac.',
+    about: [
+      'Find a Chinese zodiac sign from a full date of birth, with the Lunar New Year boundary taken into account, so January and February birthdays get the right animal.',
+      'Lunar New Year dates come from the official tables published by the Hong Kong Observatory for 1901 to 2100. The page also lists the twelve animals with their recent years and the Lunar New Year dates for recent years.',
+    ],
   },
 ];
 

@@ -58,8 +58,8 @@ const faqs = [
 
     <Field name="gdate" label="Gregorian date" type="date" value="2026-09-28" min="1882-11-12" max="2174-11-25" today mode="g2h" />
 
+    <SelectField name="hmonth" label="Month" options={monthOptions} value="9" size="quarter-wide" mode="h2g" />
     <Field name="hday" label="Day" type="integer" value="1" size="quarter" mode="h2g" />
-    <SelectField name="hmonth" label="Month" options={monthOptions} value="9" size="quarter" mode="h2g" />
     <Field name="hyear" label="Year (AH)" type="integer" value="1448" size="quarter" mode="h2g" />
 
     <Field name="kyear" label="Hijri year (AH)" type="integer" value="1448" mode="year" hint="Between 1300 and 1600." />
@@ -259,8 +259,11 @@ const faqs = [
         ['Each occasion has a fixed Hijri date', 'For example, Eid al-Fitr is always 1 Shawwal'],
         ['Look up each Hijri date in the Umm al-Qura calendar', `${year} AH runs from ${list[0].gregorian ? formatLong(list[0].gregorian) : '?'}`],
       ]);
+      const ramadan = list.find((k) => k.hijri.month === 9)?.gregorian;
+      const fitr = list.find((k) => k.hijri.month === 10)?.gregorian;
       return {
         announce: `Key dates for ${year} AH listed.`,
+        summary: ramadan && fitr ? `${year} AH: Ramadan begins ${formatLong(ramadan)}; Eid al-Fitr ${formatLong(fitr)}` : `Key dates for ${year} AH`,
         copy: list.map((k) => `${k.name}: ${k.gregorian ? formatLong(k.gregorian) : '–'}`).join('\n'),
       };
     },

@@ -10,6 +10,8 @@ export interface CalcOutput {
   announce: string;
   /** Plain text for the Copy result button. */
   copy: string;
+  /** Short answer shown next to the Calculate button (defaults to `announce`). */
+  summary?: string;
 }
 
 type Update = (read: Reader) => CalcOutput | null;
@@ -27,6 +29,22 @@ interface NumberRules {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+/**
+ * Normalises what people type into a plain number string:
+ *   "1,250.50" → "1250.50"   (comma thousands separator)
+ *   "12,5" / "2,75" → "12.5" / "2.75"   (decimal comma: 1–2 digits after it)
+ *   "1.250,50" → "1250.50"   (European style)
+ *   "$40", "15%", " 7 " → "40", "15", "7"
+ * "1,250" (three digits after the comma) stays one thousand two hundred and fifty.
+ */
+export function parseLocaleNumber(value: string): string {
+  let raw = value.trim().replace(/\s/g, '').replace(/^[$£€]/, '').replace(/%$/, '');
+  if (/^-?\d{1,3}(\.\d{3})+,\d+$/.test(raw)) raw = raw.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d+,\d{1,2}$/.test(raw)) raw = raw.replace(',', '.');
+  else raw = raw.replace(/,/g, '');
+  return raw;
+}
+
 export function setFieldError(input: HTMLElement, message: string) {
   const el = document.getElementById(`${input.id}-error`);
   if (el) {
@@ -40,12 +58,14 @@ export function setFieldError(input: HTMLElement, message: string) {
 /** Reads and validates form values, collecting problems as it goes. */
 export class Reader {
   private problems = 0;
+  readonly form: HTMLFormElement;
+  /** Strict mode (Calculate pressed) also flags empty required fields. */
+  private strict: boolean;
 
-  constructor(
-    readonly form: HTMLFormElement,
-    /** Strict mode (Calculate pressed) also flags empty required fields. */
-    private strict: boolean,
-  ) {}
+  constructor(form: HTMLFormElement, strict: boolean) {
+    this.form = form;
+    this.strict = strict;
+  }
 
   get ok() {
     return this.problems === 0;
@@ -79,10 +99,10 @@ export class Reader {
     return null;
   }
 
-  /** Accepts "1,250.50", "$40" or " 12 ". Returns null if empty (optional) or invalid. */
+  /** Accepts "1,250.50", "$40", " 12 " or a decimal comma ("12,5"). Returns null if empty (optional) or invalid. */
   number(name: string, rules: NumberRules): number | null {
     const el = this.input(name);
-    const raw = el.value.trim().replace(/[,\s]/g, '').replace(/^[$£€]/, '').replace(/%$/, '');
+    const raw = parseLocaleNumber(el.value);
     if (raw === '') return this.missing(el, rules.label, rules.optional);
 
     const n = Number(raw);
@@ -338,8 +358,16 @@ export function setupCalculator(update: Update, options: SetupOptions = {}) {
   const announcer = panel?.querySelector<HTMLElement>('[data-announce]');
   const unitRadios = [...form.querySelectorAll<HTMLInputElement>('input[name="units"]')];
 
+  const answer = form.querySelector<HTMLElement>('[data-answer]');
+  const answerText = answer?.querySelector<HTMLElement>('[data-answer-text]');
+  const emptyAnswer = answerText?.textContent ?? '';
+
   let last: CalcOutput | null = null;
+  // The mode the last good result was calculated in. A kept (stale) result is
+  // only shown while the visitor stays in the same mode.
+  let lastMode: string | undefined;
   let announceTimer: number | undefined;
+  const currentMode = () => form.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ?? '';
 
   function syncPresets() {
     for (const button of form!.querySelectorAll<HTMLButtonElement>('[data-set]')) {
@@ -360,9 +388,33 @@ export function setupCalculator(update: Update, options: SetupOptions = {}) {
       result = null;
     }
     if (!reader.ok) result = null;
-    last = result;
-    if (panel) panel.dataset.state = result ? 'ok' : 'empty';
-    if (copyButton) copyButton.disabled = !result;
+
+    // While someone is part-way through editing (a field emptied or not yet
+    // valid), keep the previous result on screen, dimmed, instead of making the
+    // results collapse and the page jump.
+    const mode = currentMode();
+    let state: 'ok' | 'stale' | 'empty';
+    if (result) {
+      last = result;
+      lastMode = mode;
+      state = 'ok';
+    } else if (last && lastMode === mode) {
+      state = 'stale';
+    } else {
+      last = null;
+      state = 'empty';
+    }
+    if (panel) panel.dataset.state = state;
+    if (copyButton) copyButton.disabled = state !== 'ok';
+    if (answer && answerText) {
+      answer.dataset.state = state;
+      answerText.textContent =
+        state === 'ok'
+          ? (result!.summary ?? result!.announce)
+          : state === 'stale'
+            ? 'Finish entering your numbers to update the answer.'
+            : emptyAnswer;
+    }
 
     window.clearTimeout(announceTimer);
     if (announcer && result) {
@@ -407,12 +459,11 @@ export function setupCalculator(update: Update, options: SetupOptions = {}) {
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
-  let scheduled = false;
+  let frame = 0;
   const schedule = () => {
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
       run(false);
     });
   };
@@ -421,6 +472,9 @@ export function setupCalculator(update: Update, options: SetupOptions = {}) {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    // A queued live update would run after this and clear the messages below.
+    cancelAnimationFrame(frame);
+    frame = 0;
     const result = run(true);
     if (!result) {
       form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();

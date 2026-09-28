@@ -2,8 +2,9 @@
 import AdSlot from '../components/AdSlot.astro';
 import CalculatorCard from '../components/CalculatorCard.astro';
 import CategoryCard from '../components/CategoryCard.astro';
+import HomeHero from '../components/HomeHero.astro';
 import SiteSearch from '../components/SiteSearch.astro';
-import { categories, popularCalculators } from '../data/calculators';
+import { calculatorUrl, calculatorsIn, categories, categoryUrl, popularCalculators } from '../data/calculators';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { organizationSchema, websiteSchema } from '../lib/schema';
 
@@ -12,25 +13,17 @@ const description =
   'Free online calculators for time cards, dates, concrete, paint, tips, sales tax, grades, zakat and Easter. Instant answers in your browser, no sign-up.';
 ---
 
-<BaseLayout
-  title={title}
-  description={description}
-  jsonLd={[organizationSchema(), websiteSchema()]}
->
-  <div class="wrap">
-    <section class="max-w-2xl pt-8 sm:pt-14">
-      <h1 class="text-[2rem] leading-tight sm:text-[2.75rem]">Free online calculators</h1>
-      <p class="mt-3 text-[1.0625rem] text-muted sm:text-lg">
-        Time cards, dates, home projects, money, grades and religious calendars. Every calculator explains
-        its formula and works through an example.
-      </p>
-      <div class="mt-6">
-        <SiteSearch id="home-search" label="Search all calculators" size="lg" />
-      </div>
-    </section>
+<BaseLayout title={title} description={description} jsonLd={[organizationSchema(), websiteSchema()]}>
+  <HomeHero />
 
-    <section aria-labelledby="categories-title" class="mt-12 sm:mt-14">
-      <h2 id="categories-title" class="text-xl sm:text-2xl">Browse by category</h2>
+  <div class="wrap">
+    <section id="categories" aria-labelledby="categories-title" class="scroll-mt-6 pt-4">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <h2 id="categories-title" class="text-xl sm:text-2xl">Browse by category</h2>
+        <div class="w-full sm:max-w-xs">
+          <SiteSearch id="home-search" label="Search all calculators" />
+        </div>
+      </div>
       <ul
         class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7 [&>li:last-child:nth-child(odd)]:col-span-2 sm:[&>li:last-child:nth-child(odd)]:col-span-1"
       >
@@ -46,7 +39,7 @@ const description =
 
     <AdSlot unit="homeTop" format="banner" class="mt-12 mb-0" />
 
-    <section aria-labelledby="popular-title" class="mt-12 sm:mt-14">
+    <section id="popular" aria-labelledby="popular-title" class="mt-14 scroll-mt-6 sm:mt-16">
       <h2 id="popular-title" class="text-xl sm:text-2xl">Popular calculators</h2>
       <ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {
@@ -61,18 +54,43 @@ const description =
 
     <AdSlot unit="homeBottom" format="rectangle" class="mt-12 mb-0" />
 
+    <section aria-labelledby="all-title" class="mt-14 sm:mt-16">
+      <h2 id="all-title" class="text-xl sm:text-2xl">All calculators</h2>
+      <div class="mt-5 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          categories.map((category) => (
+            <div>
+              <h3 class="text-[0.9375rem] tracking-normal">
+                <a href={categoryUrl(category.slug)} class="hover:text-accent-ink">
+                  {category.name}
+                </a>
+              </h3>
+              <ul class="mt-2 space-y-1">
+                {calculatorsIn(category.slug).map((c) => (
+                  <li>
+                    <a href={calculatorUrl(c)} class="inline-block py-1 text-[0.9375rem] text-muted hover:text-ink">
+                      {c.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
     <section class="mt-14 grid gap-4 border-t border-line pt-10 sm:mt-16 lg:grid-cols-[1fr_2fr] lg:gap-8" aria-labelledby="about-site">
       <h2 id="about-site" class="text-xl sm:text-2xl">About these calculators</h2>
       <div class="prose max-w-2xl">
         <p>
-          Every calculator here runs in your browser. The numbers you type stay on your device, and nothing
-          needs an account.
+          Every calculator here runs in your browser. The numbers you type stay on your device, and nothing needs an
+          account.
         </p>
         <p>
-          Each page explains the formula in plain English, works through an example with real numbers, and
-          answers the questions people most often ask about it. Where a result depends on a method or a local
-          rule, such as the nisab standard for zakat, moon sighting for Hijri dates, or city and county sales
-          tax, the page says so.
+          Each page explains the formula in plain English, works through an example with real numbers, and answers the
+          questions people most often ask about it. Where a result depends on a method or a local rule, such as the nisab
+          standard for zakat, moon sighting for Hijri dates, or city and county sales tax, the page says so.
         </p>
         <p>
           <a href="/about/">How we build and check our calculators</a>

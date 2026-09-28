@@ -1,5 +1,6 @@
 ---
 import CalcShell from '../../../components/calc/CalcShell.astro';
+import Diagram from '../../../components/calc/Diagram.astro';
 import Checkbox from '../../../components/calc/Checkbox.astro';
 import Field from '../../../components/calc/Field.astro';
 import Stat from '../../../components/calc/Stat.astro';
@@ -57,10 +58,11 @@ const faqs = [
     <Field name="width" label="Room width" unitLabels={ft} defaults={{ imperial: 10, metric: 3 }} mode="room" />
     <Field name="height" label="Wall height" unitLabels={ft} defaults={{ imperial: 8, metric: 2.4 }} mode="room" />
     <Field name="doors" label="Doors" type="integer" value="1" size="quarter" mode="room" />
-    <Field name="door_area" label="Area of one door" unitLabels={sq} defaults={{ imperial: 20, metric: 1.9 }} size="quarter" mode="room" />
+    <Field name="door_area" label="Area per door" unitLabels={sq} defaults={{ imperial: 20, metric: 1.9 }} size="quarter" mode="room" />
     <Field name="windows" label="Windows" type="integer" value="2" size="quarter" mode="room" />
-    <Field name="window_area" label="Area of one window" unitLabels={sq} defaults={{ imperial: 15, metric: 1.4 }} size="quarter" mode="room" />
+    <Field name="window_area" label="Area per window" unitLabels={sq} defaults={{ imperial: 15, metric: 1.4 }} size="quarter" mode="room" />
     <Checkbox name="ceiling" label="Also paint the ceiling" mode="room" />
+    <Diagram name="room" mode="room" />
 
     <Field name="area" label="Area to paint" unitLabels={sq} defaults={{ imperial: 400, metric: 37 }} hint="Width × height of each wall, added together, minus doors and windows." mode="area" />
 
@@ -69,13 +71,13 @@ const faqs = [
     <Field
       name="coverage"
       label="Coverage per coat"
-      unitLabels={{ imperial: 'ft² per gal', metric: 'm² per L' }}
+      unitLabels={{ imperial: 'ft²/gal', metric: 'm²/L' }}
       defaults={{ imperial: 350, metric: 10 }}
       hint="Printed on the can."
       size="quarter"
     />
-    <Field name="price" label="Price per can (optional)" prefix="$" unitLabels={{ imperial: 'per gal', metric: 'per L' }} size="quarter" />
-    <Checkbox name="primer" label="Add a primer coat" hint="One coat over the same area, at the same coverage." size="quarter" />
+    <Field name="price" label="Price (optional)" prefix="$" unitLabels={{ imperial: 'per gal', metric: 'per L' }} size="quarter-wide" />
+    <Checkbox name="primer" label="Add a primer coat" hint="One coat over the same area, at the same coverage." size="quarter-wide" />
 
     <Fragment slot="result">
       <div class="stats">

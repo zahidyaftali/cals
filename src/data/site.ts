@@ -33,6 +33,24 @@ export const site = {
   },
 } as const;
 
+/**
+ * Last content update of the site pages (for the sitemap's <lastmod>).
+ * Update the date here when you edit one of these pages.
+ */
+const PAGE_UPDATED: Record<string, string> = {
+  '/about/': '2026-09-28',
+  '/editorial-policy/': '2026-09-28',
+  '/contact/': '2026-09-28',
+  '/privacy-policy/': '2026-09-28',
+  '/terms/': '2026-09-28',
+  '/disclaimer/': '2026-09-28',
+};
+
+export function pageUpdated(pathname: string): Date | undefined {
+  const iso = PAGE_UPDATED[pathname];
+  return iso ? new Date(`${iso}T00:00:00Z`) : undefined;
+}
+
 /** Formats an ISO date (YYYY-MM-DD) as e.g. "September 28, 2026". */
 export function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {

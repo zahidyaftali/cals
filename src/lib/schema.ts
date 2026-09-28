@@ -67,6 +67,20 @@ export function webApplicationSchema(opts: {
   };
 }
 
+/** WebPage (or a subtype such as AboutPage / ContactPage) for the site pages. */
+export function webPageSchema(opts: { type?: string; name: string; description: string; path: string; dateModified?: string }): JsonLd {
+  return {
+    '@type': opts.type ?? 'WebPage',
+    name: opts.name,
+    description: opts.description,
+    url: abs(opts.path),
+    inLanguage: 'en',
+    isPartOf: { '@id': `${site.url}/#website` },
+    publisher: { '@id': `${site.url}/#organization` },
+    ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
+  };
+}
+
 export function faqSchema(items: { q: string; a: string }[]): JsonLd {
   return {
     '@type': 'FAQPage',
