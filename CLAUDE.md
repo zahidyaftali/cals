@@ -9,6 +9,13 @@ This file is the standing brief for this project. Read it at the start of every 
 - Audience: mainly US, UK and Canada (English), plus Muslim users worldwide for the Islamic calculators
 - Every calculator is free, needs no signup, and runs entirely in the browser
 - Hosting: Hostinger (static files in `public_html`), deployed automatically from GitHub
+- **Owned and operated by IdeoXpert** (software company, https://ideoxpert.com). Don't mention how long the domain has been held, anywhere on the site (owner's request).
+
+## Brand (important)
+
+- The brand name is **Infinite Calculators**. A large competitor exists at infinitycalculator.com, so our brand must be clearly different from it.
+- Never use the word "Infinity" anywhere on the site, in copy, titles, schema or alt text.
+- Give the site its own distinct logo, color palette and tagline. Do not imitate the competitor's layout, wording or design.
 
 ## Tech stack (do not change without asking)
 
@@ -106,7 +113,12 @@ Each page, in this order:
    - A useful table where it fits (e.g. concrete bags per volume, nisab values)
    - 5 FAQs targeting real questions people search for
 5. Related calculators
-6. "Last updated" date and a short disclaimer where relevant
+6. "Last updated" date, "Reviewed by" line (when a reviewer is set in the registry), and a short disclaimer where relevant
+7. A small "Is this result wrong? Tell us" feedback link or form
+
+Results should show the **step-by-step working** (the formula with the user's numbers filled in), and a simple lightweight chart where it helps understanding (inline SVG, no chart library).
+
+The homepage has a "Popular calculators" section driven by a `popular` flag in the registry.
 
 ## Content rules
 
@@ -128,13 +140,16 @@ Each page, in this order:
 
 - Clean, trustworthy and modern, with a distinct brand look (not a generic template)
 - Mobile-first; large tap targets; readable 16px+ body text
-- Light and dark mode (following system preference, with a toggle)
+- Light mode only (owner's decision, 2026-09-28: no dark mode or theme toggle)
 - Header: logo, category navigation, and a site search box that filters calculators from the registry (client-side, lightweight)
-- Footer: category links and the About, Contact, Privacy Policy, Terms and Disclaimer pages
+- Footer: category links and the About, Editorial Policy, Contact, Privacy Policy, Terms and Disclaimer pages
 
 ## Site-wide pages
 
-- **About**: who runs the site and why (a real, honest description)
+- **About**: Infinite Calculators is built and run by IdeoXpert, a software company. Describe the team, why we build these tools, and how we check accuracy. Link to https://ideoxpert.com.
+- **Editorial Policy**: how calculators are built, tested and reviewed; how religious calculators are reviewed; how users can report errors
+- Footer on every page: "© [year] Infinite Calculators · Owned & operated by IdeoXpert" (linking to ideoxpert.com)
+- `Organization` schema: name "Infinite Calculators", with `parentOrganization` IdeoXpert (url https://ideoxpert.com)
 - **Contact**: an email link or a simple form (no backend needed yet)
 - **Privacy Policy**: must mention Google AdSense, cookies, third-party vendors, and how to opt out of personalized ads
 - **Terms** and **Disclaimer**: results are for information only and are not financial, legal, medical or religious rulings
@@ -171,36 +186,37 @@ For sales tax, keep the state base rates in a data file with a last-verified dat
 - `npm test`: registry checks and calculator logic tests (Node's built-in test runner, `src/**/*.test.ts`)
 - `npm run build`: static build to `dist/`
 - `npm run check`: checks every built page against the SEO rules above (one H1, title/description length, canonical, noindex on 404, valid JSON-LD, no broken internal links, labelled inputs). Run after build.
-- CI (`deploy.yml`) runs test → build → check → FTP upload; any failure stops the deploy.
+- CI (`deploy.yml`) runs test → build → check → FTP upload; any failure stops the deploy. The upload step is skipped until the three FTP secrets exist in the GitHub repo.
 
 ## Decisions made so far
 
 - **Astro 7** (7.3.x). `compressHTML: true` is set because Astro 7's default (`'jsx'`) drops the space between a link and text on the next line.
-- **Tailwind 4** through its official Vite plugin (`@tailwindcss/vite`). Colors are CSS variables in `src/styles/global.css` (`bg-surface`, `text-muted`, `bg-accent`, …), so dark mode mostly needs no `dark:` classes.
-- **Visual design** (decided 2026-09-28): colors, font and spacing follow a Nexwealth-style reference. Lime `#b0ec6c` is a fill only (buttons, active tab bar, tags), with dark `#182c04` text on it. Text accents and links use `--accent-ink` `#4b7422`, because lime is unreadable as text on white. Deep green `#182c04` for the footer, white pages, hairline `#e8ebeb` borders.
+- **Tailwind 4** through its official Vite plugin (`@tailwindcss/vite`). Colors are CSS variables in `src/styles/global.css` (`bg-surface`, `text-muted`, `bg-accent`, …).
+- **Visual design**: lime `#b0ec6c` is a fill only (buttons, active states, tags), with dark `#182c04` text on it. Text accents and links use `--accent-ink` `#4b7422`, because lime is unreadable as text on white. Deep green `#182c04` for the footer, white pages, hairline `#e8ebeb` borders.
+- **Logo and tagline**: an equals sign (=) in deep green on a lime tile, and the tagline "Answers with the working shown." Chosen so nothing resembles an infinity sign or the competitor.
 - **Font**: Onest (variable, Latin subset, SIL OFL), self-hosted from `src/assets/fonts/` through Astro's Fonts API, which also generates a size-matched Arial fallback (CLS stays 0).
 - **Layout must look hand-built, not like a template.** Avoid: pill badges above headlines, slogan headlines with a highlighted word, stats rows, mock app windows, rows of marketing feature cards, cards nested in cards, decorative background patterns, everything centred. Prefer: plain keyword headlines, left-aligned content, hairline borders, and plain specific copy.
-- **Cards** (owner's request): calculators always appear as whole-card links with name and short description (`CalculatorCard`); categories as cards with icon and calculator count (`CategoryCard`). Homepage: search → categories → ad → "Popular calculators" (registry `featured: true`, 4–8 entries) → ad → short About text.
-- **Header**: one row. Desktop shows Time & Date, Home & DIY, Money and School as links and groups Islamic, Christian and Cultural under a "Faith & Culture" dropdown; search field from 1280px (icon button below that). Phones and tablets: logo, search icon, menu button; the menu lists all categories with counts, About, Contact and the dark-mode switch. Not sticky, so anchor ads have room.
+- **Cards** (owner's request): calculators always appear as whole-card links with name and short description (`CalculatorCard`); categories as cards with icon and calculator count (`CategoryCard`). Homepage: search → categories → ad → "Popular calculators" (registry `popular: true`, 4–8 entries) → ad → short About text.
+- **Header**: one row. Desktop shows Time & Date, Home & DIY, Money and School as links and groups Islamic, Christian and Cultural under a "Faith & Culture" dropdown; search field from 1280px (icon button below that). Phones and tablets: logo, search icon, menu button; the menu lists all categories with counts, About, Editorial policy and Contact. Search is in the header on every page. Not sticky, so anchor ads have room.
 - **Mobile first**: most visitors (and ad revenue) are on phones. Check every page at 360–390px wide.
-- **Ads**: `<AdSlot unit="…" format="banner|rectangle">`. Fixed sizes reserve space (phones 300×250; from 768px banner 728×90, rectangle 336×280) so CLS stays 0. Unit IDs live in `site.ads.units`, one per placement. The AdSense script loads after the page `load` event, only when `site.ads.enabled` is true. Keep ads at least 2rem from buttons and links (accidental-click policy).
-- **Deploy**: the FTP upload step is skipped (build and checks still run) until the three FTP secrets exist in the GitHub repo.
+- **Ads**: `<AdSlot unit="…" format="banner|rectangle">`. Fixed sizes reserve space (phones 300×250; from 768px banner 728×90, rectangle 336×280) so CLS stays 0. Unit IDs live in `site.ads.units`, one per placement. While `site.ads.enabled` is false, `<AdSlot>` renders nothing at all, in dev too (no previews, owner's request). The AdSense script loads after the page `load` event, only when ads are enabled. Keep ads at least 2rem from buttons and links (accidental-click policy).
 - **Tests** use Node's built-in `node:test` with type stripping: no test framework dependency. Imports in files that tests load must use the `.ts` extension, and TypeScript must stay erasable (no enums or namespaces).
-- **Registry** entries have `status: 'live' | 'planned'`. Planned entries show as "Coming soon" and are never linked or put in the sitemap/search. The registry test fails if a live entry has no page or a planned one does.
-- **Site pages** (About, Contact, legal) use `src/layouts/InfoLayout.astro`.
+- **Registry** entries have `status: 'live' | 'planned'`, an optional `popular` flag and an optional `reviewer`. Planned entries show as "Coming soon" and are never linked or put in the sitemap/search. The registry test fails if a live entry has no page or a planned one does.
+- **Site pages** (About, Editorial Policy, Contact, legal) use `src/layouts/InfoLayout.astro`.
 - **Search** fetches `/search-index.json` (built from the registry) on first use only.
-- **Ads**: `site.ads.enabled` in `src/data/site.ts`. While false, `<AdSlot>` renders nothing in production and a dashed placeholder in dev.
+- **Sales tax rates** live in `src/data/sales-tax-rates.ts` with a `lastVerified` date and source (Tax Foundation, rates as of July 1, 2026).
+- **Calculator pages** (owner's request): each calculator covers the common variants of its topic with mode tabs (e.g. concrete: slab, column, tube, stairs, post holes), and every measurement has its own unit menu. Results go in a full-width card below the form: `<Stat>` tiles (first one lime), then tables, an inline-SVG chart and `<Steps>` (the formula with the visitor's numbers). Building blocks are in `src/components/calc/` (CalcShell, Tabs, UnitSystem, Field, MeasureField, SelectField, Segmented, Checkbox, Presets, Stat, Steps); behaviour is in `src/scripts/ui/calculator.ts` (`setupCalculator`, `Reader`, `out`, `rows`, `table`, `steps`) and charts in `src/scripts/ui/chart.ts`.
+- **Page content**: 600+ words per calculator (checked by `npm run check`), exactly 5 FAQs, and every number in the content is verified by running the tested logic, not written from memory.
+- **Chinese zodiac** uses the Hong Kong Observatory's Lunar New Year table (`src/data/lunar-new-year.ts`, 1900–2100), not `Intl`: the built-in Chinese calendar gives the wrong New Year for 1954, 2027 and 2030.
+- **Hijri** conversion uses `Intl` `islamic-umalqura` (official table data, 1300–1600 AH), checked against published Ramadan and Eid dates in the tests.
 - Brand images in `public/` (OG image, icons, `logo-512.png`) were rendered once from SVG; the logo drawing lives in `src/components/Logo.astro` and `public/favicon.svg`.
 
 ## Stages
 
 1. ✅ Foundation: config, registry, design tokens, header/footer/search/theme, homepage, category hubs, site pages, 404, `.htaccess`, deploy workflow, tests and SEO checker
-2. Calculator page template (`CalculatorLayout`, shared input/result UI) + the four Time & Date calculators
-3. Home & DIY: concrete, square footage, paint
-4. Money: tip, discount, sales tax
-5. School + Islamic: final grade, zakat, Hijri converter
-6. Christian + Cultural: Easter, Chinese zodiac
-7. Launch checks: Lighthouse on every page, content review, GitHub + Hostinger setup
+2. ✅ Redesign: palette, font, cards, header, mobile layout, ad slots
+3. ✅ All 15 Phase 1 calculators: page template, shared calculator UI, logic + tests, content (owner asked for all at once, 2026-09-28)
+4. Launch checks: owner content review (About team names, contact email, legal review), AdSense IDs, Hostinger FTP secrets
 
 ## How to work
 

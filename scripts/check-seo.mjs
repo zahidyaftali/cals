@@ -35,6 +35,7 @@ function linkResolves(href) {
 
 const titles = new Map();
 const descriptions = new Map();
+const wordCounts = [];
 
 const files = htmlFiles(dist);
 for (const file of files) {
@@ -87,13 +88,46 @@ for (const file of files) {
     if (!metaContent(html, key, value)) fail(`missing ${value}`);
   }
 
-  // Structured data must parse
+  // Structured data must parse, and each page type needs its schema types
+  const types = new Set();
+  let questions = 0;
   for (const [, json] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try {
-      JSON.parse(json);
+      const data = JSON.parse(json);
+      for (const node of data['@graph'] ?? [data]) {
+        types.add(node['@type']);
+        if (node['@type'] === 'FAQPage') questions = node.mainEntity?.length ?? 0;
+      }
     } catch {
       fail('invalid JSON-LD');
     }
+  }
+  const depth = urlPath.split('/').filter(Boolean).length;
+  const isCalculator = depth === 2 && types.has('WebApplication');
+  const required =
+    urlPath === '/'
+      ? ['Organization', 'WebSite']
+      : isCalculator
+        ? ['WebApplication', 'FAQPage', 'BreadcrumbList']
+        : depth === 1 && types.has('CollectionPage')
+          ? ['CollectionPage', 'BreadcrumbList']
+          : [];
+  for (const type of required) if (!types.has(type)) fail(`missing ${type} schema`);
+
+  // Calculator pages: 5 FAQs and 600–1,000+ words of written content
+  if (isCalculator) {
+    if (questions !== 5) fail(`${questions} FAQs in schema (want 5)`);
+    const start = html.indexOf('<div class="prose');
+    const end = html.indexOf('related-title');
+    const text = html
+      .slice(start, end > start ? end : undefined)
+      .replace(/<script[\s\S]*?<\/script>/g, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&[a-z#0-9]+;/gi, ' ');
+    const words = text.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+    if (words < 600) fail(`only ${words} words of content (want 600+)`);
+    else if (words > 1200) notes.push(`${urlPath}: ${words} words of content`);
+    wordCounts.push(`${urlPath} ${words}`);
   }
 
   // Landmarks
@@ -113,12 +147,17 @@ for (const file of files) {
     if (attr(tag, 'alt') === undefined) fail(`<img> without alt: ${tag.slice(0, 80)}`);
   }
 
-  // Every visible form control has a label
-  for (const [tag] of html.matchAll(/<(?:input|select|textarea)\s[^>]*>/g)) {
+  // Every visible form control has a label: label[for], aria-label, or a wrapping <label>
+  const wrapping = [...html.matchAll(/<label(?:\s[^>]*)?>[\s\S]*?<\/label>/g)].map((m) => [m.index, m.index + m[0].length]);
+  for (const match of html.matchAll(/<(?:input|select|textarea)\s[^>]*>/g)) {
+    const tag = match[0];
     if (/type="(hidden|submit|button|reset)"/.test(tag)) continue;
     const id = attr(tag, 'id');
     const labelled =
-      attr(tag, 'aria-label') || attr(tag, 'aria-labelledby') || (id && html.includes(`<label for="${id}"`));
+      attr(tag, 'aria-label') ||
+      attr(tag, 'aria-labelledby') ||
+      (id && html.includes(`<label for="${id}"`)) ||
+      wrapping.some(([a, b]) => match.index > a && match.index < b);
     if (!labelled) fail(`unlabelled control: ${tag.slice(0, 80)}`);
   }
 }
@@ -128,6 +167,7 @@ const sitemap = existsSync(path.join(dist, 'sitemap-0.xml')) ? readFileSync(path
 if (!sitemap) errors.push('sitemap-0.xml missing');
 if (sitemap.includes('/404')) errors.push('sitemap lists the 404 page');
 
+if (process.argv.includes('--words')) for (const w of wordCounts) console.log(`words ${w}`);
 for (const note of notes) console.log(`note  ${note}`);
 for (const error of errors) console.error(`error ${error}`);
 console.log(`\nChecked ${files.length} pages: ${errors.length} error(s), ${notes.length} note(s).`);

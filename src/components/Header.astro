@@ -3,7 +3,6 @@ import { calculatorsIn, categories, categoryUrl, type CategorySlug } from '../da
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import SiteSearch from './SiteSearch.astro';
-import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
   currentCategory?: CategorySlug;
@@ -110,7 +109,6 @@ const count = (slug: CategorySlug) => calculatorsIn(slug).length;
           </>
         )
       }
-      <ThemeToggle class="hidden lg:inline-flex" />
       <button
         type="button"
         class="icon-btn group lg:hidden"
@@ -151,12 +149,10 @@ const count = (slug: CategorySlug) => calculatorsIn(slug).length;
           ))
         }
       </ul>
-      <div class="mt-3 flex items-center justify-between border-t border-line pt-3">
-        <div class="flex gap-1">
-          <a href="/about/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">About</a>
-          <a href="/contact/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">Contact</a>
-        </div>
-        <ThemeToggle withLabel />
+      <div class="mt-3 flex flex-wrap gap-1 border-t border-line pt-3">
+        <a href="/about/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">About</a>
+        <a href="/editorial-policy/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">Editorial policy</a>
+        <a href="/contact/" class="rounded-lg px-2 py-2 text-[0.9375rem] font-medium hover:bg-surface-2">Contact</a>
       </div>
     </div>
   </nav>

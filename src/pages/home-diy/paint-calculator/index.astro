@@ -1,0 +1,262 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Checkbox from '../../../components/calc/Checkbox.astro';
+import Field from '../../../components/calc/Field.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import UnitSystem from '../../../components/calc/UnitSystem.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const ft = { imperial: 'ft', metric: 'm' };
+const sq = { imperial: 'ft²', metric: 'm²' };
+
+const faqs = [
+  {
+    q: 'How much paint do I need for a 12 × 12 room?',
+    a: 'A 12 × 12 ft room with 8 ft walls has 384 square feet of wall. Take off one door (about 20 sq ft) and one window (about 15 sq ft) and you have 349 sq ft. Two coats at 350 sq ft per gallon need 1.99 gallons, so buy 2 gallons for the walls, plus about 1 gallon if you are painting the ceiling too.',
+  },
+  {
+    q: 'How many coats of paint do I need?',
+    a: 'Two coats is the usual answer for walls: the first coat evens out the surface and the second gives full, even color. One coat can be enough when repainting the same color with a good-quality paint. Large color changes, especially light over dark, may need three coats or a primer first.',
+  },
+  {
+    q: 'How much does a gallon of paint cover?',
+    a: 'Most interior wall paints state about 350 to 400 square feet per gallon for one coat on a smooth, primed surface, which is roughly 8.5 to 10 square meters per liter. Rough, porous or textured surfaces soak up more, so coverage can drop to 250 square feet per gallon or less. Use the figure printed on your can.',
+  },
+  {
+    q: 'Do I need a primer?',
+    a: 'Use a primer on new drywall, bare wood, patched areas, glossy surfaces and stains, and when covering a much darker color. Tick "Add a primer coat" to estimate one coat of primer over the same area.',
+  },
+  {
+    q: 'Can I use wall paint on the ceiling?',
+    a: 'You can, but ceiling paint is usually flat, thicker and designed to spatter less when rolled overhead. The calculator shows the ceiling amount separately so you can buy it as a different product.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="paint-calculator"
+  intro="Estimate how much paint to buy for a room or wall, with doors, windows, ceiling, coats and primer, in gallons or liters."
+  faqs={faqs}
+  disclaimer="Coverage varies by product, color and surface. Check the coverage printed on your paint and buy a little extra from the same batch."
+>
+  <CalcShell name="Paint Calculator">
+    <Fragment slot="top">
+      <Tabs
+        legend="How do you want to measure?"
+        options={[
+          { value: 'room', label: 'Room size' },
+          { value: 'area', label: 'Wall area' },
+        ]}
+      />
+      <UnitSystem />
+    </Fragment>
+
+    <Field name="length" label="Room length" unitLabels={ft} defaults={{ imperial: 12, metric: 4 }} mode="room" />
+    <Field name="width" label="Room width" unitLabels={ft} defaults={{ imperial: 10, metric: 3 }} mode="room" />
+    <Field name="height" label="Wall height" unitLabels={ft} defaults={{ imperial: 8, metric: 2.4 }} mode="room" />
+    <Field name="doors" label="Doors" type="integer" value="1" size="quarter" mode="room" />
+    <Field name="door_area" label="Area of one door" unitLabels={sq} defaults={{ imperial: 20, metric: 1.9 }} size="quarter" mode="room" />
+    <Field name="windows" label="Windows" type="integer" value="2" size="quarter" mode="room" />
+    <Field name="window_area" label="Area of one window" unitLabels={sq} defaults={{ imperial: 15, metric: 1.4 }} size="quarter" mode="room" />
+    <Checkbox name="ceiling" label="Also paint the ceiling" mode="room" />
+
+    <Field name="area" label="Area to paint" unitLabels={sq} defaults={{ imperial: 400, metric: 37 }} hint="Width × height of each wall, added together, minus doors and windows." mode="area" />
+
+    <p class="calc-subhead">Paint</p>
+    <Field name="coats" label="Coats" type="integer" value="2" size="quarter" />
+    <Field
+      name="coverage"
+      label="Coverage per coat"
+      unitLabels={{ imperial: 'ft² per gal', metric: 'm² per L' }}
+      defaults={{ imperial: 350, metric: 10 }}
+      hint="Printed on the can."
+      size="quarter"
+    />
+    <Field name="price" label="Price per can (optional)" prefix="$" unitLabels={{ imperial: 'per gal', metric: 'per L' }} size="quarter" />
+    <Checkbox name="primer" label="Add a primer coat" hint="One coat over the same area, at the same coverage." size="quarter" />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Paint needed" out="paint" primary sub />
+        <Stat label="Cans to buy" out="cans" sub />
+        <Stat label="Area to paint" out="area" sub />
+        <Stat label="Estimated cost" out="cost" sub />
+      </div>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Breakdown</h3>
+          <dl class="result-rows" data-rows="details"></dl>
+          <div class="mt-5" data-chart="area"></div>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the paint calculator</h2>
+    <ol>
+      <li>Choose "Room size" to measure a whole room, or "Wall area" if you already know the area.</li>
+      <li>For a room, enter its length, width and wall height, and how many doors and windows it has. The standard sizes can be changed.</li>
+      <li>Tick "Also paint the ceiling" to include it. The ceiling amount is shown separately.</li>
+      <li>Set the number of coats and the coverage printed on your paint can, then read how many gallons or liters to buy.</li>
+    </ol>
+
+    <h2>How the paint is calculated</h2>
+    <p>The wall area of a rectangular room is its perimeter times the wall height:</p>
+    <p><strong>Wall area = 2 × (length + width) × height</strong></p>
+    <p>
+      Doors and windows are taken off, and the ceiling (length × width) is added if you include it. Then:
+    </p>
+    <p><strong>Paint = area to paint × coats ÷ coverage per gallon (or liter)</strong></p>
+    <p>
+      In US units the result is rounded up to whole gallons plus quarts. When three or more quarts would be needed, the
+      calculator suggests another gallon instead, because it usually costs about the same. In metric units it suggests
+      the common 5 L, 2.5 L and 1 L tin sizes.
+    </p>
+
+    <h2>Worked example</h2>
+    <p>A 12 × 10 ft bedroom with 8 ft walls, one door, two windows and two coats, including the ceiling:</p>
+    <ul>
+      <li>Walls: 2 × (12 + 10) × 8 = 352 ft².</li>
+      <li>Openings: 20 + 2 × 15 = 50 ft², leaving 302 ft² of wall.</li>
+      <li>Wall paint: 302 × 2 coats ÷ 350 = 1.73 gallons, so buy 2 gallons.</li>
+      <li>Ceiling: 12 × 10 = 120 ft² × 2 coats ÷ 350 = 0.69 gallons, so 1 gallon of ceiling paint.</li>
+    </ul>
+
+    <h2>Paint for common room sizes</h2>
+    <p>Two coats, 8 ft walls, one door and one window, 350 ft² per gallon:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Room</th><th>Wall area</th><th>Walls</th><th>Ceiling</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>10 × 10 ft</td><td>285 ft²</td><td>2 gallons</td><td>1 gallon</td></tr>
+          <tr><td>12 × 12 ft</td><td>349 ft²</td><td>2 gallons</td><td>1 gallon</td></tr>
+          <tr><td>12 × 14 ft</td><td>381 ft²</td><td>2 gallons + 1 quart</td><td>1 gallon</td></tr>
+          <tr><td>14 × 16 ft</td><td>445 ft²</td><td>3 gallons</td><td>1 gallon + 2 quarts</td></tr>
+          <tr><td>16 × 20 ft</td><td>541 ft²</td><td>3 gallons + 1 quart</td><td>2 gallons</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>One US gallon is 3.785 liters and holds 4 quarts.</p>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { metricTins, paintNeeded, usCans } from '../../../scripts/calculators/paint';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import { LITERS_PER_US_GALLON } from '../../../scripts/lib/units';
+  import { stackedBar } from '../../../scripts/ui/chart';
+  import { out, rows, setupCalculator, steps } from '../../../scripts/ui/calculator';
+
+  const f = (n: number, d = 2) => formatNumber(n, d);
+
+  function cansText(amount: number, imperial: boolean) {
+    if (imperial) {
+      const c = usCans(amount);
+      const parts = [c.gallons && `${c.gallons} ${c.gallons === 1 ? 'gallon' : 'gallons'}`, c.quarts && `${c.quarts} ${c.quarts === 1 ? 'quart' : 'quarts'}`].filter(Boolean);
+      return { text: parts.join(' + ') || '–', volume: c.gallons + c.quarts / 4, count: c.gallons + c.quarts };
+    }
+    const t = metricTins(amount);
+    const parts = [t.five && `${t.five} × 5 L`, t.twoHalf && `${t.twoHalf} × 2.5 L`, t.one && `${t.one} × 1 L`].filter(Boolean);
+    return { text: parts.join(' + ') || '–', volume: t.total, count: t.five + t.twoHalf + t.one };
+  }
+
+  setupCalculator((read) => {
+    const mode = read.choice('mode') as 'room' | 'area';
+    const imperial = read.choice('units') !== 'metric';
+    const u = imperial ? { len: 'ft', area: 'ft²', vol: 'gal', volName: 'gallons' } : { len: 'm', area: 'm²', vol: 'L', volName: 'liters' };
+
+    let input: Parameters<typeof paintNeeded>[0];
+    if (mode === 'room') {
+      const length = read.number('length', { label: 'the room length', min: 0, above: true, max: 10000 });
+      const width = read.number('width', { label: 'the room width', min: 0, above: true, max: 10000 });
+      const height = read.number('height', { label: 'the wall height', min: 0, above: true, max: 1000 });
+      const doors = read.amount('doors', { label: 'the number of doors', min: 0, max: 100, integer: true });
+      const doorArea = read.amount('door_area', { label: 'the door area', min: 0 });
+      const windows = read.amount('windows', { label: 'the number of windows', min: 0, max: 200, integer: true });
+      const windowArea = read.amount('window_area', { label: 'the window area', min: 0 });
+      input = { mode, length: length ?? 0, width: width ?? 0, height: height ?? 0, doors, doorArea, windows, windowArea, includeCeiling: read.checked('ceiling'), coats: 1, coverage: 1 };
+    } else {
+      const area = read.number('area', { label: 'the area to paint', min: 0, above: true, max: 1e7 });
+      input = { mode, area: area ?? 0, coats: 1, coverage: 1 };
+    }
+    const coats = read.number('coats', { label: 'the number of coats', min: 1, max: 10, integer: true });
+    const coverage = read.number('coverage', { label: 'the coverage', min: 0, above: true, max: 5000 });
+    const price = read.number('price', { label: 'the price', min: 0, optional: true });
+    if (!read.ok || coats === null || coverage === null) return null;
+    input.coats = coats;
+    input.coverage = coverage;
+    input.primer = read.checked('primer');
+
+    const r = paintNeeded(input);
+    if (r === 'openings-too-large') {
+      read.fail('doors', 'The doors and windows add up to more than the wall area.');
+      return null;
+    }
+
+    const walls = r.wallArea - r.openings;
+    const wallCans = cansText(r.wallPaint, imperial);
+    const ceilingCans = cansText(r.ceilingPaint, imperial);
+    const primerCans = cansText(r.primer, imperial);
+    const other = imperial ? `${f(r.paint * LITERS_PER_US_GALLON)} L` : `${f(r.paint / LITERS_PER_US_GALLON)} US gal`;
+
+    out('paint', `${f(r.paint)} ${u.vol}`);
+    out('paint-sub', `${other}${r.ceilingPaint ? ` · ${f(r.wallPaint)} walls + ${f(r.ceilingPaint)} ceiling` : ''}`);
+    out('cans', r.ceilingPaint ? `${wallCans.text}` : wallCans.text);
+    out('cans-sub', r.ceilingPaint ? `for the walls, plus ${ceilingCans.text} for the ceiling` : `Rounded up to ${imperial ? 'gallons and quarts' : 'common tin sizes'}`);
+    out('area', `${f(r.paintableArea, 1)} ${u.area}`);
+    out('area-sub', `× ${coats} ${coats === 1 ? 'coat' : 'coats'} = ${f(r.coveredArea, 1)} ${u.area}`);
+    if (price !== null && price > 0) {
+      const units = wallCans.volume + ceilingCans.volume + primerCans.volume;
+      out('cost', formatMoney(units * price));
+      out('cost-sub', `${f(units)} ${u.vol} × ${formatMoney(price)}${input.primer ? ', incl. primer' : ''}`);
+    } else {
+      out('cost', '–');
+      out('cost-sub', 'Add a price per can to see the cost');
+    }
+
+    rows('details', [
+      ...(mode === 'room'
+        ? ([
+            ['Wall area', `${f(r.wallArea, 1)} ${u.area}`],
+            ['Doors and windows', `− ${f(r.openings, 1)} ${u.area}`],
+            ['Walls to paint', `${f(walls, 1)} ${u.area}`],
+            ['Ceiling', r.ceilingArea ? `${f(r.ceilingArea, 1)} ${u.area}` : 'Not included'],
+          ] as [string, string][])
+        : ([['Area to paint', `${f(r.paintableArea, 1)} ${u.area}`]] as [string, string][])),
+      ['Wall paint', `${f(r.wallPaint)} ${u.vol}`],
+      ...(r.ceilingPaint ? ([['Ceiling paint', `${f(r.ceilingPaint)} ${u.vol} (${ceilingCans.text})`]] as [string, string][]) : []),
+      ...(input.primer ? ([['Primer (1 coat)', `${f(r.primer)} ${u.vol} (${primerCans.text})`]] as [string, string][]) : []),
+    ]);
+    stackedBar(document.querySelector('[data-chart="area"]'), [
+      { label: 'Walls', value: walls, text: `${f(walls, 0)} ${u.area}`, tone: 'primary' },
+      ...(r.ceilingArea ? [{ label: 'Ceiling', value: r.ceilingArea, text: `${f(r.ceilingArea, 0)} ${u.area}`, tone: 'accent' as const }] : []),
+      ...(r.openings ? [{ label: 'Doors and windows (not painted)', value: r.openings, text: `${f(r.openings, 0)} ${u.area}`, tone: 'muted' as const }] : []),
+    ]);
+
+    const work: (string | [string, string])[] = [];
+    if (mode === 'room') {
+      work.push(['Wall area = 2 × (length + width) × height', `2 × (${f(input.length!)} + ${f(input.width!)}) × ${f(input.height!)} = ${f(r.wallArea, 1)} ${u.area}`]);
+      if (r.openings) work.push(['Subtract doors and windows', `${input.doors} × ${f(input.doorArea!)} + ${input.windows} × ${f(input.windowArea!)} = ${f(r.openings, 1)} ${u.area} → ${f(walls, 1)} ${u.area}`]);
+      if (r.ceilingArea) work.push(['Ceiling = length × width', `${f(input.length!)} × ${f(input.width!)} = ${f(r.ceilingArea, 1)} ${u.area}`]);
+    }
+    work.push(['Paint = area × coats ÷ coverage', `${f(r.paintableArea, 1)} × ${coats} ÷ ${f(coverage)} = ${f(r.paint)} ${u.volName}`]);
+    work.push([`Round up to ${imperial ? 'cans' : 'tins'}`, r.ceilingPaint ? `${wallCans.text} (walls) + ${ceilingCans.text} (ceiling)` : wallCans.text]);
+    steps(work);
+
+    return {
+      announce: `${f(r.paint)} ${u.volName}. Buy ${wallCans.text}${r.ceilingPaint ? ` for the walls and ${ceilingCans.text} for the ceiling` : ''}.`,
+      copy: [
+        `Paint needed: ${f(r.paint)} ${u.volName} (${f(r.paintableArea, 1)} ${u.area}, ${coats} coats, ${f(coverage)} ${u.area}/${u.vol})`,
+        `Walls: ${f(r.wallPaint)} ${u.vol} → buy ${wallCans.text}`,
+        ...(r.ceilingPaint ? [`Ceiling: ${f(r.ceilingPaint)} ${u.vol} → buy ${ceilingCans.text}`] : []),
+        ...(input.primer ? [`Primer: ${f(r.primer)} ${u.vol} → buy ${primerCans.text}`] : []),
+      ].join('\n'),
+    };
+  });
+</script>

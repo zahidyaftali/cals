@@ -1,0 +1,20 @@
+---
+interface Props {
+  name: string;
+  label: string;
+  checked?: boolean;
+  hint?: string;
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  mode?: string;
+}
+const { name, label, checked = false, hint, size = 'full', mode } = Astro.props;
+const id = `f-${name}`;
+---
+
+<div class:list={['field check', `f-${size}`]} data-field={name} data-mode={mode}>
+  <input id={id} type="checkbox" name={name} checked={checked} aria-describedby={hint ? `${id}-hint` : undefined} />
+  <div>
+    <label for={id}>{label}</label>
+    {hint && <p id={`${id}-hint`} class="field-hint">{hint}</p>}
+  </div>
+</div>

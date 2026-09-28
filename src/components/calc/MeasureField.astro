@@ -1,0 +1,73 @@
+---
+// A number input with its own unit menu (e.g. 12 [ft ▾]). The menu is named
+// `${name}_unit`. `imperial` / `metric` are the units the Units switch picks.
+interface Props {
+  name: string;
+  label: string;
+  /** Unit values, e.g. ['in', 'ft', 'yd', 'mm', 'cm', 'm']. */
+  units: string[];
+  imperial: string;
+  metric: string;
+  /** Example values for each system (the imperial one is the initial value). */
+  defaults?: { imperial: string | number; metric: string | number };
+  value?: string | number;
+  hint?: string;
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  mode?: string;
+}
+const { name, label, units, imperial, metric, defaults, value, hint, size = 'auto', mode } = Astro.props;
+const id = `f-${name}`;
+const describedBy = [hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+const labels: Record<string, string> = {
+  ft2: 'ft²',
+  m2: 'm²',
+  yd2: 'yd²',
+  yd3: 'per yd³',
+  m3: 'per m³',
+  gal: 'gal',
+  l: 'L',
+  g: 'g',
+  tola: 'tola',
+  ozt: 'troy oz',
+  'per-g': 'per g',
+  'per-tola': 'per tola',
+  'per-ozt': 'per troy oz',
+  'per-ft2': 'per ft²',
+  'per-m2': 'per m²',
+  'per-yd2': 'per yd²',
+};
+---
+
+<div class:list={['field', `f-${size}`]} data-field={name} data-mode={mode}>
+  <label for={id} class="field-label">{label}</label>
+  <div class="field-control has-unit">
+    <input
+      id={id}
+      name={name}
+      type="text"
+      inputmode="decimal"
+      value={defaults ? defaults.imperial : value}
+      autocomplete="off"
+      aria-describedby={describedBy}
+      data-default-imperial={defaults?.imperial}
+      data-default-metric={defaults?.metric}
+    />
+    <select
+      name={`${name}_unit`}
+      aria-label={`${label} unit`}
+      class="unit-select"
+      data-unit-imperial={imperial}
+      data-unit-metric={metric}
+    >
+      {
+        units.map((u) => (
+          <option value={u} selected={u === imperial}>
+            {labels[u] ?? u}
+          </option>
+        ))
+      }
+    </select>
+  </div>
+  {hint && <p id={`${id}-hint`} class="field-hint">{hint}</p>}
+  <p id={`${id}-error`} class="field-error" hidden></p>
+</div>

@@ -48,7 +48,12 @@ export interface Calculator {
   /** `planned` entries are listed as "coming soon" and never linked. */
   status: 'live' | 'planned';
   /** Shown under "Popular calculators" on the homepage. */
-  featured?: boolean;
+  popular?: boolean;
+  /**
+   * Set only after a qualified person has actually reviewed the page; it is
+   * shown as "Reviewed by …" under the calculator.
+   */
+  reviewer?: { name: string; credentials?: string; url?: string; date?: string };
 }
 
 export const categories: Category[] = [
@@ -68,7 +73,7 @@ export const categories: Category[] = [
     h1: 'Home and DIY Calculators',
     title: 'Home and DIY Calculators | Infinite Calculators',
     metaDescription:
-      'Free home and DIY calculators for concrete, square footage and paint. Enter your measurements in feet or metres and see how much material to buy.',
+      'Free home and DIY calculators for concrete, square footage and paint. Enter your measurements in feet or meters and see how much material to buy.',
     intro:
       'Measure a room, a slab or a wall and find out how much concrete, flooring or paint to buy before you head to the store.',
   },
@@ -135,23 +140,23 @@ export const calculators: Calculator[] = [
     searchTerms: 'time card timesheet work hours payroll shift clock in out',
     related: ['time-duration-calculator', 'days-between-dates', 'date-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
   {
     slug: 'time-duration-calculator',
     category: 'time-date',
     name: 'Time Duration Calculator',
     description:
-      'Find the exact time between two clock times or date-times, in hours, minutes and seconds.',
+      'Time between two times or dates, add or subtract hours and minutes, or add up durations.',
     title: 'Time Duration Calculator | Infinite Calculators',
     metaDescription:
-      'Free time duration calculator. Enter a start and end time, with optional dates, to get the exact time between them in hours, minutes and seconds.',
+      'Free time duration calculator: find the hours and minutes between two times or dates, add or subtract time, and add up a list of time durations.',
     keyword: 'time duration calculator',
     searchTerms: 'time between times elapsed time difference hours minutes',
     related: ['hours-calculator', 'days-between-dates', 'date-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
   {
     slug: 'days-between-dates',
@@ -166,15 +171,15 @@ export const calculators: Calculator[] = [
     searchTerms: 'date difference how many days until countdown business days weekdays',
     related: ['date-calculator', 'time-duration-calculator', 'hours-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
   {
     slug: 'date-calculator',
     category: 'time-date',
     name: 'Date Calculator',
     description:
-      'Add or subtract days, weeks, months or years from a date to find the resulting date.',
+      'Add or subtract days, weeks, months or years from a date, count business days, or find the weekday.',
     title: 'Date Calculator – Add & Subtract Days | Infinite Calculators',
     metaDescription:
       'Free date calculator to add or subtract days, weeks, months or years from any date. See the resulting date and day of the week, with leap years handled.',
@@ -182,8 +187,8 @@ export const calculators: Calculator[] = [
     searchTerms: 'add days to date subtract days from date days from today deadline',
     related: ['days-between-dates', 'time-duration-calculator', 'hours-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
 
   // ── Home & DIY ──────────────────────────────────────────────
@@ -192,47 +197,47 @@ export const calculators: Calculator[] = [
     category: 'home-diy',
     name: 'Concrete Calculator',
     description:
-      'Work out the cubic yards or cubic metres of concrete for a slab, footing or column, and the bags to buy.',
+      'Cubic yards, cubic meters and bags of concrete for slabs, footings, columns, stairs and post holes.',
     title: 'Concrete Calculator – Slabs, Footings & Bags | Infinite Calculators',
     metaDescription:
-      'Free concrete calculator for slabs, footings and columns. Get the volume in cubic yards or cubic metres and the number of 40, 60 or 80 lb bags to buy.',
+      'Free concrete calculator for slabs, footings, columns, stairs and post holes. Get cubic yards, cubic meters and how many 40, 60 or 80 lb bags to buy.',
     keyword: 'concrete calculator',
     searchTerms: 'cement slab footing column post hole cubic yards bags quikrete sakrete',
     related: ['square-footage-calculator', 'paint-calculator', 'sales-tax-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
   {
     slug: 'square-footage-calculator',
     category: 'home-diy',
     name: 'Square Footage Calculator',
     description:
-      'Find the area of a room or floor in square feet and square metres, including L-shaped rooms.',
+      'Total area of rooms of any shape in square feet, square meters and square yards, with waste and cost.',
     title: 'Square Footage Calculator | Infinite Calculators',
     metaDescription:
-      'Free square footage calculator for rooms and floors. Add rectangles, triangles and circles in feet, inches or metres to get the total area in sq ft and m².',
+      'Free square footage calculator for rooms of any shape. Add rectangles, L-shapes, triangles and circles in feet or meters, with waste and cost per sq ft.',
     keyword: 'square footage calculator',
     searchTerms: 'area sq ft square feet square meters room floor flooring carpet',
     related: ['paint-calculator', 'concrete-calculator', 'sales-tax-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
   {
     slug: 'paint-calculator',
     category: 'home-diy',
     name: 'Paint Calculator',
     description:
-      'Estimate how many gallons or litres of paint you need for walls and ceilings, minus doors and windows.',
+      'How many gallons or liters of paint to buy for walls and ceilings, minus doors and windows.',
     title: 'Paint Calculator – Walls & Ceilings | Infinite Calculators',
     metaDescription:
-      'Free paint calculator. Enter your wall sizes, doors and windows to see how many gallons or litres of paint you need for one or two coats on a room.',
+      'Free paint calculator. Enter your wall sizes, doors and windows to see how many gallons or liters of paint you need for one or two coats on a room.',
     keyword: 'paint calculator',
     searchTerms: 'how much paint gallons litres liters wall ceiling room coats',
     related: ['square-footage-calculator', 'concrete-calculator', 'discount-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
 
   // ── Money ───────────────────────────────────────────────────
@@ -249,30 +254,30 @@ export const calculators: Calculator[] = [
     searchTerms: 'gratuity restaurant split bill per person 15 18 20 percent',
     related: ['sales-tax-calculator', 'discount-calculator', 'hours-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
   {
     slug: 'discount-calculator',
     category: 'money',
     name: 'Discount Calculator',
     description:
-      'Find the sale price and how much you save after a percentage or fixed discount, including double discounts.',
+      'Sale price and savings for percent or dollar discounts, stacked discounts, and the original price.',
     title: 'Discount Calculator – Sale Price | Infinite Calculators',
     metaDescription:
-      'Free discount calculator to find the sale price and your savings. Works with percent-off and fixed-amount discounts, and with stacked double discounts.',
+      'Free discount calculator: find the sale price and savings for percent or dollar discounts, stack two discounts, or work out the original price.',
     keyword: 'discount calculator',
     searchTerms: 'percent off sale price savings coupon markdown',
     related: ['sales-tax-calculator', 'tip-calculator', 'paint-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
   {
     slug: 'sales-tax-calculator',
     category: 'money',
     name: 'Sales Tax Calculator',
     description:
-      'Add sales tax to a price or remove it from a total, using any US state base rate or your own local rate.',
+      'Add sales tax to a price, take it out of a total, or find the rate, for all 50 states plus local rates.',
     title: 'Sales Tax Calculator by US State | Infinite Calculators',
     metaDescription:
       'Free sales tax calculator for all 50 US states. Add tax to a price or work back from a total using your state base rate or your full local rate.',
@@ -280,8 +285,8 @@ export const calculators: Calculator[] = [
     searchTerms: 'state tax rate reverse sales tax price before tax usa',
     related: ['discount-calculator', 'tip-calculator', 'concrete-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
 
   // ── School ──────────────────────────────────────────────────
@@ -290,7 +295,7 @@ export const calculators: Calculator[] = [
     category: 'school',
     name: 'Final Grade Calculator',
     description:
-      'Find the score you need on your final exam to reach the course grade you want.',
+      'The score you need on your final exam for the grade you want, or your grade from a final score.',
     title: 'Final Grade Calculator | Infinite Calculators',
     metaDescription:
       'Free final grade calculator. Enter your current grade, your target grade and how much the final is worth to see the score you need on the final exam.',
@@ -298,7 +303,7 @@ export const calculators: Calculator[] = [
     searchTerms: 'final exam score needed what do i need grade percentage',
     related: ['days-between-dates', 'date-calculator', 'time-duration-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
 
   // ── Islamic ─────────────────────────────────────────────────
@@ -315,15 +320,15 @@ export const calculators: Calculator[] = [
     searchTerms: 'zakah nisab gold silver 2.5 percent wealth charity',
     related: ['hijri-date-converter', 'days-between-dates', 'date-calculator'],
     updated: '2026-09-28',
-    status: 'planned',
-    featured: true,
+    status: 'live',
+    popular: true,
   },
   {
     slug: 'hijri-date-converter',
     category: 'islamic',
     name: 'Hijri Date Converter',
     description:
-      'Convert dates between the Gregorian and Islamic Hijri calendars using the Umm al-Qura calendar.',
+      'Convert dates between the Gregorian and Hijri calendars (Umm al-Qura) and find key Islamic dates.',
     title: 'Hijri Date Converter (Umm al-Qura) | Infinite Calculators',
     metaDescription:
       'Free Hijri date converter. Convert Gregorian dates to the Islamic Hijri calendar and back using the Umm al-Qura calendar, with notes on moon sighting.',
@@ -331,7 +336,7 @@ export const calculators: Calculator[] = [
     searchTerms: 'islamic calendar gregorian to hijri hijri to gregorian umm al-qura ramadan',
     related: ['zakat-calculator', 'easter-date-calculator', 'chinese-zodiac-calculator', 'days-between-dates'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
 
   // ── Christian ───────────────────────────────────────────────
@@ -340,7 +345,7 @@ export const calculators: Calculator[] = [
     category: 'christian',
     name: 'Easter Date Calculator',
     description:
-      'Find the date of Western and Orthodox Easter Sunday for any year from 1583 onward.',
+      'Western and Orthodox Easter for any year from 1583, with Ash Wednesday, Good Friday and Pentecost.',
     title: 'Easter Date Calculator – Any Year | Infinite Calculators',
     metaDescription:
       'Free Easter date calculator. Find the date of Easter Sunday for any year from 1583, for both Western (Catholic and Protestant) and Orthodox churches.',
@@ -348,7 +353,7 @@ export const calculators: Calculator[] = [
     searchTerms: 'when is easter orthodox easter computus good friday',
     related: ['hijri-date-converter', 'chinese-zodiac-calculator', 'date-calculator', 'days-between-dates'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
 
   // ── Cultural ────────────────────────────────────────────────
@@ -365,7 +370,7 @@ export const calculators: Calculator[] = [
     searchTerms: 'chinese zodiac sign animal year element lunar new year',
     related: ['hijri-date-converter', 'easter-date-calculator', 'days-between-dates'],
     updated: '2026-09-28',
-    status: 'planned',
+    status: 'live',
   },
 ];
 
@@ -373,7 +378,7 @@ export const calculators: Calculator[] = [
 
 export const liveCalculators = calculators.filter((c) => c.status === 'live');
 
-export const featuredCalculators = calculators.filter((c) => c.featured);
+export const popularCalculators = calculators.filter((c) => c.popular);
 
 export function getCategory(slug: CategorySlug): Category {
   const category = categories.find((c) => c.slug === slug);

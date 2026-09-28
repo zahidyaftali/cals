@@ -1,0 +1,241 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import { orthodoxEaster, westernEaster } from '../../../scripts/calculators/easter';
+import { formatMedium } from '../../../scripts/lib/dates';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+// Reference table computed at build time with the same algorithms.
+const tableYears = Array.from({ length: 10 }, (_, i) => 2026 + i).map((y) => ({
+  year: y,
+  western: formatMedium(westernEaster(y).date),
+  orthodox: formatMedium(orthodoxEaster(y).date),
+}));
+
+const faqs = [
+  {
+    q: 'Why does the date of Easter change every year?',
+    a: 'Easter is set by the moon as well as the sun. It falls on the first Sunday after the first full moon on or after March 21, the church’s fixed date for the spring equinox. Because lunar months don’t fit evenly into the calendar year, the date moves between March 22 and April 25.',
+  },
+  {
+    q: 'Why is Orthodox Easter on a different date?',
+    a: 'Most Orthodox churches calculate Easter (Pascha) with the older Julian calendar and its table of full moons. The Julian calendar now runs 13 days behind the Gregorian calendar, and its full-moon table has drifted too, so Orthodox Easter is usually one to five weeks later. In some years, such as 2025, both fall on the same Sunday.',
+  },
+  {
+    q: 'What is the earliest and latest possible date for Easter?',
+    a: 'Western Easter can fall as early as March 22 and as late as April 25. It was last on March 22 in 1818 and will next be in 2285; it was last on April 25 in 1943 and will next be in 2038. Orthodox Easter currently falls between April 4 and May 8 in the Gregorian calendar.',
+  },
+  {
+    q: 'How are Good Friday, Ash Wednesday and Pentecost worked out?',
+    a: 'They are counted from Easter Sunday. Ash Wednesday is 46 days before, Palm Sunday 7 days before and Good Friday 2 days before. Ascension Day is 39 days after, on a Thursday, and Pentecost is 49 days after, on the seventh Sunday after Easter.',
+  },
+  {
+    q: 'Is the calculated date the same as the astronomical full moon?',
+    a: 'Not always. The churches use a fixed table of "ecclesiastical" full moons instead of observing the sky, so the calculated date can occasionally differ from what the actual full moon and equinox would suggest. The calculator follows the church rules, which is what sets the date of Easter.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="easter-date-calculator"
+  intro="Find the date of Easter Sunday for any year from 1583, for Western and Orthodox churches, with Ash Wednesday, Good Friday and Pentecost."
+  faqs={faqs}
+  disclaimer="Dates follow the standard church calculations. Your church’s published calendar takes priority if it differs."
+>
+  <CalcShell name="Easter Date Calculator">
+    <Tabs
+      slot="top"
+      legend="What do you want to see?"
+      options={[
+        { value: 'year', label: 'Easter in one year' },
+        { value: 'range', label: 'Easter over several years' },
+      ]}
+    />
+    <Field name="year" label="Year" type="integer" value="2026" hint="Any year from 1583 to 4099." mode="year" />
+    <Field name="from" label="Starting year" type="integer" value="2026" mode="range" />
+    <Field name="count" label="Number of years" type="integer" value="10" hint="Up to 100." mode="range" />
+
+    <Fragment slot="result">
+      <div class="stats" data-mode="year">
+        <Stat label="Western Easter" out="western" primary sub />
+        <Stat label="Orthodox Easter" out="orthodox" sub />
+        <Stat label="Difference" out="gap" sub />
+        <Stat label="From today" out="until" sub />
+      </div>
+      <div class="result-split" data-mode="year">
+        <div class="result-section">
+          <h3>Western churches</h3>
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <thead><tr><th>Day</th><th>Date</th></tr></thead>
+              <tbody data-table="western"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="result-section">
+          <h3>Orthodox churches</h3>
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <thead><tr><th>Day</th><th>Date</th></tr></thead>
+              <tbody data-table="orthodox"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="result-section" data-mode="range">
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead><tr><th>Year</th><th>Western Easter</th><th>Orthodox Easter</th></tr></thead>
+            <tbody data-table="range"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="result-split" data-mode="year">
+        <Steps title="Western Easter, step by step" name="steps" />
+        <Steps title="Orthodox Easter, step by step" name="steps2" />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the Easter date calculator</h2>
+    <ol>
+      <li>Enter a year from 1583 to 4099. The calculator starts on the current year.</li>
+      <li>Read the Western Easter date (Catholic and Protestant churches) and the Orthodox Easter date side by side.</li>
+      <li>See the related days, such as Ash Wednesday, Good Friday, Ascension and Pentecost, in the tables below.</li>
+      <li>Use "Easter over several years" to list up to 100 years at once.</li>
+    </ol>
+
+    <h2>How the date of Easter is calculated</h2>
+    <p>
+      Since the Council of Nicaea in 325, Easter has been celebrated on the first Sunday after the "paschal full moon":
+      the first ecclesiastical full moon on or after March 21. The churches use a fixed cycle of full moons (the computus)
+      instead of watching the sky.
+    </p>
+    <p>
+      <strong>Western Easter</strong> is calculated with the Anonymous Gregorian algorithm, published by Meeus, Jones and
+      Butcher. It works through a series of whole-number divisions of the year: the year’s place in the 19-year lunar
+      cycle, the century corrections added by the Gregorian reform, the date of the paschal full moon, and the next
+      Sunday. The steps and every intermediate number are shown in the results.
+    </p>
+    <p>
+      <strong>Orthodox Easter</strong> uses the older Julian computus, which gives a date in the Julian calendar. The
+      calculator then adds the gap between the calendars (13 days for 1900 to 2099) to express it as a Gregorian date.
+    </p>
+
+    <h2>Worked example: 2026</h2>
+    <ul>
+      <li>Western: the paschal full moon falls on Thursday, April 2, so Easter is <strong>Sunday, April 5, 2026</strong>.</li>
+      <li>Ash Wednesday is 46 days earlier, on February 18, and Good Friday is April 3.</li>
+      <li>Orthodox: the Julian computus gives March 30 in the Julian calendar; adding 13 days gives <strong>Sunday, April 12, 2026</strong>.</li>
+      <li>The two Easters are one week apart in 2026.</li>
+    </ul>
+
+    <h2>Easter dates, 2026 to 2035</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Year</th><th>Western Easter</th><th>Orthodox Easter</th></tr>
+        </thead>
+        <tbody>
+          {
+            tableYears.map((t) => (
+              <tr>
+                <td>{t.year}</td>
+                <td>{t.western}</td>
+                <td>{t.orthodox}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { MAX_YEAR, MIN_YEAR, ORTHODOX_RELATED, orthodoxEaster, relatedDates, WESTERN_RELATED, westernEaster } from '../../../scripts/calculators/easter';
+  import { daysBetween, formatLong, formatMedium, today, weekdayName } from '../../../scripts/lib/dates';
+  import { formatNumber } from '../../../scripts/lib/format';
+  import { out, setDefault, setupCalculator, steps, table } from '../../../scripts/ui/calculator';
+
+  const MONTHS = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  setupCalculator(
+    (read) => {
+      const mode = read.choice('mode');
+      if (mode === 'range') {
+        const from = read.number('from', { label: 'the starting year', min: MIN_YEAR, max: MAX_YEAR, integer: true });
+        const count = read.number('count', { label: 'the number of years', min: 1, max: 100, integer: true });
+        if (!read.ok || from === null || count === null) return null;
+        const years = Array.from({ length: count }, (_, i) => from + i).filter((y) => y <= MAX_YEAR);
+        const body = years.map((y) => {
+          const w = westernEaster(y).date;
+          const o = orthodoxEaster(y).date;
+          return [String(y), formatMedium(w), formatMedium(o) + (daysBetween(w, o) === 0 ? ' (same day)' : '')];
+        });
+        const thisYear = today().y;
+        table('range', body, years.indexOf(thisYear));
+        return {
+          announce: `Easter dates for ${years.length} years listed.`,
+          copy: body.map((r) => `${r[0]}: Western ${r[1]}, Orthodox ${r[2]}`).join('\n'),
+        };
+      }
+
+      const year = read.number('year', { label: 'the year', min: MIN_YEAR, max: MAX_YEAR, integer: true });
+      if (!read.ok || year === null) return null;
+      const w = westernEaster(year);
+      const o = orthodoxEaster(year);
+      const gap = daysBetween(w.date, o.date);
+      const until = daysBetween(today(), w.date);
+
+      out('western', formatMedium(w.date));
+      out('western-sub', 'Catholic and Protestant churches');
+      out('orthodox', formatMedium(o.date));
+      out('orthodox-sub', 'Eastern Orthodox churches');
+      out('gap', gap === 0 ? 'Same day' : `${gap / 7} ${gap === 7 ? 'week' : 'weeks'}`);
+      out('gap-sub', gap === 0 ? 'Both churches celebrate together' : `Orthodox Easter is ${gap} days later`);
+      out('until', until === 0 ? 'Today' : until > 0 ? `In ${formatNumber(until, 0)} days` : `${formatNumber(-until, 0)} days ago`);
+      out('until-sub', 'Until Western Easter');
+
+      table('western', relatedDates(w.date, WESTERN_RELATED).map((r) => [r.name, `${weekdayName(r.date)}, ${formatMedium(r.date)}`]), 4);
+      table('orthodox', relatedDates(o.date, ORTHODOX_RELATED).map((r) => [r.name, `${weekdayName(r.date)}, ${formatMedium(r.date)}`]), 3);
+
+      const s = w.steps;
+      steps([
+        ['Place in the 19-year lunar cycle: a = year mod 19', `${year} mod 19 = ${s.a}`],
+        ['Century and year of century: b = year ÷ 100, c = year mod 100', `b = ${s.b}, c = ${s.c}`],
+        ['Gregorian leap-year and moon corrections', `d = ${s.d}, e = ${s.e}, f = ${s.f}, g = ${s.g}`],
+        ['Days from March 21 to the paschal full moon: h = (19a + b − d − g + 15) mod 30', `h = ${s.h}`],
+        ['Days from the full moon to the next Sunday: l = (32 + 2e + 2i − h − k) mod 7', `i = ${s.i}, k = ${s.k}, l = ${s.l}, m = ${s.m}`],
+        ['Month = (h + l − 7m + 114) ÷ 31, day = remainder + 1', `${MONTHS[w.date.m]} ${w.date.d}, ${year} (${weekdayName(w.date)})`],
+      ]);
+      const t = o.steps;
+      steps(
+        [
+          ['a = year mod 4, b = year mod 7, c = year mod 19', `a = ${t.a}, b = ${t.b}, c = ${t.c}`],
+          ['Days to the paschal full moon: d = (19c + 15) mod 30', `d = ${t.d}`],
+          ['Days to the next Sunday: e = (2a + 4b − d + 34) mod 7', `e = ${t.e}`],
+          ['Julian date: month = (d + e + 114) ÷ 31, day = remainder + 1', `${MONTHS[t.julian.m]} ${t.julian.d} (Julian calendar)`],
+          [`Add ${t.offset} days to convert to the Gregorian calendar`, formatLong(o.date)],
+        ],
+        'steps2',
+      );
+
+      return {
+        announce: `In ${year}, Western Easter is ${formatMedium(w.date)} and Orthodox Easter is ${formatMedium(o.date)}.`,
+        copy: `Easter ${year}: Western ${formatLong(w.date)}; Orthodox ${formatLong(o.date)}`,
+      };
+    },
+    {
+      onInit(form) {
+        const y = String(today().y);
+        setDefault(form, 'year', y);
+        setDefault(form, 'from', y);
+      },
+    },
+  );
+</script>

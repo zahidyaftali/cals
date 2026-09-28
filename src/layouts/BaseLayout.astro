@@ -28,19 +28,8 @@ const hasAdsAccount = !/^ca-pub-0+$/.test(site.ads.client);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#ffffff" />
-    <script is:inline>
-      // Apply the saved or system theme before first paint to avoid a flash.
-      (function () {
-        var saved = null;
-        try {
-          saved = localStorage.getItem('theme');
-        } catch (e) {}
-        var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-        if (dark) document.documentElement.classList.add('dark');
-      })();
-    </script>
     <Font cssVariable="--font-onest" preload />
     <SEO title={title} description={description} noindex={noindex} jsonLd={jsonLd} ogType={ogType} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />

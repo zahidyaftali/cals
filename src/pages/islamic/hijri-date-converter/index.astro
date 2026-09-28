@@ -1,0 +1,280 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import { HIJRI_MONTHS, keyDates } from '../../../scripts/calculators/hijri';
+import { formatLong } from '../../../scripts/lib/dates';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const monthOptions = HIJRI_MONTHS.map((m, i) => ({ value: String(i + 1), label: `${i + 1}. ${m.name}` }));
+// Reference table of upcoming dates, computed at build time from the same Umm al-Qura data.
+const upcoming = [1448, 1449].flatMap((year) =>
+  keyDates(year).map((k) => ({ year, name: k.name, date: k.gregorian ? formatLong(k.gregorian) : '–' })),
+);
+
+const faqs = [
+  {
+    q: 'What is today’s date in the Hijri calendar?',
+    a: 'Open the "Gregorian to Hijri" tab: it starts on today’s date and shows the Hijri date in English and Arabic. Because the Islamic day begins at sunset, some people count the next Hijri date from the evening before.',
+  },
+  {
+    q: 'Why do Islamic dates differ between countries?',
+    a: 'A Hijri month begins when the new crescent moon is seen, or is expected to be seen. Saudi Arabia’s Umm al-Qura calendar sets dates in advance from astronomical calculations, while many countries and communities wait for a local sighting. That is why Ramadan or Eid can start a day earlier or later in different places.',
+  },
+  {
+    q: 'How many days are in a Hijri year?',
+    a: 'A Hijri year has 12 lunar months of 29 or 30 days, which adds up to 354 or 355 days. That is about 11 days shorter than a Gregorian year, so Ramadan and the Eids move about 11 days earlier each year and pass through every season over roughly 33 years.',
+  },
+  {
+    q: 'How do I roughly convert a Hijri year to a Gregorian year?',
+    a: 'Multiply the Hijri year by 0.97 and add 622. For 1448 AH, 1448 × 0.97 + 622 ≈ 2026. The Hijri year starts partway through the Gregorian year, so a single Hijri year always spans two Gregorian years; use the converter for an exact date.',
+  },
+  {
+    q: 'What is the Umm al-Qura calendar?',
+    a: 'Umm al-Qura is the official Hijri calendar of Saudi Arabia. Its months are fixed in advance using astronomical rules about the new moon as seen from Mecca, so every date can be looked up years ahead. This converter uses it for the years 1300 to 1600 AH (1882 to 2174).',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="hijri-date-converter"
+  intro="Convert dates between the Gregorian and Islamic Hijri calendars using the Umm al-Qura calendar, and find the key Islamic dates in any year."
+  faqs={faqs}
+  disclaimer="Dates follow the Umm al-Qura calendar. Where months begin with a local moon sighting, the actual date can be one day earlier or later, so follow your local mosque or religious authority for the start of Ramadan and the Eids."
+>
+  <CalcShell name="Hijri Date Converter">
+    <Tabs
+      slot="top"
+      legend="What do you want to convert?"
+      options={[
+        { value: 'g2h', label: 'Gregorian to Hijri' },
+        { value: 'h2g', label: 'Hijri to Gregorian' },
+        { value: 'year', label: 'Islamic dates in a year' },
+      ]}
+    />
+
+    <Field name="gdate" label="Gregorian date" type="date" value="2026-09-28" min="1882-11-12" max="2174-11-25" today mode="g2h" />
+
+    <Field name="hday" label="Day" type="integer" value="1" size="quarter" mode="h2g" />
+    <SelectField name="hmonth" label="Month" options={monthOptions} value="9" size="quarter" mode="h2g" />
+    <Field name="hyear" label="Year (AH)" type="integer" value="1448" size="quarter" mode="h2g" />
+
+    <Field name="kyear" label="Hijri year (AH)" type="integer" value="1448" mode="year" hint="Between 1300 and 1600." />
+
+    <Fragment slot="result">
+      <div class="stats" data-mode="g2h h2g">
+        <Stat label="Hijri date" out="main" primary sub />
+        <Stat label="Day of the week" out="weekday" sub />
+        <Stat label="Days in this Hijri month" out="length" sub />
+        <Stat label="Next Ramadan begins" out="ramadan" sub />
+      </div>
+      <p class="result-note">
+        Umm al-Qura calendar. With local moon sighting the date may be one day earlier or later.
+      </p>
+      <div class="result-section" data-mode="year">
+        <h3 data-out="year-title">Key dates</h3>
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr><th>Day</th><th>Hijri date</th><th>Gregorian date</th></tr>
+            </thead>
+            <tbody data-table="year"></tbody>
+          </table>
+        </div>
+      </div>
+      <Steps />
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the Hijri date converter</h2>
+    <ul>
+      <li><strong>Gregorian to Hijri:</strong> pick a date (it starts on today) to see the Hijri date in English and Arabic.</li>
+      <li><strong>Hijri to Gregorian:</strong> enter the Hijri day, month and year to find the matching Gregorian date and weekday.</li>
+      <li><strong>Islamic dates in a year:</strong> enter a Hijri year to list the start of Ramadan, Eid al-Fitr, the Day of Arafah, Eid al-Adha and other widely observed days.</li>
+    </ul>
+
+    <h2>How the conversion works</h2>
+    <p>
+      The Hijri calendar is lunar: each month starts with the new crescent moon and lasts 29 or 30 days. The converter uses
+      the Umm al-Qura calendar, the official calendar of Saudi Arabia, which fixes each month’s length in advance from
+      astronomical rules. Its data is built into modern browsers, so the conversion runs on your device.
+    </p>
+    <p>
+      To go from a Hijri date to a Gregorian one, the converter estimates the date with the arithmetic Islamic calendar,
+      then checks the Umm al-Qura calendar day by day until it finds the exact match. If you enter the 30th of a month that
+      has only 29 days that year, it tells you.
+    </p>
+    <p>
+      Many communities start Ramadan and the Eids from a local moon sighting instead, so their dates can differ from
+      Umm al-Qura by a day.
+    </p>
+
+    <h2>Worked example</h2>
+    <ul>
+      <li>Saturday, March 1, 2025 converts to <strong>1 Ramadan 1446 AH</strong>, the first day of Ramadan that year.</li>
+      <li>Ramadan 1446 had 29 days, so 1 Shawwal 1446 (Eid al-Fitr) fell on <strong>Sunday, March 30, 2025</strong>.</li>
+      <li>Monday, September 28, 2026 is 17 Rabi al-Thani 1448 AH.</li>
+    </ul>
+
+    <h2>Key Islamic dates, 1448–1449 AH</h2>
+    <p>Umm al-Qura dates; local observance may differ by a day.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Year</th><th>Occasion</th><th>Gregorian date</th></tr>
+        </thead>
+        <tbody>
+          {
+            upcoming.map((u) => (
+              <tr>
+                <td>{u.year} AH</td>
+                <td>{u.name}</td>
+                <td>{u.date}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h2>The Hijri months</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Month</th><th>Arabic</th></tr>
+        </thead>
+        <tbody>
+          {
+            HIJRI_MONTHS.map((m, i) => (
+              <tr>
+                <td>{i + 1}</td>
+                <td>{m.name}</td>
+                <td lang="ar" dir="rtl">{m.arabic}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import {
+    formatHijri,
+    formatHijriArabic,
+    GREGORIAN_MAX,
+    GREGORIAN_MIN,
+    HIJRI_MAX_YEAR,
+    HIJRI_MIN_YEAR,
+    HIJRI_MONTHS,
+    isSupported,
+    keyDates,
+    monthLength,
+    toGregorian,
+    toHijri,
+  } from '../../../scripts/calculators/hijri';
+  import { daysBetween, formatLong, parseISODate, today, toISO, weekdayName, type YMD } from '../../../scripts/lib/dates';
+  import { formatNumber } from '../../../scripts/lib/format';
+  import { out, setDefault, setupCalculator, steps, table } from '../../../scripts/ui/calculator';
+
+  function nextRamadan(from: YMD) {
+    const h = toHijri(from);
+    const year = h.month < 9 ? h.year : h.year + 1;
+    const start = year <= HIJRI_MAX_YEAR ? toGregorian({ year, month: 9, day: 1 }) : null;
+    return start ? { start, year, days: daysBetween(from, start) } : null;
+  }
+
+  function showDate(g: YMD, h: { year: number; month: number; day: number }) {
+    const len = monthLength(h.year, h.month);
+    out('weekday', weekdayName(g));
+    out('weekday-sub', formatLong(g));
+    out('length', String(len));
+    out('length-sub', `${HIJRI_MONTHS[h.month - 1].name} ${h.year}`);
+    const r = h.month === 9 ? null : nextRamadan(g);
+    out('ramadan', h.month === 9 ? 'Ramadan now' : r ? formatLong(r.start).replace(/^\w+, /, '') : '–');
+    out('ramadan-sub', h.month === 9 ? `Day ${h.day} of Ramadan ${h.year}` : r ? `in ${formatNumber(r.days, 0)} days (${r.year} AH)` : '');
+  }
+
+  setupCalculator(
+    (read) => {
+      if (!isSupported()) {
+        read.fail();
+        out('main', 'Not supported');
+        return null;
+      }
+      const mode = read.choice('mode');
+
+      if (mode === 'g2h') {
+        const iso = read.date('gdate', { label: 'a Gregorian date', min: GREGORIAN_MIN, max: GREGORIAN_MAX });
+        if (!read.ok || !iso) return null;
+        const g = parseISODate(iso)!;
+        const h = toHijri(g);
+        out('main-label', 'Hijri date');
+        out('main', formatHijri(h));
+        out('main-sub', formatHijriArabic(g));
+        showDate(g, h);
+        steps([
+          ['Gregorian date', formatLong(g)],
+          ['Look up the day in the Umm al-Qura calendar', `Day ${h.day} of ${HIJRI_MONTHS[h.month - 1].name} (month ${h.month}), ${h.year} AH`],
+        ]);
+        return { announce: `${formatLong(g)} is ${formatHijri(h)}.`, copy: `${formatLong(g)} = ${formatHijri(h)} (${formatHijriArabic(g)})` };
+      }
+
+      if (mode === 'h2g') {
+        const day = read.number('hday', { label: 'the day', min: 1, max: 30, integer: true });
+        const year = read.number('hyear', { label: 'the Hijri year', min: HIJRI_MIN_YEAR, max: HIJRI_MAX_YEAR, integer: true });
+        const month = Number(read.choice('hmonth'));
+        if (!read.ok || day === null || year === null) return null;
+        const h = { year, month, day };
+        const g = toGregorian(h);
+        if (!g) {
+          read.fail('hday', `${HIJRI_MONTHS[month - 1].name} ${year} has only ${monthLength(year, month)} days in the Umm al-Qura calendar.`);
+          return null;
+        }
+        out('main-label', 'Gregorian date');
+        out('main', formatLong(g).replace(/^\w+, /, ''));
+        out('main-sub', `${formatHijri(h)} · ${toISO(g)}`);
+        showDate(g, h);
+        steps([
+          ['Estimate the date with the arithmetic Islamic calendar', `${formatHijri(h)} ≈ ${toISO(g)}`],
+          ['Check it against the Umm al-Qura calendar', `${formatLong(g)} is ${formatHijri(toHijri(g))}`],
+        ]);
+        return { announce: `${formatHijri(h)} is ${formatLong(g)}.`, copy: `${formatHijri(h)} = ${formatLong(g)}` };
+      }
+
+      const year = read.number('kyear', { label: 'the Hijri year', min: HIJRI_MIN_YEAR, max: HIJRI_MAX_YEAR, integer: true });
+      if (!read.ok || year === null) return null;
+      const list = keyDates(year);
+      out('year-title', `Key dates in ${year} AH`);
+      table(
+        'year',
+        list.map((k) => [k.name, formatHijri(k.hijri), k.gregorian ? formatLong(k.gregorian) : '–']),
+      );
+      steps([
+        ['Each occasion has a fixed Hijri date', 'For example, Eid al-Fitr is always 1 Shawwal'],
+        ['Look up each Hijri date in the Umm al-Qura calendar', `${year} AH runs from ${list[0].gregorian ? formatLong(list[0].gregorian) : '?'}`],
+      ]);
+      return {
+        announce: `Key dates for ${year} AH listed.`,
+        copy: list.map((k) => `${k.name}: ${k.gregorian ? formatLong(k.gregorian) : '–'}`).join('\n'),
+      };
+    },
+    {
+      onInit(form) {
+        const now = today();
+        const iso = toISO(now);
+        if (iso >= GREGORIAN_MIN && iso <= GREGORIAN_MAX && isSupported()) {
+          setDefault(form, 'gdate', iso);
+          const h = toHijri(now);
+          setDefault(form, 'hyear', String(h.year));
+          setDefault(form, 'kyear', String(h.year));
+        }
+      },
+    },
+  );
+</script>

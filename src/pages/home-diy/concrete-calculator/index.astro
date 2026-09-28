@@ -1,0 +1,374 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import MeasureField from '../../../components/calc/MeasureField.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import UnitSystem from '../../../components/calc/UnitSystem.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const L = ['in', 'ft', 'yd', 'cm', 'm'];
+
+const faqs = [
+  {
+    q: 'How much concrete do I need for a 10 × 10 slab?',
+    a: 'A 10 × 10 ft slab that is 4 inches thick holds 10 × 10 × 0.333 = 33.3 cubic feet, which is 1.23 cubic yards. With 10% extra for waste that is 1.36 cubic yards, or 62 bags of 80 lb premixed concrete.',
+  },
+  {
+    q: 'How many bags of concrete are in a cubic yard?',
+    a: 'A cubic yard is 27 cubic feet. At the yields printed on standard premix bags, that is 45 bags of 80 lb (0.60 cu ft each), 60 bags of 60 lb (0.45 cu ft) or 90 bags of 40 lb (0.30 cu ft).',
+  },
+  {
+    q: 'How thick should a concrete slab be?',
+    a: 'Four inches is the usual thickness for patios, walkways and shed bases. Driveways that carry cars and light trucks are commonly 5 to 6 inches. Footings and structural slabs should follow your local building code or an engineer’s drawings.',
+  },
+  {
+    q: 'How much extra concrete should I order?',
+    a: 'Add 5% to 10% to cover spillage, uneven ground and forms that bow slightly. The calculator adds 10% by default; change the waste percentage if your base is very flat and well formed, or raise it for rough ground.',
+  },
+  {
+    q: 'Should I use bags or order ready-mix?',
+    a: 'Bags are practical for small jobs such as post holes, steps and small pads, roughly up to a cubic yard. Beyond that, mixing by hand gets slow and the concrete may not be placed evenly, so ready-mix from a truck is usually easier. Ask your supplier about minimum orders and short-load fees.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="concrete-calculator"
+  intro="Work out how much concrete you need for a slab, footing, wall, column, round slab, stairs or post holes, in cubic yards, cubic meters and bags."
+  faqs={faqs}
+  disclaimer="Quantities are estimates for the shapes you enter. Follow your local building code and your supplier’s advice for mix, thickness and reinforcement."
+>
+  <CalcShell name="Concrete Calculator">
+    <Fragment slot="top">
+      <Tabs
+        legend="What are you pouring?"
+        options={[
+          { value: 'slab', label: 'Slab, footing or wall' },
+          { value: 'column', label: 'Round column' },
+          { value: 'tube', label: 'Circular slab or tube' },
+          { value: 'stairs', label: 'Stairs' },
+          { value: 'posthole', label: 'Fence post holes' },
+        ]}
+      />
+      <UnitSystem />
+    </Fragment>
+
+    <MeasureField name="length" label="Length" units={L} imperial="ft" metric="m" defaults={{ imperial: 10, metric: 3 }} mode="slab" />
+    <MeasureField name="width" label="Width" units={L} imperial="ft" metric="m" defaults={{ imperial: 10, metric: 3 }} mode="slab" />
+    <MeasureField
+      name="thickness"
+      label="Thickness or depth"
+      units={L}
+      imperial="in"
+      metric="cm"
+      defaults={{ imperial: 4, metric: 10 }}
+      hint="For a wall, enter its height here and its thickness as the width."
+      mode="slab"
+    />
+
+    <MeasureField name="diameter" label="Diameter" units={L} imperial="in" metric="cm" defaults={{ imperial: 12, metric: 30 }} mode="column" />
+    <MeasureField name="height" label="Height or depth" units={L} imperial="ft" metric="m" defaults={{ imperial: 4, metric: 1.2 }} mode="column" />
+
+    <MeasureField name="outer" label="Outer diameter" units={L} imperial="in" metric="cm" defaults={{ imperial: 24, metric: 60 }} mode="tube" />
+    <MeasureField
+      name="inner"
+      label="Inner diameter"
+      units={L}
+      imperial="in"
+      metric="cm"
+      defaults={{ imperial: 18, metric: 45 }}
+      hint="Enter 0 for a solid round slab."
+      mode="tube"
+    />
+    <MeasureField name="tube_height" label="Height or thickness" units={L} imperial="ft" metric="m" defaults={{ imperial: 4, metric: 1.2 }} mode="tube" />
+
+    <Field name="steps" label="Number of steps" type="integer" value="3" size="auto" mode="stairs" />
+    <MeasureField name="rise" label="Rise (height of each step)" units={L} imperial="in" metric="cm" defaults={{ imperial: 7, metric: 18 }} mode="stairs" />
+    <MeasureField name="run" label="Run (depth of each step)" units={L} imperial="in" metric="cm" defaults={{ imperial: 10, metric: 25 }} mode="stairs" />
+    <MeasureField name="stair_width" label="Width of the stairs" units={L} imperial="in" metric="cm" defaults={{ imperial: 36, metric: 90 }} mode="stairs" />
+    <MeasureField
+      name="platform"
+      label="Top platform depth"
+      units={L}
+      imperial="in"
+      metric="cm"
+      defaults={{ imperial: 10, metric: 25 }}
+      hint="The depth of the top step or landing. Use the run if there is no landing."
+      mode="stairs"
+    />
+
+    <MeasureField name="hole_diameter" label="Hole diameter" units={L} imperial="in" metric="cm" defaults={{ imperial: 10, metric: 25 }} mode="posthole" />
+    <MeasureField name="hole_depth" label="Hole depth" units={L} imperial="in" metric="cm" defaults={{ imperial: 24, metric: 60 }} mode="posthole" />
+    <SelectField
+      name="post_shape"
+      label="Post shape"
+      options={[
+        { value: 'square', label: 'Square post' },
+        { value: 'round', label: 'Round post' },
+        { value: 'none', label: 'No post (solid hole)' },
+      ]}
+      mode="posthole"
+    />
+    <MeasureField
+      name="post_width"
+      label="Post width or diameter"
+      units={L}
+      imperial="in"
+      metric="cm"
+      defaults={{ imperial: 3.5, metric: 9 }}
+      hint="A 4×4 post is 3.5 in (89 mm) wide."
+      mode="posthole"
+    />
+
+    <p class="calc-subhead">Amount and cost</p>
+    <Field name="quantity" label="Quantity" type="integer" value="1" size="quarter" hint="Identical pieces or holes." />
+    <Field name="waste" label="Extra for waste" type="number" value="10" suffix="%" size="quarter" />
+    <MeasureField
+      name="price"
+      label="Ready-mix price (optional)"
+      units={['yd3', 'm3']}
+      imperial="yd3"
+      metric="m3"
+      hint="Adds a cost estimate."
+    />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Cubic yards" out="yd3" primary sub />
+        <Stat label="Cubic feet" out="ft3" />
+        <Stat label="Cubic meters" out="m3" />
+        <Stat label="Approximate weight" out="weight" sub />
+      </div>
+      <p class="result-note" data-out="cost" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Premixed bags needed</h3>
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <thead>
+                <tr><th>Bag size</th><th>Yield per bag</th><th>Bags</th></tr>
+              </thead>
+              <tbody data-table="bags"></tbody>
+            </table>
+          </div>
+          <p class="field-hint mt-2">Bag counts include the waste allowance and are rounded up.</p>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the concrete calculator</h2>
+    <ol>
+      <li>Choose the shape you are pouring: a slab, footing or wall, a round column, a circular slab or tube, stairs, or fence post holes.</li>
+      <li>Enter the measurements. Each one has its own unit menu, so you can mix feet and inches or meters and centimeters.</li>
+      <li>Set how many identical pieces you need and how much extra to allow for waste (10% is a sensible default).</li>
+      <li>Read the volume in cubic yards, cubic feet and cubic meters, and the number of premixed bags in each size.</li>
+    </ol>
+
+    <h2>Concrete volume formulas</h2>
+    <p>Every measurement is converted to the same unit first, then the volume is worked out for the shape:</p>
+    <ul>
+      <li><strong>Slab, footing or wall:</strong> length × width × thickness.</li>
+      <li><strong>Round column or pier:</strong> π × (diameter ÷ 2)² × height.</li>
+      <li><strong>Circular slab or tube:</strong> π ÷ 4 × (outer diameter² − inner diameter²) × height.</li>
+      <li>
+        <strong>Stairs:</strong> width × rise × (run × (steps − 1) × steps ÷ 2 + platform depth × steps). Seen from the
+        side, each step is a block one run deep and as tall as all the steps below it, and the top step is as deep as the
+        platform.
+      </li>
+      <li><strong>Post holes:</strong> the volume of the hole minus the part of the post that sits in it.</li>
+    </ul>
+    <p>
+      The result is multiplied by the quantity and increased by the waste percentage. One cubic yard is 27 cubic feet,
+      and one cubic meter is 35.31 cubic feet. The weight estimate uses 150 lb per cubic foot (2,400 kg per cubic
+      meter), a typical figure for normal-weight concrete.
+    </p>
+
+    <h2>Worked example: a 10 × 10 ft patio</h2>
+    <ul>
+      <li>Thickness 4 inches = 4 ÷ 12 = 0.333 ft.</li>
+      <li>Volume: 10 × 10 × 0.333 = 33.33 cubic feet.</li>
+      <li>In cubic yards: 33.33 ÷ 27 = 1.23 yd³.</li>
+      <li>With 10% waste: 33.33 × 1.10 = 36.67 cubic feet, or 1.36 yd³.</li>
+      <li>80 lb bags at 0.60 cubic feet each: 36.67 ÷ 0.60 = 61.1, so buy <strong>62 bags</strong>.</li>
+    </ul>
+
+    <h2>Bags per cubic yard and cubic meter</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Bag size</th><th>Yield per bag</th><th>Bags per yd³</th><th>Bags per m³</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>40 lb</td><td>0.30 ft³</td><td>90</td><td>118</td></tr>
+          <tr><td>50 lb</td><td>0.375 ft³</td><td>72</td><td>95</td></tr>
+          <tr><td>60 lb</td><td>0.45 ft³</td><td>60</td><td>79</td></tr>
+          <tr><td>80 lb</td><td>0.60 ft³</td><td>45</td><td>59</td></tr>
+          <tr><td>20 kg</td><td>0.0094 m³</td><td>82</td><td>107</td></tr>
+          <tr><td>25 kg</td><td>0.0117 m³</td><td>66</td><td>86</td></tr>
+          <tr><td>30 kg</td><td>0.0140 m³</td><td>55</td><td>72</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Yields are the figures printed on standard premixed concrete bags; metric bags use the same dry-mix-to-volume
+      ratio. Counts are rounded up to whole bags.
+    </p>
+
+    <h2>How far one cubic yard goes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Slab thickness</th><th>Area covered by 1 yd³</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>3 inches</td><td>108 ft²</td></tr>
+          <tr><td>4 inches</td><td>81 ft²</td></tr>
+          <tr><td>5 inches</td><td>64.8 ft²</td></tr>
+          <tr><td>6 inches</td><td>54 ft²</td></tr>
+          <tr><td>8 inches</td><td>40.5 ft²</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { bagsNeeded, concrete, type ConcreteInput, type ConcreteShape } from '../../../scripts/calculators/concrete';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import { toMeters, YD3_PER_M3 } from '../../../scripts/lib/units';
+  import { out, setupCalculator, steps, table, toggle, type Reader } from '../../../scripts/ui/calculator';
+
+  const f = (n: number, d = 2) => formatNumber(n, d);
+
+  /** Reads a measurement and returns it in metres, plus the text as entered. */
+  function length(read: Reader, name: string, label: string, allowZero = false) {
+    const value = read.number(name, { label, min: 0, above: !allowZero, max: 100000 });
+    const unit = read.unit(name);
+    return value === null ? null : { m: toMeters(value, unit), text: `${f(value, 3)} ${unit}` };
+  }
+
+  setupCalculator((read) => {
+    const shape = read.choice('mode') as ConcreteShape;
+    const imperial = read.choice('units') !== 'metric';
+    const input: ConcreteInput = { shape, quantity: 1, wastePercent: 0 };
+    let formula: [string, string];
+
+    if (shape === 'slab') {
+      const l = length(read, 'length', 'the length');
+      const w = length(read, 'width', 'the width');
+      const t = length(read, 'thickness', 'the thickness');
+      if (!l || !w || !t) return null;
+      Object.assign(input, { length: l.m, width: w.m, thickness: t.m });
+      formula = ['Volume = length × width × thickness', `${l.text} × ${w.text} × ${t.text}`];
+    } else if (shape === 'column') {
+      const d = length(read, 'diameter', 'the diameter');
+      const h = length(read, 'height', 'the height');
+      if (!d || !h) return null;
+      Object.assign(input, { diameter: d.m, height: h.m });
+      formula = ['Volume = π × (diameter ÷ 2)² × height', `π × (${d.text} ÷ 2)² × ${h.text}`];
+    } else if (shape === 'tube') {
+      const o = length(read, 'outer', 'the outer diameter');
+      const i = length(read, 'inner', 'the inner diameter', true);
+      const h = length(read, 'tube_height', 'the height');
+      if (!o || !i || !h) return null;
+      if (i.m >= o.m) {
+        read.fail('inner', 'The inner diameter must be smaller than the outer diameter.');
+        return null;
+      }
+      Object.assign(input, { diameter: o.m, innerDiameter: i.m, height: h.m });
+      formula = ['Volume = π ÷ 4 × (outer² − inner²) × height', `π ÷ 4 × (${o.text}² − ${i.text}²) × ${h.text}`];
+    } else if (shape === 'stairs') {
+      const n = read.number('steps', { label: 'the number of steps', min: 1, max: 100, integer: true });
+      const r = length(read, 'rise', 'the rise');
+      const run = length(read, 'run', 'the run');
+      const w = length(read, 'stair_width', 'the width');
+      const p = length(read, 'platform', 'the platform depth');
+      if (n === null || !r || !run || !w || !p) return null;
+      Object.assign(input, { steps: n, rise: r.m, run: run.m, stairWidth: w.m, platformDepth: p.m });
+      formula = [
+        'Volume = width × rise × (run × (steps − 1) × steps ÷ 2 + platform × steps)',
+        `${w.text} × ${r.text} × (${run.text} × ${(n - 1) * n} ÷ 2 + ${p.text} × ${n})`,
+      ];
+    } else {
+      const d = length(read, 'hole_diameter', 'the hole diameter');
+      const depth = length(read, 'hole_depth', 'the hole depth');
+      const postShape = read.choice('post_shape') as 'square' | 'round' | 'none';
+      const pw = postShape === 'none' ? { m: 0, text: '0' } : length(read, 'post_width', 'the post width');
+      if (!d || !depth || !pw) return null;
+      if (postShape !== 'none' && pw.m >= d.m) {
+        read.fail('post_width', 'The post must be narrower than the hole.');
+        return null;
+      }
+      Object.assign(input, { holeDiameter: d.m, holeDepth: depth.m, postShape, postWidth: pw.m });
+      formula = [
+        'Volume = hole − post = π × (hole diameter ÷ 2)² × depth − post area × depth',
+        `π × (${d.text} ÷ 2)² × ${depth.text} − ${postShape === 'square' ? `${pw.text}²` : postShape === 'round' ? `π × (${pw.text} ÷ 2)²` : '0'} × ${depth.text}`,
+      ];
+    }
+
+    const quantity = read.number('quantity', { label: 'the quantity', min: 1, max: 10000, integer: true });
+    const waste = read.number('waste', { label: 'the waste allowance', min: 0, max: 100 });
+    const price = read.number('price', { label: 'the price', min: 0, optional: true });
+    if (!read.ok || quantity === null || waste === null) return null;
+    input.quantity = quantity;
+    input.wastePercent = waste;
+
+    const r = concrete(input);
+    if (!(r.cubicMetres > 0)) return null;
+
+    out('yd3', f(r.cubicYards));
+    out('yd3-sub', waste ? `Includes ${f(waste)}% extra` : 'No waste allowance');
+    out('ft3', f(r.cubicFeet));
+    out('m3', f(r.cubicMetres, 3));
+    out('weight', imperial ? `${formatNumber(r.weightLb, 0)} lb` : `${formatNumber(r.weightKg, 0)} kg`);
+    out('weight-sub', imperial ? `${f(r.weightLb / 2000, 2)} US tons` : `${f(r.weightKg / 1000, 2)} tonnes`);
+
+    let costText = '';
+    if (price !== null && price > 0) {
+      const perM3 = read.unit('price') === 'm3' ? price : price * YD3_PER_M3;
+      const cost = r.cubicMetres * perM3;
+      costText = `Estimated ready-mix cost: ${formatMoney(cost)} (${f(read.unit('price') === 'm3' ? r.cubicMetres : r.cubicYards)} ${read.unit('price') === 'm3' ? 'm³' : 'yd³'} × ${formatMoney(price)}). Suppliers may add delivery or short-load fees.`;
+    }
+    out('cost', costText);
+    toggle('[data-out="cost"]', !!costText);
+
+    const bags = bagsNeeded(r.cubicMetres);
+    const order = imperial ? ['us', 'metric'] : ['metric', 'us'];
+    const sorted = [...bags].sort((a, b) => order.indexOf(a.system) - order.indexOf(b.system));
+    table('bags', sorted.map((b) => [b.label, b.yieldText, formatNumber(b.count, 0)]));
+
+    const bagHint = sorted[imperial ? 3 : 1];
+    // Show the working in the visitor's own system: cubic feet → yards, or cubic meters.
+    const FT3 = 35.3146667;
+    const [unit, piece, net, total] = imperial
+      ? ['ft³', r.pieceVolume * FT3, r.netVolume * FT3, r.cubicFeet]
+      : ['m³', r.pieceVolume, r.netVolume, r.cubicMetres];
+    const d = imperial ? 2 : 4;
+    steps([
+      formula,
+      ['Volume of one piece, with every measurement in the same unit', `${f(piece, d)} ${unit}`],
+      quantity > 1 ? ['Multiply by the quantity', `${f(piece, d)} × ${quantity} = ${f(net, d)} ${unit}`] : 'Quantity is 1.',
+      ['Add the waste allowance', `${f(net, d)} × ${f(1 + waste / 100, 2)} = ${f(total, d)} ${unit}`],
+      imperial
+        ? ['Convert to cubic yards (27 ft³ = 1 yd³)', `${f(total, 2)} ÷ 27 = ${f(r.cubicYards)} yd³`]
+        : ['Convert to cubic yards (1 m³ = 1.308 yd³)', `${f(total, 4)} × 1.308 = ${f(r.cubicYards)} yd³`],
+      [`Bags of ${bagHint.label} (yield ${bagHint.yieldText} each)`, `${f(total, d)} ${unit} ÷ ${bagHint.yieldText} = ${bagHint.count} bags, rounded up`],
+    ]);
+
+    const copy = [
+      `Concrete: ${f(r.cubicYards)} yd³ = ${f(r.cubicFeet)} ft³ = ${f(r.cubicMetres, 3)} m³ (incl. ${f(waste)}% waste)`,
+      ...sorted.map((b) => `${b.label} bags: ${b.count}`),
+      ...(costText ? [costText] : []),
+    ].join('\n');
+    return {
+      announce: `${f(r.cubicYards)} cubic yards, ${f(r.cubicMetres, 2)} cubic meters, or ${bagHint.count} ${bagHint.label} bags.`,
+      copy,
+    };
+  });
+</script>

@@ -66,7 +66,7 @@ test('every live calculator has a page, and no planned one does', () => {
   }
 });
 
-test('4–8 calculators are featured on the homepage', () => {
-  const featured = calculators.filter((c) => c.featured).length;
-  assert.ok(featured >= 4 && featured <= 8, `${featured} featured`);
+test('4–8 calculators are marked popular for the homepage', () => {
+  const popular = calculators.filter((c) => c.popular).length;
+  assert.ok(popular >= 4 && popular <= 8, `${popular} popular`);
 });

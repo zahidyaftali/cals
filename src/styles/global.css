@@ -1,9 +1,5 @@
 @import 'tailwindcss';
 
-/* Dark mode follows a `.dark` class on <html>, set before first paint by the
-   inline script in BaseLayout (system preference, or the saved toggle). */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* ── Design tokens ──────────────────────────────────────────────
    Lime and deep green on white, with cool grey panels and hairline borders.
    Lime (--accent) is a fill colour only: it is too light for text on white,
@@ -32,28 +28,6 @@
   color-scheme: light;
 }
 
-.dark {
-  --bg: #0b0e09;
-  --surface: #12160f;
-  --surface-2: #181d14;
-  --field: #181d14;
-  --line: #252b20;
-  --line-strong: #353d2e;
-  --ink: #eef1ea;
-  --muted: #a1a898;
-  --accent: #b0ec6c;
-  --accent-hover: #c3f38b;
-  --on-accent: #182c04;
-  --accent-soft: #1a2610;
-  --accent-line: #2c4217;
-  --accent-ink: #b0ec6c;
-  --deep: #1c3308;
-  --on-deep: #ffffff;
-  --danger: #ff8fae;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
-  --shadow-float: 0 16px 40px -12px rgb(0 0 0 / 0.6);
-  color-scheme: dark;
-}
 
 @theme inline {
   --font-sans: var(--font-onest), system-ui, sans-serif;
@@ -249,16 +223,6 @@
       height: 280px;
     }
   }
-  .ad-placeholder {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px dashed var(--line-strong);
-    border-radius: 0.5rem;
-    background: var(--surface-2);
-    color: var(--muted);
-    font-size: 0.8125rem;
-  }
 
   .link {
     color: var(--accent-ink);
@@ -353,5 +317,864 @@
     padding: 0.1em 0.35em;
     border-radius: 0.3em;
     background: var(--surface-2);
+  }
+}
+
+/* ── Calculator UI ──────────────────────────────────────────── */
+
+:root {
+  --chart-1: #182c04;
+  --chart-2: #b0ec6c;
+  --chart-3: #c9d0d0;
+}
+
+@layer components {
+  /* Form card */
+  .calc {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    @media (width >= 40rem) {
+      padding: 1.5rem;
+    }
+  }
+  .calc-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.875rem 1.25rem;
+  }
+
+  /* Mode tabs */
+  .tabs-field {
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tabs label {
+    position: relative;
+  }
+  .tabs input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .tabs span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 0.95rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .tabs label:hover span {
+    border-color: var(--ink);
+  }
+  .tabs input:checked + span {
+    border-color: var(--deep);
+    background: var(--deep);
+    color: #fff;
+  }
+  .tabs input:focus-visible + span {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 2px;
+  }
+
+  .unit-system {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .unit-system legend {
+    float: left;
+    color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Field grid: 12 columns. f-auto is full width on phones, half on tablets,
+     a third on desktops; f-half / f-third share a row at every size. */
+  .calc-fields {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem 0.875rem;
+    align-items: start;
+  }
+  .calc-fields > * {
+    grid-column: span 12;
+  }
+  .calc-fields > .f-auto {
+    @media (width >= 40rem) {
+      grid-column: span 6;
+    }
+    @media (width >= 64rem) {
+      grid-column: span 4;
+    }
+  }
+  .calc-fields > .f-half {
+    grid-column: span 6;
+  }
+  .calc-fields > .f-third {
+    grid-column: span 4;
+  }
+  .calc-fields > .f-quarter {
+    grid-column: span 6;
+    @media (width >= 64rem) {
+      grid-column: span 3;
+    }
+  }
+  .calc-fields > [hidden] {
+    display: none;
+  }
+  .calc-subhead {
+    padding-top: 0.5rem;
+    color: var(--ink);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .calc-subhead:not(:first-child) {
+    margin-top: 0.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+  }
+  .field[hidden] {
+    display: none;
+  }
+  .field-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .field-label {
+    color: var(--ink);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .field-link {
+    color: var(--accent-ink);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .field-control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0.625rem;
+    background: var(--surface);
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .field-control:focus-within {
+    border-color: var(--accent-ink);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .field-control:has([aria-invalid='true']) {
+    border-color: var(--danger);
+  }
+  .field-control input,
+  .field-control select {
+    flex: 1;
+    min-width: 0;
+    height: 3rem;
+    padding: 0 0.875rem;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--ink);
+    /* 16px stops iOS zooming into the field. */
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .field-control input:focus-visible,
+  .field-control select:focus-visible {
+    outline: none;
+  }
+  .field-control select {
+    appearance: none;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+  .field-control.select::after,
+  .field-control.has-unit::after {
+    content: '';
+    position: absolute;
+    right: 0.95rem;
+    top: calc(50% - 0.3rem);
+    width: 0.42rem;
+    height: 0.42rem;
+    border: solid var(--muted);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+  /* The unit menu inside a measurement field. */
+  .field-control .unit-select {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 4.75rem;
+    padding: 0 2rem 0 0.75rem;
+    border-left: 1px solid var(--line);
+    border-radius: 0 0.625rem 0.625rem 0;
+    background: var(--surface-2);
+    color: var(--ink);
+    font-size: 0.9375rem;
+  }
+  .affix {
+    padding: 0 0.875rem;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+  .affix:first-child {
+    padding-right: 0;
+  }
+  .affix:last-child {
+    padding-left: 0;
+  }
+  .field-hint {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+  .field-error {
+    color: var(--danger);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .segmented-field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .segmented {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 0.75rem;
+    background: var(--surface-2);
+  }
+  .segmented label {
+    position: relative;
+    flex: 1 1 0;
+  }
+  .segmented input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .segmented span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border-radius: 0.5rem;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .segmented-sm span {
+    min-height: 2.25rem;
+    font-size: 0.875rem;
+  }
+  .segmented input:checked + span {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow:
+      0 1px 2px rgb(16 24 40 / 0.08),
+      0 0 0 1px var(--line);
+  }
+  .segmented input:focus-visible + span {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 2px;
+  }
+
+  .check {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .check input {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    accent-color: var(--accent-ink);
+  }
+  .check label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .preset {
+    min-width: 3.5rem;
+    min-height: 2.5rem;
+    padding: 0 0.875rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+  }
+  .preset:hover {
+    border-color: var(--ink);
+  }
+  .preset[aria-pressed='true'] {
+    border-color: var(--accent-ink);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .calc-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+  }
+  .calc-actions .btn {
+    min-height: 3rem;
+  }
+  .calc-actions .btn-primary {
+    flex: 1 1 auto;
+    @media (width >= 40rem) {
+      flex: 0 0 auto;
+      min-width: 11rem;
+    }
+  }
+  .btn-sm {
+    min-height: 2.5rem;
+    padding: 0 0.875rem;
+    font-size: 0.875rem;
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* Result card */
+  .result {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    scroll-margin-top: 1rem;
+    @media (width >= 40rem) {
+      padding: 1.5rem;
+    }
+  }
+  .result-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .result-head h2 {
+    font-size: 1.25rem;
+  }
+  .result-empty {
+    padding: 1.25rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  [data-state='empty'] [data-output],
+  [data-state='ok'] [data-empty] {
+    display: none;
+  }
+  .result-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+  .result-report {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .result-report a {
+    color: var(--accent-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Result tiles */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+    gap: 0.625rem;
+  }
+  .stat {
+    min-width: 0;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    background: var(--surface-2);
+  }
+  .stat[hidden] {
+    display: none;
+  }
+  .stat-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .stat-label {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .stat-primary .stat-label,
+  .stat-primary .stat-sub {
+    color: color-mix(in srgb, var(--on-accent) 78%, transparent);
+  }
+  .stat-value {
+    margin-top: 0.25rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .stat-sub {
+    margin-top: 0.25rem;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+  .stat-sub:empty {
+    display: none;
+  }
+
+  .result-note {
+    padding: 0.75rem 1rem;
+    border-left: 3px solid var(--accent-ink);
+    border-radius: 0.375rem;
+    background: var(--accent-soft);
+    font-size: 0.9375rem;
+  }
+  .result-note[hidden] {
+    display: none;
+  }
+  .result-note.is-warning {
+    border-left-color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  }
+
+  .result-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    @media (width >= 64rem) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 2rem;
+    }
+  }
+  .result-section h3 {
+    margin-bottom: 0.625rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .result-section[hidden] {
+    display: none;
+  }
+
+  .result-rows > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--line);
+    font-size: 0.9375rem;
+  }
+  .result-rows > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .result-rows dt {
+    color: var(--muted);
+  }
+  .result-rows dd {
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+  }
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-table th,
+  .result-table td {
+    padding: 0.6rem 0.875rem;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .result-table th {
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+  .result-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .result-table .col-optional {
+    display: none;
+    @media (width >= 40rem) {
+      display: table-cell;
+    }
+  }
+  .result-table tr.is-current td {
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+  .result-table td:not(:first-child),
+  .result-table th:not(:first-child) {
+    text-align: right;
+  }
+
+  .result-steps ol {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .result-steps li {
+    position: relative;
+    padding-left: 2rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    counter-increment: step;
+  }
+  .result-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0.05rem;
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: var(--deep);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .math {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.375rem;
+    background: var(--surface-2);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  /* Charts */
+  .tone-primary {
+    fill: var(--chart-1);
+    background: var(--chart-1);
+  }
+  .tone-accent {
+    fill: var(--chart-2);
+    background: var(--chart-2);
+  }
+  .tone-muted {
+    fill: var(--chart-3);
+    background: var(--chart-3);
+  }
+  .tone-track {
+    fill: var(--surface-2);
+  }
+  .tone-marker {
+    fill: var(--danger);
+  }
+  .chart-stack {
+    display: block;
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .chart-legend {
+    display: grid;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+  }
+  .chart-legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .chart-legend strong {
+    margin-left: auto;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .swatch {
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.2rem;
+  }
+  .chart-bars {
+    display: grid;
+    gap: 0.625rem;
+  }
+  .chart-bar-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+  }
+  .chart-bar-head strong {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-track {
+    display: block;
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .chart-note {
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+  .chart-line {
+    display: block;
+    width: 100%;
+    max-width: 34rem;
+    height: auto;
+  }
+  .chart-line .grid {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .chart-line .tick,
+  .chart-line .axis {
+    fill: var(--muted);
+    font-size: 10px;
+  }
+  .chart-line .target {
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 4;
+  }
+  .chart-line .series {
+    stroke: var(--chart-1);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .chart-line .point {
+    fill: var(--accent);
+    stroke: var(--chart-1);
+    stroke-width: 2;
+  }
+
+  /* Hours calculator: one row per day. */
+  .day-rows {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .day-row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.5rem 0.625rem;
+    align-items: end;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    @media (width >= 48rem) {
+      padding: 0.5rem 0.75rem;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+    }
+  }
+  .day-row > .day-name {
+    grid-column: span 12;
+    font-weight: 600;
+    @media (width >= 48rem) {
+      grid-column: span 2;
+      align-self: center;
+    }
+  }
+  .day-row > .field {
+    grid-column: span 6;
+    @media (width >= 48rem) {
+      grid-column: span 3;
+    }
+  }
+  .day-row > .field[data-field$='_break'] {
+    @media (width >= 48rem) {
+      grid-column: span 2;
+    }
+  }
+  .day-row > .day-total {
+    grid-column: span 6;
+    align-self: end;
+    padding-bottom: 0.8rem;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    @media (width >= 48rem) {
+      grid-column: span 2;
+      align-self: center;
+      padding-bottom: 0;
+      text-align: right;
+    }
+  }
+  .day-row .field-label {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  @media (width >= 48rem) {
+    .day-row:not(:first-child) .field-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+  }
+
+  /* Repeating rows (square footage areas, duration list). */
+  .repeat-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .repeat-item {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.75rem 0.625rem;
+    padding: 0.875rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--surface);
+  }
+  .repeat-item > * {
+    grid-column: span 12;
+  }
+  .repeat-item > .f-half {
+    grid-column: span 6;
+  }
+  .repeat-item > .f-third {
+    grid-column: span 4;
+  }
+  .repeat-item > .f-auto {
+    grid-column: span 6;
+    @media (width >= 64rem) {
+      grid-column: span 3;
+    }
+  }
+  .repeat-item > [hidden] {
+    display: none;
+  }
+  .repeat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-weight: 600;
+  }
+  .repeat-remove {
+    color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .repeat-remove:hover {
+    color: var(--danger);
+  }
+
+  /* Wide tables in article content scroll sideways on phones. */
+  .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .table-wrap table {
+    min-width: 26rem;
   }
 }

@@ -1,0 +1,94 @@
+---
+// Page template for every calculator, in the order set by CLAUDE.md:
+// breadcrumbs, H1 and intro → calculator → ad → content → FAQs → related
+// calculators → last updated / reviewed by / disclaimer → feedback link.
+import AdSlot from '../components/AdSlot.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import FAQ, { type FaqItem } from '../components/FAQ.astro';
+import RelatedCalculators from '../components/RelatedCalculators.astro';
+import { calculatorUrl, categoryUrl, getCalculator, getCategory } from '../data/calculators';
+import { formatDate, site } from '../data/site';
+import { breadcrumbSchema, faqSchema, webApplicationSchema, type Crumb } from '../lib/schema';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  slug: string;
+  /** One sentence under the H1. */
+  intro: string;
+  faqs: FaqItem[];
+  /** Short note shown at the foot of the page, e.g. "Results are a guide…". */
+  disclaimer?: string;
+}
+
+const { slug, intro, faqs, disclaimer } = Astro.props;
+const calc = getCalculator(slug);
+const category = getCategory(calc.category);
+const path = calculatorUrl(calc);
+const crumbs: Crumb[] = [
+  { name: 'Home', href: '/' },
+  { name: category.name, href: categoryUrl(category.slug) },
+  { name: calc.name },
+];
+const jsonLd = [
+  webApplicationSchema({ name: calc.name, description: calc.metaDescription, path, dateModified: calc.updated }),
+  faqSchema(faqs),
+  breadcrumbSchema(crumbs, path),
+];
+const reportHref = `mailto:${site.email}?subject=${encodeURIComponent(`Result check: ${calc.name}`)}&body=${encodeURIComponent(
+  `Page: ${new URL(path, site.url).href}\n\nValues I entered:\n\nResult shown:\n\nResult I expected:\n`,
+)}`;
+---
+
+<BaseLayout title={calc.title} description={calc.metaDescription} currentCategory={calc.category} jsonLd={jsonLd}>
+  <article class="wrap pt-4 sm:pt-6">
+    <Breadcrumbs crumbs={crumbs} />
+    <header class="max-w-3xl pt-2 pb-5 sm:pt-4 sm:pb-6">
+      <h1 class="text-[1.75rem] leading-tight sm:text-[2.5rem]">{calc.name}</h1>
+      <p class="mt-2 text-muted sm:text-lg">{intro}</p>
+    </header>
+
+    <section aria-label={`${calc.name} tool`}>
+      <slot />
+    </section>
+
+    <AdSlot unit="calculatorTop" format="banner" class="my-10" />
+
+    <div class="prose mt-10 sm:mt-12">
+      <slot name="content" />
+    </div>
+
+    <div class="max-w-3xl">
+      <FAQ items={faqs} />
+    </div>
+
+    <AdSlot unit="calculatorBottom" format="rectangle" class="my-10" />
+
+    <RelatedCalculators calculator={calc} />
+
+    <footer class="mt-12 max-w-3xl space-y-2 border-t border-line pt-6 text-[0.9375rem] text-muted">
+      <p>
+        Last updated <time datetime={calc.updated}>{formatDate(calc.updated)}</time>
+        {
+          calc.reviewer && (
+            <>
+              {' · '}Reviewed by{' '}
+              {calc.reviewer.url ? (
+                <a href={calc.reviewer.url} class="link">
+                  {calc.reviewer.name}
+                </a>
+              ) : (
+                <span class="text-ink">{calc.reviewer.name}</span>
+              )}
+              {calc.reviewer.credentials && <>, {calc.reviewer.credentials}</>}
+            </>
+          )
+        }
+      </p>
+      {disclaimer && <p>{disclaimer}</p>}
+      <p>
+        Is this result wrong? <a href={reportHref} class="link">Tell us</a> and we'll check it. How we build and
+        test calculators is set out in our <a href="/editorial-policy/" class="link">editorial policy</a>.
+      </p>
+    </footer>
+  </article>
+</BaseLayout>

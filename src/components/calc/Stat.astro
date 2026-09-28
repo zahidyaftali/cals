@@ -1,0 +1,17 @@
+---
+// A result tile: label, big value ([data-out=out]) and optional sub line ([data-out=`${out}-sub`]).
+interface Props {
+  label: string;
+  out: string;
+  primary?: boolean;
+  sub?: boolean;
+  mode?: string;
+}
+const { label, out, primary = false, sub = false, mode } = Astro.props;
+---
+
+<div class:list={['stat', primary && 'stat-primary']} data-mode={mode}>
+  <p class="stat-label" data-out={`${out}-label`}>{label}</p>
+  <p class="stat-value" data-out={out}>–</p>
+  {sub && <p class="stat-sub" data-out={`${out}-sub`}></p>}
+</div>

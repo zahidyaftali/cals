@@ -1,0 +1,18 @@
+---
+// Imperial / metric switch. Changing it sets every unit menu on the page to
+// that system's default unit; the choice is remembered on this device.
+---
+
+<fieldset class="unit-system">
+  <legend>Units</legend>
+  <div class="segmented segmented-sm">
+    <label>
+      <input type="radio" name="units" value="imperial" checked />
+      <span>Imperial</span>
+    </label>
+    <label>
+      <input type="radio" name="units" value="metric" />
+      <span>Metric</span>
+    </label>
+  </div>
+</fieldset>

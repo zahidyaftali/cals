@@ -1,0 +1,271 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import { salesTaxSource, stateRates } from '../../../data/sales-tax-rates';
+import { formatDate } from '../../../data/site';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const pct = (n: number) => `${Number(n.toFixed(3))}%`;
+const stateOptions = [
+  ...stateRates.map((s) => ({ value: s.code, label: `${s.name} (${pct(s.rate)})` })),
+  { value: 'custom', label: 'Another rate (enter it yourself)' },
+];
+// State data for the page script, embedded as JSON.
+const stateJson = JSON.stringify(Object.fromEntries(stateRates.map((s) => [s.code, s])));
+
+const faqs = [
+  {
+    q: 'How do I calculate sales tax?',
+    a: 'Multiply the price by the tax rate as a decimal. For a $250 purchase at 8.25%, the tax is $250 × 0.0825 = $20.63, and the total is $270.63. The rate to use is your state rate plus any city, county and district rates where you buy.',
+  },
+  {
+    q: 'How do I work out the price before tax from a total?',
+    a: 'Divide the total by 1 plus the tax rate. If you paid $108.25 including 8.25% tax, the price before tax was $108.25 ÷ 1.0825 = $100.00 and the tax was $8.25. Multiplying the total by the rate would give the wrong answer, because the tax is a share of the pre-tax price.',
+  },
+  {
+    q: 'Which states have no sales tax?',
+    a: 'Alaska, Delaware, Montana, New Hampshire and Oregon have no statewide sales tax. Alaska lets boroughs and cities charge their own, and some Montana resort areas charge a local resort tax, so you may still pay tax there.',
+  },
+  {
+    q: 'Which state has the highest sales tax?',
+    a: 'California has the highest state rate at 7.25%. Once average local taxes are added, Louisiana has the highest combined average rate, about 10.13% as of July 2026, followed by Tennessee, Washington, Arkansas and Alabama.',
+  },
+  {
+    q: 'Why is my receipt different from the state rate?',
+    a: 'Most states let cities, counties and special districts add their own sales tax, and some items such as groceries, clothing or prescription drugs are taxed at a lower rate or not at all. Enter your local rate in the calculator, or check your receipt or your state revenue department for the exact rate.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="sales-tax-calculator"
+  intro="Add sales tax to a price, take it out of a total, or find the rate, using any US state's rate plus your local rate."
+  faqs={faqs}
+  disclaimer={`State rates are from the Tax Foundation (rates as of July 1, 2026), last checked ${formatDate(salesTaxSource.lastVerified)}. Local rates depend on the exact address and some items are taxed differently, so check your state revenue department for official rates.`}
+>
+  <CalcShell name="Sales Tax Calculator">
+    <Tabs
+      slot="top"
+      legend="What do you want to calculate?"
+      options={[
+        { value: 'add', label: 'Add tax to a price' },
+        { value: 'remove', label: 'Remove tax from a total' },
+        { value: 'rate', label: 'Find the tax rate' },
+      ]}
+    />
+
+    <Field name="price" label="Price before tax" prefix="$" value="100.00" mode="add rate" />
+    <Field name="total" label="Total including tax" prefix="$" value="108.25" mode="remove rate" />
+    <SelectField name="state" label="State" options={stateOptions} value="TX" mode="add remove" />
+    <Field name="local" label="Local sales tax rate" suffix="%" value="2" mode="add remove" hint="City, county and district rates added to the state rate." />
+    <div class="f-auto" data-mode="add remove" data-avg-wrap>
+      <p class="field-label">Not sure of your local rate?</p>
+      <button type="button" class="btn btn-outline btn-sm mt-1.5" data-use-average>Use the state average</button>
+      <p class="field-hint mt-1.5" data-out="avg-hint"></p>
+    </div>
+    <Field name="custom" label="Tax rate" suffix="%" value="7" mode="add remove" hint="Your full combined rate." />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Sales tax" out="tax" primary sub />
+        <Stat label="Total" out="second" sub />
+        <Stat label="Combined rate" out="rate" sub />
+        <Stat label="State rate" out="state" sub />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Price and tax</h3>
+          <div data-chart="split"></div>
+          <dl class="result-rows mt-5" data-rows="details"></dl>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the sales tax calculator</h2>
+    <ol>
+      <li>Choose whether to add tax to a price, remove tax from a total, or find the rate from a price and a total.</li>
+      <li>Pick your state. Its state rate fills in automatically.</li>
+      <li>Enter your local rate, or press "Use the state average" for the average of local rates in that state.</li>
+      <li>For a rate that isn't listed, such as another country's VAT, choose "Another rate" and type it in.</li>
+    </ol>
+
+    <h2>Sales tax formulas</h2>
+    <ul>
+      <li><strong>Combined rate</strong> = state rate + local rate</li>
+      <li><strong>Tax</strong> = price × combined rate ÷ 100</li>
+      <li><strong>Total</strong> = price + tax</li>
+      <li><strong>Price before tax</strong> = total ÷ (1 + combined rate ÷ 100)</li>
+      <li><strong>Tax rate</strong> = (total − price) ÷ price × 100</li>
+    </ul>
+    <p>Tax is rounded to the nearest cent, as it is at the register.</p>
+
+    <h2>Worked example</h2>
+    <p>
+      You buy a $250 TV in a Texas city. Texas charges 6.25% and lets cities, counties and districts add up to 2% more,
+      so many Texas cities charge the full 8.25%.
+    </p>
+    <ul>
+      <li>Combined rate: 6.25% + 2% = 8.25%.</li>
+      <li>Tax: $250 × 8.25 ÷ 100 = $20.625, which rounds to $20.63.</li>
+      <li>Total: $250 + $20.63 = <strong>$270.63</strong>.</li>
+    </ul>
+    <p>
+      Working backwards from a $270.63 receipt: $270.63 ÷ 1.0825 = $250.00 before tax.
+    </p>
+
+    <h2>Sales tax rates by state</h2>
+    <p>
+      State rates and population-weighted average local rates as of July 1, 2026 (Tax Foundation), last checked
+      {' '}{formatDate(salesTaxSource.lastVerified)}. Local rates can add to the state rate, and your actual rate depends on
+      where you buy.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>State</th><th>State rate</th><th>Avg. local rate</th><th>Combined average</th></tr>
+        </thead>
+        <tbody>
+          {
+            stateRates.map((s) => (
+              <tr>
+                <td>{s.name}</td>
+                <td>{pct(s.rate)}</td>
+                <td>{pct(s.avgLocal)}</td>
+                <td>{pct(Math.round((s.rate + s.avgLocal) * 1000) / 1000)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script is:inline type="application/json" id="state-rates" set:html={stateJson}></script>
+
+<script>
+  import { findRate, salesTax } from '../../../scripts/calculators/sales-tax';
+  import type { StateRate } from '../../../data/sales-tax-rates';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import { stackedBar } from '../../../scripts/ui/chart';
+  import { out, rows, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
+
+  const STATES: Record<string, StateRate> = JSON.parse(document.getElementById('state-rates')!.textContent!);
+  const $ = formatMoney;
+  const p = (n: number) => `${formatNumber(n, 3)}%`;
+  const form = document.getElementById('calc') as HTMLFormElement;
+
+  document.querySelector('[data-use-average]')?.addEventListener('click', () => {
+    const state = STATES[(form.querySelector('[name="state"]') as HTMLSelectElement).value];
+    const local = form.querySelector<HTMLInputElement>('[name="local"]')!;
+    if (!state) return;
+    local.value = String(state.avgLocal);
+    local.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  setupCalculator((read) => {
+    const mode = read.choice('mode') as 'add' | 'remove' | 'rate';
+    const code = read.choice('state');
+    const state = STATES[code];
+    const custom = code === 'custom';
+    toggle('[data-field="custom"]', mode !== 'rate' && custom);
+    toggle('[data-field="local"]', mode !== 'rate' && !custom);
+    toggle('[data-avg-wrap]', mode !== 'rate' && !custom);
+    toggle('[data-out="note"]', false);
+    out('avg-hint', state ? `Average local rate in ${state.name}: ${p(state.avgLocal)}` : '');
+
+    if (mode === 'rate') {
+      const price = read.number('price', { label: 'the price before tax', min: 0, above: true, max: 1e9 });
+      const total = read.number('total', { label: 'the total', min: 0, max: 1e9 });
+      if (!read.ok || price === null || total === null) return null;
+      if (total < price) {
+        read.fail('total', 'The total must be at least the price before tax.');
+        return null;
+      }
+      const r = findRate(price, total);
+      out('tax-label', 'Tax rate');
+      out('tax', p(r.rate));
+      out('tax-sub', `${$(r.tax)} tax on ${$(r.net)}`);
+      out('second-label', 'Sales tax paid');
+      out('second', $(r.tax));
+      out('second-sub', `${$(r.gross)} − ${$(r.net)}`);
+      out('rate', p(r.rate));
+      out('rate-sub', 'Combined state and local');
+      out('state', '–');
+      out('state-sub', 'Not needed for this');
+      chart(r.net, r.tax);
+      rows('details', [['Price before tax', $(r.net)], ['Tax', $(r.tax)], ['Total', $(r.gross)]]);
+      steps([
+        ['Tax paid = total − price', `${$(r.gross)} − ${$(r.net)} = ${$(r.tax)}`],
+        ['Rate = tax ÷ price × 100', `${$(r.tax)} ÷ ${$(r.net)} × 100 = ${p(r.rate)}`],
+      ]);
+      return { announce: `The tax rate is ${p(r.rate)}.`, copy: `Price ${$(r.net)}, total ${$(r.gross)}: tax ${$(r.tax)} = ${p(r.rate)}` };
+    }
+
+    const amount = mode === 'add'
+      ? read.number('price', { label: 'the price before tax', min: 0, max: 1e9 })
+      : read.number('total', { label: 'the total', min: 0, max: 1e9 });
+    let stateRate = 0;
+    let localRate = 0;
+    if (custom) {
+      stateRate = read.number('custom', { label: 'the tax rate', min: 0, max: 50 }) ?? 0;
+    } else {
+      stateRate = state?.rate ?? 0;
+      localRate = read.amount('local', { label: 'the local rate', min: 0, max: 20 });
+    }
+    if (!read.ok || amount === null) return null;
+
+    const rate = Math.round((stateRate + localRate) * 10000) / 10000;
+    const r = salesTax(amount, rate, mode);
+    out('tax-label', 'Sales tax');
+    out('tax', $(r.tax));
+    out('tax-sub', `${p(rate)} of ${$(r.net)}`);
+    out('second-label', mode === 'add' ? 'Total with tax' : 'Price before tax');
+    out('second', $(mode === 'add' ? r.gross : r.net));
+    out('second-sub', mode === 'add' ? `${$(r.net)} + ${$(r.tax)}` : `${$(r.gross)} ÷ ${formatNumber(1 + rate / 100, 5)}`);
+    out('rate', p(rate));
+    out('rate-sub', custom ? 'Your rate' : `${p(stateRate)} state + ${p(localRate)} local`);
+    out('state', custom ? '–' : p(stateRate));
+    out('state-sub', custom ? 'Custom rate' : state.name);
+    if (state?.note && !custom) {
+      out('note', state.note);
+      toggle('[data-out="note"]', true);
+    }
+    chart(r.net, r.tax);
+    rows('details', [
+      ['Price before tax', $(r.net)],
+      ['Sales tax', $(r.tax)],
+      ['Total with tax', $(r.gross)],
+      ...(custom ? [] : ([['State rate', p(stateRate)], ['Local rate', p(localRate)]] as [string, string][])),
+    ]);
+    const work: [string, string][] = [];
+    if (!custom) work.push(['Combined rate = state rate + local rate', `${p(stateRate)} + ${p(localRate)} = ${p(rate)}`]);
+    if (mode === 'add') {
+      work.push(['Tax = price × rate ÷ 100', `${$(r.net)} × ${formatNumber(rate, 4)} ÷ 100 = ${$(r.tax)}`]);
+      work.push(['Total = price + tax', `${$(r.net)} + ${$(r.tax)} = ${$(r.gross)}`]);
+    } else {
+      work.push(['Price before tax = total ÷ (1 + rate ÷ 100)', `${$(r.gross)} ÷ ${formatNumber(1 + rate / 100, 6)} = ${$(r.net)}`]);
+      work.push(['Tax = total − price before tax', `${$(r.gross)} − ${$(r.net)} = ${$(r.tax)}`]);
+    }
+    steps(work);
+    return {
+      announce: `Sales tax ${$(r.tax)}, ${mode === 'add' ? `total ${$(r.gross)}` : `price before tax ${$(r.net)}`}.`,
+      copy: `${$(r.net)} + ${p(rate)} sales tax (${$(r.tax)}) = ${$(r.gross)}`,
+    };
+  });
+
+  function chart(net: number, tax: number) {
+    stackedBar(document.querySelector('[data-chart="split"]'), [
+      { label: 'Price before tax', value: net, text: $(net), tone: 'primary' },
+      { label: 'Sales tax', value: tax, text: $(tax), tone: 'accent' },
+    ]);
+  }
+</script>

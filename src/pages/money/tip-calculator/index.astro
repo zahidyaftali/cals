@@ -1,0 +1,253 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import Presets from '../../../components/calc/Presets.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const faqs = [
+  {
+    q: 'How much should I tip?',
+    a: 'In the United States, 15% to 20% of the pre-tax bill is the usual range for table service, with 18% to 20% common for good service. Tipping customs differ elsewhere: in Canada 15% to 20% is typical, while in the UK many restaurants add a 10% to 12.5% service charge, so check the bill before adding more.',
+  },
+  {
+    q: 'Should I tip on the amount before or after tax?',
+    a: 'Etiquette guides suggest tipping on the amount before tax, because tax is not part of the service. Enter the tax shown on your receipt in "Tax included in the bill" and the calculator works out the tip on the pre-tax amount while still adding it to the full bill.',
+  },
+  {
+    q: 'How do I split a bill with a tip?',
+    a: 'Add the tip to the bill, then divide the total by the number of people. $84 with a 20% tip is $100.80, which is $50.40 each for two people. If the total doesn’t divide into equal cents, one or two people pay a cent more; choose "Round each person up" to make everyone’s share a whole dollar.',
+  },
+  {
+    q: 'What is a quick way to work out a 20% tip?',
+    a: 'Move the decimal point one place to the left to get 10%, then double it. For an $84 bill, 10% is $8.40, so 20% is $16.80. For 15%, add half of the 10% figure: $8.40 + $4.20 = $12.60.',
+  },
+  {
+    q: 'Should I tip on the full price if I used a coupon?',
+    a: 'Yes, the usual advice is to tip on what the meal would have cost before the discount, because the server did the same work. Enter the original bill amount to tip on the full price.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="tip-calculator"
+  intro="Work out the tip and total for any bill, split it between any number of people, or find what percentage a tip is."
+  faqs={faqs}
+>
+  <CalcShell name="Tip Calculator">
+    <Tabs
+      slot="top"
+      legend="What do you want to calculate?"
+      options={[
+        { value: 'percent', label: 'Tip from a percentage' },
+        { value: 'reverse', label: 'Percentage from a tip' },
+      ]}
+    />
+
+    <Field name="bill" label="Bill amount" prefix="$" value="84.00" />
+    <Field name="tax" label="Tax included in the bill (optional)" prefix="$" hint="The tip is worked out on the bill before tax." />
+    <Field name="people" label="Number of people" type="integer" value="2" />
+
+    <Field name="tip_percent" label="Tip percentage" suffix="%" value="18" mode="percent" />
+    <Presets
+      field="tip_percent"
+      label="Common tip percentages"
+      options={['10', '15', '18', '20', '22', '25'].map((v) => ({ value: v, label: `${v}%` }))}
+      mode="percent"
+    />
+    <SelectField
+      name="rounding"
+      label="Rounding"
+      options={[
+        { value: 'none', label: 'No rounding (exact cents)' },
+        { value: 'tip', label: 'Round the tip up to a whole dollar' },
+        { value: 'total', label: 'Round the total up to a whole dollar' },
+        { value: 'person', label: 'Round each person up to a whole dollar' },
+      ]}
+      mode="percent"
+    />
+
+    <Field name="tip_amount" label="Tip you left or plan to leave" prefix="$" value="15.00" mode="reverse" />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Tip" out="tip" primary sub />
+        <Stat label="Total bill" out="total" sub />
+        <Stat label="Each person pays" out="each" sub />
+        <Stat label="Tip percentage" out="pct" sub />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Tip at other percentages</h3>
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <thead>
+                <tr><th>Tip</th><th>Tip amount</th><th>Total</th><th>Per person</th></tr>
+              </thead>
+              <tbody data-table="compare"></tbody>
+            </table>
+          </div>
+          <div class="mt-5" data-chart="split"></div>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the tip calculator</h2>
+    <ol>
+      <li>Enter the bill amount. If tax is shown on the receipt, enter it too so the tip is based on the pre-tax amount.</li>
+      <li>Choose a tip percentage, or tap one of the common percentages.</li>
+      <li>Enter how many people are sharing the bill.</li>
+      <li>Pick a rounding option if you want to pay whole dollars.</li>
+    </ol>
+    <p>
+      To check a tip you already left, switch to "Percentage from a tip" and enter the tip amount. The table in the results
+      compares the tip at other common percentages.
+    </p>
+
+    <h2>How the tip is calculated</h2>
+    <p><strong>Tip = (bill − tax) × tip percentage ÷ 100</strong></p>
+    <p><strong>Total = bill + tip, and each person pays total ÷ number of people</strong></p>
+    <p>
+      Amounts are worked out in whole cents. When the total can't be shared equally, the calculator shows how many people
+      need to pay one cent more. Rounding up happens after the tip is added, and any extra goes to the tip, so the tip
+      percentage shown is the one you really leave.
+    </p>
+
+    <h2>Worked example</h2>
+    <p>Four friends have a meal costing $137.50, including $10.50 tax, and want to tip 20%.</p>
+    <ul>
+      <li>Pre-tax amount: $137.50 − $10.50 = $127.00.</li>
+      <li>Tip: $127.00 × 20% = $25.40.</li>
+      <li>Total: $137.50 + $25.40 = $162.90.</li>
+      <li>Each person: $162.90 ÷ 4 = $40.725, so two people pay $40.73 and two pay $40.72.</li>
+      <li>Rounded up to whole dollars, each pays $41, the total becomes $164 and the tip $26.50 (20.9%).</li>
+    </ul>
+
+    <h2>Common US tipping guide</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Service</th><th>Usual tip</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Restaurant with table service</td><td>15% to 20% of the pre-tax bill</td></tr>
+          <tr><td>Bar</td><td>$1 to $2 per drink, or 15% to 20% of the tab</td></tr>
+          <tr><td>Food delivery</td><td>10% to 20%, with a few dollars minimum</td></tr>
+          <tr><td>Taxi or rideshare</td><td>15% to 20% of the fare</td></tr>
+          <tr><td>Hair stylist or barber</td><td>15% to 20%</td></tr>
+          <tr><td>Hotel housekeeping</td><td>A few dollars per night</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>These are common customs, not rules. Tip what reflects the service and your budget.</p>
+
+    <h2>Before you add a tip, check the bill</h2>
+    <p>
+      Some restaurants add a service charge or an automatic gratuity, often 18% to 20% for larger groups. If it is already
+      on the bill, adding a full tip on top means tipping twice. Look for lines such as "service charge", "gratuity" or
+      "gratuity included" before you enter a percentage, and set the tip to 0% or a small extra amount if service is
+      already covered.
+    </p>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { tip, tipPercentOf, toCents, type Rounding } from '../../../scripts/calculators/tip';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import { stackedBar } from '../../../scripts/ui/chart';
+  import { out, setupCalculator, steps, table, toggle } from '../../../scripts/ui/calculator';
+
+  const COMPARE = [10, 15, 18, 20, 22, 25];
+  const $ = formatMoney;
+
+  setupCalculator((read) => {
+    const mode = read.choice('mode');
+    const bill = read.number('bill', { label: 'the bill amount', min: 0, above: true, max: 1e7 });
+    const tax = read.amount('tax', { label: 'the tax', min: 0 });
+    const people = read.number('people', { label: 'the number of people', min: 1, max: 1000, integer: true });
+    toggle('[data-out="note"]', false);
+    if (bill !== null && tax >= bill) read.fail('tax', 'The tax must be less than the bill.');
+
+    if (mode === 'reverse') {
+      const tipAmount = read.number('tip_amount', { label: 'the tip amount', min: 0, max: 1e7 });
+      if (!read.ok || bill === null || people === null || tipAmount === null) return null;
+      const r = tipPercentOf(bill, tax, tipAmount);
+      const each = r.total / people;
+      out('tip', $(tipAmount));
+      out('tip-sub', `on ${$(r.base)}${tax ? ' before tax' : ''}`);
+      out('pct', `${formatNumber(r.percent, 2)}%`);
+      out('pct-sub', 'of the bill before tax');
+      out('total', $(r.total));
+      out('total-sub', `${$(bill)} + ${$(tipAmount)} tip`);
+      out('each', $(Math.round(each * 100) / 100));
+      out('each-sub', people > 1 ? `${people} people` : 'One person');
+      fillCompare(bill, tax, people, -1);
+      chart(bill, tipAmount);
+      steps([
+        ['Tip percentage = tip ÷ amount before tax × 100', `${$(tipAmount)} ÷ ${$(r.base)} × 100 = ${formatNumber(r.percent, 2)}%`],
+        ['Total = bill + tip', `${$(bill)} + ${$(tipAmount)} = ${$(r.total)}`],
+        ...(people > 1 ? ([['Each person = total ÷ people', `${$(r.total)} ÷ ${people} = ${$(each)}`]] as [string, string][]) : []),
+      ]);
+      return {
+        announce: `A ${$(tipAmount)} tip is ${formatNumber(r.percent, 1)} percent.`,
+        copy: `Bill ${$(bill)}, tip ${$(tipAmount)} = ${formatNumber(r.percent, 2)}% tip. Total ${$(r.total)}.`,
+      };
+    }
+
+    const pct = read.number('tip_percent', { label: 'the tip percentage', min: 0, max: 100 });
+    if (!read.ok || bill === null || people === null || pct === null) return null;
+    const rounding = read.choice('rounding') as Rounding;
+    const r = tip({ bill, tax, tipPercent: pct, people, rounding });
+
+    out('tip', $(r.tip));
+    out('tip-sub', `${formatNumber(pct)}% of ${$(r.tipBase)}${tax ? ' before tax' : ''}`);
+    out('total', $(r.total));
+    out('total-sub', `${$(bill)} + ${$(r.tip)} tip`);
+    out('each', $(r.perPerson));
+    out('each-sub', people > 1 ? `Tip ${$(Math.round(r.tipPerPerson * 100) / 100)} each · ${people} people` : 'One person');
+    out('pct', `${formatNumber(r.effectivePercent, 2)}%`);
+    out('pct-sub', rounding === 'none' ? 'As chosen' : 'After rounding');
+    if (r.extraCentPayers) {
+      out('note', `${$(r.total)} doesn't split evenly: ${r.extraCentPayers} ${r.extraCentPayers === 1 ? 'person pays' : 'people pay'} ${$(r.perPerson + 0.01)} and the rest pay ${$(r.perPerson)}.`);
+      toggle('[data-out="note"]', true);
+    }
+    fillCompare(bill, tax, people, pct);
+    chart(bill, r.tip);
+
+    const base = toCents(bill) - toCents(tax);
+    const work: [string, string][] = [];
+    if (tax) work.push(['Take the tax off the bill', `${$(bill)} − ${$(tax)} = ${$(base / 100)}`]);
+    work.push(['Tip = amount × percentage ÷ 100', `${$(base / 100)} × ${formatNumber(pct)} ÷ 100 = ${$(Math.round((base * pct) / 100) / 100)}`]);
+    if (rounding !== 'none') work.push(['Round up to whole dollars (the extra goes to the tip)', `Tip ${$(r.tip)}, total ${$(r.total)}`]);
+    work.push(['Total = bill + tip', `${$(bill)} + ${$(r.tip)} = ${$(r.total)}`]);
+    if (people > 1) work.push(['Each person = total ÷ number of people', `${$(r.total)} ÷ ${people} = ${$(r.total / people)}`]);
+    steps(work);
+
+    return {
+      announce: `Tip ${$(r.tip)}, total ${$(r.total)}${people > 1 ? `, ${$(r.perPerson)} each` : ''}.`,
+      copy: `Bill ${$(bill)} + ${formatNumber(r.effectivePercent, 2)}% tip (${$(r.tip)}) = ${$(r.total)}${people > 1 ? `, ${$(r.perPerson)} each for ${people} people` : ''}`,
+    };
+  });
+
+  function fillCompare(bill: number, tax: number, people: number, current: number) {
+    const body = COMPARE.map((p) => {
+      const r = tip({ bill, tax, tipPercent: p, people, rounding: 'none' });
+      return [`${p}%`, $(r.tip), $(r.total), $(r.total / people)];
+    });
+    table('compare', body, COMPARE.indexOf(current));
+  }
+
+  function chart(bill: number, tipAmount: number) {
+    stackedBar(document.querySelector('[data-chart="split"]'), [
+      { label: 'Bill', value: bill, text: $(bill), tone: 'primary' },
+      { label: 'Tip', value: tipAmount, text: $(tipAmount), tone: 'accent' },
+    ]);
+  }
+</script>

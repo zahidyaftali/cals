@@ -1,0 +1,229 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import Presets from '../../../components/calc/Presets.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const percents = ['10', '15', '20', '25', '30', '40', '50'].map((v) => ({ value: v, label: `${v}%` }));
+
+const faqs = [
+  {
+    q: 'How do I calculate a percentage discount?',
+    a: 'Multiply the price by the percentage and divide by 100 to get the savings, then subtract it from the price. 25% off $80 is $80 × 25 ÷ 100 = $20 off, so you pay $60. A shortcut is to multiply by what you pay: 25% off means you pay 75%, and $80 × 0.75 = $60.',
+  },
+  {
+    q: 'Is 20% off and then another 10% off the same as 30% off?',
+    a: 'No. The second discount is taken from the already reduced price. On $100, 20% off gives $80, and 10% off $80 is $8, so you pay $72. That is 28% off in total, not 30%. Use the "Two discounts" tab to check any combination.',
+  },
+  {
+    q: 'How do I find the original price before a discount?',
+    a: 'Divide the sale price by the share of the price you paid. If you paid $60 after 25% off, you paid 75% of the original, so the original price was $60 ÷ 0.75 = $80.',
+  },
+  {
+    q: 'How do I work out what percentage off I got?',
+    a: 'Subtract the sale price from the original price, divide by the original price and multiply by 100. From $80 down to $60 is $20 off, and $20 ÷ $80 × 100 = 25% off.',
+  },
+  {
+    q: 'Is sales tax charged before or after the discount?',
+    a: 'For a store’s own discount, sales tax is normally charged on the reduced price you actually pay. Manufacturer coupons are treated differently in some states, where tax may be charged on the price before the coupon. Enter your sales tax rate to see the final price after tax.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="discount-calculator"
+  intro="Find the sale price and your savings for any discount, stack two discounts, or work out the percent off and the original price."
+  faqs={faqs}
+>
+  <CalcShell name="Discount Calculator">
+    <Tabs
+      slot="top"
+      legend="What do you want to calculate?"
+      options={[
+        { value: 'percent', label: 'Percent off' },
+        { value: 'amount', label: 'Amount off' },
+        { value: 'double', label: 'Two discounts' },
+        { value: 'find-percent', label: 'Find % off' },
+        { value: 'find-original', label: 'Find original price' },
+      ]}
+    />
+
+    <Field name="price" label="Original price" prefix="$" value="80.00" mode="percent amount double find-percent" />
+    <Field name="sale" label="Sale price you paid" prefix="$" value="60.00" mode="find-percent find-original" />
+    <Field name="percent" label="Discount" suffix="% off" value="25" mode="percent double find-original" />
+    <Presets field="percent" label="Common discounts" options={percents} mode="percent double find-original" />
+    <Field name="percent2" label="Extra discount" suffix="% off" value="10" hint="Taken from the already reduced price." mode="double" />
+    <Field name="amount" label="Amount off" prefix="$" value="15.00" mode="amount" />
+    <Field name="tax" label="Sales tax (optional)" suffix="%" hint="Added to the sale price." mode="percent amount double" />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Sale price" out="main" primary sub />
+        <Stat label="You save" out="saved" sub />
+        <Stat label="Total discount" out="pct" sub />
+        <Stat label="Price with tax" out="final" sub />
+      </div>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>What you pay and save</h3>
+          <div data-chart="split"></div>
+          <dl class="result-rows mt-5" data-rows="details"></dl>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the discount calculator</h2>
+    <ul>
+      <li><strong>Percent off:</strong> enter the price and the discount, such as 25% off.</li>
+      <li><strong>Amount off:</strong> enter the price and a fixed amount off, such as $15 off.</li>
+      <li><strong>Two discounts:</strong> for an extra percentage taken at the register on top of a sale price.</li>
+      <li><strong>Find % off:</strong> enter the original price and what you paid to see the real discount.</li>
+      <li><strong>Find original price:</strong> enter the sale price and the percent off to work out the price before the sale.</li>
+    </ul>
+    <p>Add your sales tax rate to see the final amount you'll pay at the till.</p>
+
+    <h2>Discount formulas</h2>
+    <ul>
+      <li><strong>Sale price</strong> = price × (1 − discount ÷ 100)</li>
+      <li><strong>Amount saved</strong> = price − sale price</li>
+      <li><strong>Two discounts</strong> = price × (1 − first ÷ 100) × (1 − second ÷ 100)</li>
+      <li><strong>Percent off</strong> = (original − sale) ÷ original × 100</li>
+      <li><strong>Original price</strong> = sale price ÷ (1 − discount ÷ 100)</li>
+      <li><strong>Price with tax</strong> = sale price × (1 + tax ÷ 100)</li>
+    </ul>
+    <p>Money is rounded to the nearest cent at the end.</p>
+
+    <h2>Worked example</h2>
+    <p>A jacket is $120, marked 30% off, and the store takes an extra 15% at checkout. Sales tax is 8%.</p>
+    <ul>
+      <li>After 30% off: $120 × 0.70 = $84.00.</li>
+      <li>After the extra 15%: $84 × 0.85 = $71.40.</li>
+      <li>You save $120 − $71.40 = $48.60, which is 40.5% off, not 45%.</li>
+      <li>With 8% tax: $71.40 × 1.08 = <strong>$77.11</strong>.</li>
+    </ul>
+
+    <h2>Why stacked discounts are worth less than they look</h2>
+    <p>
+      When two discounts are applied one after the other, the second one is taken from a smaller price. To find the real
+      total, multiply the shares you pay and subtract from 100%:
+    </p>
+    <p><strong>Total discount = 100% − (100% − first) × (100% − second)</strong></p>
+    <p>
+      For 30% and then 15%: 0.70 × 0.85 = 0.595, so you pay 59.5% and the real discount is 40.5%. The order doesn't
+      matter; 15% then 30% gives the same result. A single 45% discount would be the better deal by 4.5 percentage points.
+    </p>
+
+    <h2>Percent off in your head</h2>
+    <p>
+      Find 10% by moving the decimal point one place left, then build from it: 20% is double that, 5% is half, and 25% is a
+      quarter of the price. For 30% off a $64 item, 10% is $6.40, so 30% is $19.20 and you pay $44.80.
+    </p>
+
+    <h2>Sale prices at common discounts</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Discount</th><th>You pay</th><th>$25 item</th><th>$50 item</th><th>$100 item</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>10% off</td><td>90%</td><td>$22.50</td><td>$45.00</td><td>$90.00</td></tr>
+          <tr><td>15% off</td><td>85%</td><td>$21.25</td><td>$42.50</td><td>$85.00</td></tr>
+          <tr><td>20% off</td><td>80%</td><td>$20.00</td><td>$40.00</td><td>$80.00</td></tr>
+          <tr><td>25% off</td><td>75%</td><td>$18.75</td><td>$37.50</td><td>$75.00</td></tr>
+          <tr><td>30% off</td><td>70%</td><td>$17.50</td><td>$35.00</td><td>$70.00</td></tr>
+          <tr><td>40% off</td><td>60%</td><td>$15.00</td><td>$30.00</td><td>$60.00</td></tr>
+          <tr><td>50% off</td><td>50%</td><td>$12.50</td><td>$25.00</td><td>$50.00</td></tr>
+          <tr><td>70% off</td><td>30%</td><td>$7.50</td><td>$15.00</td><td>$30.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { discount, type DiscountMode } from '../../../scripts/calculators/discount';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import { stackedBar } from '../../../scripts/ui/chart';
+  import { out, rows, setupCalculator, steps } from '../../../scripts/ui/calculator';
+
+  const $ = formatMoney;
+  const p = (n: number) => `${formatNumber(n, 2)}%`;
+
+  setupCalculator((read) => {
+    const mode = read.choice('mode') as DiscountMode;
+    const needsPrice = mode !== 'find-original';
+    const price = needsPrice ? read.number('price', { label: 'the original price', min: 0, above: true, max: 1e9 }) : null;
+    const sale = mode.startsWith('find') ? read.number('sale', { label: 'the sale price', min: 0, max: 1e9 }) : null;
+    const percent = ['percent', 'double', 'find-original'].includes(mode) ? read.number('percent', { label: 'the discount', min: 0, max: 100 }) : null;
+    const percent2 = mode === 'double' ? read.number('percent2', { label: 'the extra discount', min: 0, max: 100 }) : null;
+    const amount = mode === 'amount' ? read.number('amount', { label: 'the amount off', min: 0, max: 1e9 }) : null;
+    const tax = ['percent', 'amount', 'double'].includes(mode) ? read.amount('tax', { label: 'the sales tax', min: 0, max: 30 }) : 0;
+    if (!read.ok) return null;
+
+    const r = discount({
+      mode,
+      price: price ?? undefined,
+      salePrice: sale ?? undefined,
+      percent: percent ?? undefined,
+      percent2: percent2 ?? undefined,
+      amount: amount ?? undefined,
+      taxPercent: tax,
+    });
+    if (typeof r === 'string') {
+      const problems = {
+        'discount-too-large': ['amount', 'The amount off is more than the price.'],
+        'sale-above-original': ['sale', 'The sale price is higher than the original price.'],
+        'full-discount': ['percent', 'A 100% discount leaves no price to work back from.'],
+      } as const;
+      read.fail(problems[r][0], problems[r][1]);
+      return null;
+    }
+
+    const main = mode === 'find-original' ? { label: 'Original price', value: $(r.original), sub: `before ${p(percent!)} off` } : mode === 'find-percent' ? { label: 'Discount', value: p(r.percentOff), sub: `${$(r.original)} → ${$(r.salePrice)}` } : { label: 'Sale price', value: $(r.salePrice), sub: `was ${$(r.original)}` };
+    out('main-label', main.label);
+    out('main', main.value);
+    out('main-sub', main.sub);
+    out('saved', $(r.saved));
+    out('saved-sub', `off ${$(r.original)}`);
+    out('pct', p(r.percentOff));
+    out('pct-sub', mode === 'double' ? `not ${p(percent! + percent2!)}` : 'of the original price');
+    out('final', tax ? $(r.finalPrice) : mode.startsWith('find') ? $(r.salePrice) : '–');
+    out('final-sub', tax ? `${$(r.salePrice)} + ${p(tax)} tax (${$(r.tax)})` : mode.startsWith('find') ? 'Price paid' : 'Add a tax rate to see this');
+
+    stackedBar(document.querySelector('[data-chart="split"]'), [
+      { label: 'You pay', value: r.salePrice, text: $(r.salePrice), tone: 'primary' },
+      { label: 'You save', value: r.saved, text: $(r.saved), tone: 'accent' },
+    ]);
+    rows('details', [
+      ['Original price', $(r.original)],
+      ...(mode === 'double' ? ([[`After ${p(percent!)} off`, $(r.afterFirst)]] as [string, string][]) : []),
+      ['Sale price', $(r.salePrice)],
+      ['Amount saved', $(r.saved)],
+      ...(tax ? ([['Sales tax', $(r.tax)], ['Total to pay', $(r.finalPrice)]] as [string, string][]) : []),
+    ]);
+
+    const work: [string, string][] = [];
+    if (mode === 'percent') work.push(['Sale price = price × (1 − discount ÷ 100)', `${$(r.original)} × ${formatNumber(1 - percent! / 100, 4)} = ${$(r.salePrice)}`]);
+    if (mode === 'amount') work.push(['Sale price = price − amount off', `${$(r.original)} − ${$(amount!)} = ${$(r.salePrice)}`]);
+    if (mode === 'double') {
+      work.push(['First discount', `${$(r.original)} × ${formatNumber(1 - percent! / 100, 4)} = ${$(r.afterFirst)}`]);
+      work.push(['Second discount, on the reduced price', `${$(r.afterFirst)} × ${formatNumber(1 - percent2! / 100, 4)} = ${$(r.salePrice)}`]);
+    }
+    if (mode === 'find-percent') work.push(['Percent off = (original − sale) ÷ original × 100', `(${$(r.original)} − ${$(r.salePrice)}) ÷ ${$(r.original)} × 100 = ${p(r.percentOff)}`]);
+    if (mode === 'find-original') work.push(['Original = sale price ÷ (1 − discount ÷ 100)', `${$(r.salePrice)} ÷ ${formatNumber(1 - percent! / 100, 4)} = ${$(r.original)}`]);
+    if (!mode.startsWith('find')) work.push(['Amount saved = original − sale price', `${$(r.original)} − ${$(r.salePrice)} = ${$(r.saved)} (${p(r.percentOff)})`]);
+    if (tax) work.push(['Add sales tax', `${$(r.salePrice)} × ${formatNumber(1 + tax / 100, 4)} = ${$(r.finalPrice)}`]);
+    steps(work);
+
+    return {
+      announce: `${main.label} ${main.value}. You save ${$(r.saved)}.`,
+      copy: `${$(r.original)} → ${$(r.salePrice)} (${p(r.percentOff)} off, you save ${$(r.saved)})${tax ? `; with ${p(tax)} tax: ${$(r.finalPrice)}` : ''}`,
+    };
+  });
+</script>

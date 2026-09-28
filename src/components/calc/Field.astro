@@ -1,0 +1,95 @@
+---
+// A labelled input with optional prefix/suffix, hint and error message.
+// Numbers use type="text" + inputmode so "1,250.50" and "$40" can be typed;
+// the Reader in scripts/ui/calculator.ts parses and validates them.
+interface Props {
+  name: string;
+  label: string;
+  type?: 'number' | 'integer' | 'date' | 'time' | 'text';
+  value?: string | number;
+  prefix?: string;
+  suffix?: string;
+  hint?: string;
+  placeholder?: string;
+  min?: string;
+  max?: string;
+  step?: string | number;
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  /** Show only in these modes (space-separated). */
+  mode?: string;
+  /** Adds a "Today" button that fills in today's date. */
+  today?: boolean;
+  /** Screen-reader-only words before the label, when rows repeat labels (e.g. "Monday"). */
+  srPrefix?: string;
+  /** Example values per unit system, swapped by the Imperial / Metric switch. */
+  defaults?: { imperial: string | number; metric: string | number };
+  /** Unit shown after the input that changes with the Imperial / Metric switch. */
+  unitLabels?: { imperial: string; metric: string };
+}
+
+const {
+  name,
+  label,
+  type = 'number',
+  value,
+  prefix,
+  suffix,
+  hint,
+  placeholder,
+  min,
+  max,
+  step,
+  size = 'auto',
+  mode,
+  today = false,
+  srPrefix,
+  defaults,
+  unitLabels,
+} = Astro.props;
+
+const id = `f-${name}`;
+const inputType = type === 'number' || type === 'integer' ? 'text' : type;
+const inputMode = type === 'number' ? 'decimal' : type === 'integer' ? 'numeric' : undefined;
+const describedBy = [hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+---
+
+<div class:list={['field', `f-${size}`]} data-field={name} data-mode={mode}>
+  <div class="field-label-row">
+    <label for={id} class="field-label">{srPrefix && <span class="sr-only">{srPrefix} </span>}<span data-label-text>{label}</span></label>
+    {
+      today && (
+        <button type="button" class="field-link" data-today={name}>
+          Today
+        </button>
+      )
+    }
+  </div>
+  <div class="field-control">
+    {prefix && <span class="affix">{prefix}</span>}
+    <input
+      id={id}
+      name={name}
+      type={inputType}
+      inputmode={inputMode}
+      value={defaults ? defaults.imperial : value}
+      data-default-imperial={defaults?.imperial}
+      data-default-metric={defaults?.metric}
+      placeholder={placeholder}
+      min={min}
+      max={max}
+      step={step}
+      autocomplete="off"
+      aria-describedby={describedBy}
+    />
+    {suffix && <span class="affix">{suffix}</span>}
+    {
+      unitLabels && (
+        <span class="affix" data-imperial={unitLabels.imperial} data-metric={unitLabels.metric}>
+          {unitLabels.imperial}
+        </span>
+      )
+    }
+  </div>
+  {hint && <p id={`${id}-hint`} class="field-hint">{hint}</p>}
+  <p id={`${id}-error`} class="field-error" hidden></p>
+</div>

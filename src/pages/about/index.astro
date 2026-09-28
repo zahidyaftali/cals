@@ -5,7 +5,7 @@ import { site } from '../../data/site';
 
 <InfoLayout
   title="About Infinite Calculators"
-  description="Who runs Infinite Calculators, why the site exists, how each calculator is checked before it goes live, and how the site is paid for. Free, no sign-up."
+  description="Infinite Calculators is built and run by IdeoXpert, a software company. Who we are, why we build free calculators, and how we check each one is accurate."
   h1="About Infinite Calculators"
 >
   <p>
@@ -14,35 +14,38 @@ import { site } from '../../data/site';
     is due, and when Easter falls in a given year.
   </p>
 
-  <h2>Why this site exists</h2>
+  <h2>Who runs the site</h2>
   <p>
-    Many calculator sites give you a number without showing how they got it. We build every calculator
-    to the same four rules:
+    Infinite Calculators is built and run by <a href={site.owner.url}>IdeoXpert</a>, a software company
+    based in Islamabad, Pakistan. IdeoXpert builds websites, web applications and mobile apps, and the same
+    developers and designers who do that work design, code and test every calculator on this site.
+  </p>
+  {/* TODO(owner): add the names and roles of the people who build and review the calculators. */}
+
+  <h2>Why we build these tools</h2>
+  <p>
+    Many calculator sites give you a number without showing how they got it. We think the working matters
+    as much as the answer, so every calculator here follows the same rules:
   </p>
   <ul>
     <li>It gives the answer as you type, on a phone as well as a computer.</li>
-    <li>It explains the formula in plain language, with a worked example you can check by hand.</li>
+    <li>It shows the step-by-step working, with your own numbers filled into the formula.</li>
+    <li>It explains the method in plain language, with a worked example you can check by hand.</li>
     <li>It runs entirely in your browser, so the numbers you enter are never sent to us.</li>
     <li>It is free to use, with no account or sign-up.</li>
   </ul>
 
-  <h2>How we check our calculators</h2>
+  <h2>How we check accuracy</h2>
   <p>
-    The math behind each calculator is written as a small, separate piece of code and tested against
-    known answers before the page goes live. Depending on the calculator, those answers come from
-    published dates, official rate tables or examples worked out by hand.
+    The math behind each calculator is written as a small, separate piece of code and tested against known
+    answers before the page goes live. Those answers come from outside sources wherever possible: published
+    Easter dates for the Easter calculator, the Umm al-Qura calendar for Hijri dates, and state tax rates
+    published by the Tax Foundation for the sales tax calculator, together with examples worked out by hand.
   </p>
   <p>
-    Where the answer depends on a choice of method, the page says which method it uses. For example, the
-    zakat calculator lets you choose between the gold and silver nisab, and the Hijri date converter
-    explains that local moon sighting can move a date by a day.
-  </p>
-
-  <h2>Who runs the site</h2>
-  {/* TODO(owner): replace this paragraph with a short, real description of who runs the site. */}
-  <p>
-    Infinite Calculators is an independent website. It is not owned by, or affiliated with, any bank,
-    retailer, school or religious organization.
+    Where the answer depends on a choice of method, the page says which method it uses and, where it
+    matters, lets you switch. Our <a href="/editorial-policy/">editorial policy</a> describes the full
+    process, including how the religious calculators are handled.
   </p>
 
   <h2>How the site is paid for</h2>

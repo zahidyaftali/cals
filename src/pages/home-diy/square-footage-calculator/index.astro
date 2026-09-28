@@ -1,0 +1,333 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import MeasureField from '../../../components/calc/MeasureField.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import UnitSystem from '../../../components/calc/UnitSystem.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const MAX_AREAS = 10;
+const shapes = [
+  { value: 'rectangle', label: 'Rectangle or square' },
+  { value: 'lshape', label: 'L-shape' },
+  { value: 'triangle', label: 'Triangle' },
+  { value: 'circle', label: 'Circle' },
+  { value: 'semicircle', label: 'Half circle' },
+  { value: 'trapezoid', label: 'Trapezoid' },
+];
+const units = [
+  { value: 'ft', label: 'Feet (ft)' },
+  { value: 'in', label: 'Inches (in)' },
+  { value: 'yd', label: 'Yards (yd)' },
+  { value: 'm', label: 'Meters (m)' },
+  { value: 'cm', label: 'Centimeters (cm)' },
+  { value: 'mm', label: 'Millimeters (mm)' },
+];
+
+const faqs = [
+  {
+    q: 'How do I calculate the square footage of a room?',
+    a: 'Measure the length and width of the room in feet and multiply them. A room 12 feet by 15 feet is 12 × 15 = 180 square feet. If you measure in feet and inches, turn the inches into a decimal first: 12 feet 6 inches is 12.5 feet.',
+  },
+  {
+    q: 'How do I measure an L-shaped room?',
+    a: 'Either split it into two rectangles and add them, or measure the full rectangle around it and subtract the missing corner. Choose the L-shape option, enter the overall length and width, then the length and width of the cut-out corner.',
+  },
+  {
+    q: 'How do I convert square feet to square meters?',
+    a: 'Multiply square feet by 0.0929, or divide by 10.764. 180 square feet is 180 × 0.0929 = 16.72 square meters. To go the other way, multiply square meters by 10.764.',
+  },
+  {
+    q: 'How much extra flooring should I buy?',
+    a: 'Flooring suppliers usually recommend about 10% extra for cuts and waste in a straight layout, and around 15% for diagonal or herringbone patterns or rooms with many corners. Enter the percentage in "Extra for waste" to include it.',
+  },
+  {
+    q: 'Why doesn’t my total match the square footage on my house listing?',
+    a: 'Listings and appraisals measure a home’s finished area from the outside of the exterior walls, so they include wall thickness, hallways and closets. Adding up the rooms measured inside will always give a smaller number.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="square-footage-calculator"
+  intro="Add up the area of rooms and spaces of any shape in square feet, square meters and square yards, with waste and cost."
+  faqs={faqs}
+>
+  <CalcShell name="Square Footage Calculator">
+    <UnitSystem slot="top" />
+
+    <div class="f-full repeat-list">
+      {
+        Array.from({ length: MAX_AREAS }, (_, i) => (
+          <div class="repeat-item" data-area={i} hidden={i > 0}>
+            <div class="repeat-head">
+              <span>Area {i + 1}</span>
+              {i > 0 && (
+                <button type="button" class="repeat-remove" data-remove={i}>
+                  Remove
+                </button>
+              )}
+            </div>
+            <SelectField name={`a${i}_shape`} label="Shape" srPrefix={`Area ${i + 1}`} options={shapes} size="half" />
+            <SelectField
+              name={`a${i}_unit`}
+              label="Unit"
+              srPrefix={`Area ${i + 1}`}
+              options={units}
+              value="ft"
+              unitSystem={{ imperial: 'ft', metric: 'm' }}
+              size="half"
+            />
+            <Field name={`a${i}_a`} label="Length" srPrefix={`Area ${i + 1}`} defaults={i === 0 ? { imperial: 12, metric: 4 } : undefined} />
+            <Field name={`a${i}_b`} label="Width" srPrefix={`Area ${i + 1}`} defaults={i === 0 ? { imperial: 15, metric: 5 } : undefined} />
+            <Field name={`a${i}_c`} label="Cut-out length" srPrefix={`Area ${i + 1}`} />
+            <Field name={`a${i}_d`} label="Cut-out width" srPrefix={`Area ${i + 1}`} />
+          </div>
+        ))
+      }
+    </div>
+    <div class="f-full">
+      <button type="button" class="btn btn-outline" data-add-area>+ Add another area</button>
+    </div>
+
+    <p class="calc-subhead">Waste and cost (optional)</p>
+    <Field name="waste" label="Extra for waste" type="number" value="0" suffix="%" hint="Try 10% for flooring, 15% for diagonal layouts." />
+    <MeasureField
+      name="price"
+      label="Price"
+      units={['per-ft2', 'per-m2', 'per-yd2']}
+      imperial="per-ft2"
+      metric="per-m2"
+      hint="Adds a cost estimate, e.g. flooring price."
+    />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Square feet" out="sqft" primary sub />
+        <Stat label="Square meters" out="sqm" />
+        <Stat label="Square yards" out="sqyd" />
+        <Stat label="Acres" out="acres" sub />
+      </div>
+      <p class="result-note" data-out="cost" hidden></p>
+      <div class="result-section">
+        <h3>Areas</h3>
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr><th>Area</th><th class="col-optional">Shape</th><th>Measurements</th><th>ft²</th><th class="col-optional">m²</th></tr>
+            </thead>
+            <tbody data-table="areas"></tbody>
+          </table>
+        </div>
+      </div>
+      <Steps />
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the square footage calculator</h2>
+    <ol>
+      <li>Choose the shape of the first area and the unit you measured in (feet, inches, yards, meters, centimeters or millimeters).</li>
+      <li>Enter the measurements. The boxes change to match the shape, for example length and width for a rectangle.</li>
+      <li>Press "Add another area" for each extra room or section, such as a closet or a bay window. Each area can use its own unit.</li>
+      <li>Add a waste allowance if you are buying flooring, tile or turf, and a price to see the cost.</li>
+    </ol>
+
+    <h2>Area formulas</h2>
+    <ul>
+      <li><strong>Rectangle or square:</strong> length × width.</li>
+      <li><strong>L-shape:</strong> overall length × overall width − cut-out length × cut-out width.</li>
+      <li><strong>Triangle:</strong> base × height ÷ 2 (height measured at a right angle to the base).</li>
+      <li><strong>Circle:</strong> π × (diameter ÷ 2)², where π ≈ 3.14159.</li>
+      <li><strong>Half circle:</strong> half the area of the full circle.</li>
+      <li><strong>Trapezoid:</strong> (side 1 + side 2) ÷ 2 × height, where sides 1 and 2 are the two parallel sides.</li>
+    </ul>
+    <p>
+      Each area is worked out in the unit you entered, converted to square meters, and added to the others. The total is
+      then shown in square feet (× 10.764), square yards (× 1.196) and acres. The waste allowance multiplies the total by
+      (1 + waste ÷ 100).
+    </p>
+
+    <h2>Worked example: an L-shaped living room</h2>
+    <p>
+      A room measures 20 × 15 ft overall, but an 8 × 5 ft corner belongs to the hallway.
+    </p>
+    <ul>
+      <li>Full rectangle: 20 × 15 = 300 ft².</li>
+      <li>Cut-out corner: 8 × 5 = 40 ft².</li>
+      <li>Room area: 300 − 40 = <strong>260 ft²</strong>, which is 260 × 0.0929 = 24.15 m².</li>
+      <li>Laminate with 10% waste: 260 × 1.10 = 286 ft² to buy.</li>
+      <li>At $2.50 per ft², that costs 286 × $2.50 = $715.</li>
+    </ul>
+
+    <h2>How to measure a room accurately</h2>
+    <ul>
+      <li>Measure along the floor from wall to wall, not along the baseboard tops, and write each figure down straight away.</li>
+      <li>Round up to the nearest inch or centimeter. Buying slightly too much is cheaper than a second trip.</li>
+      <li>For an irregular room, sketch it and split it into rectangles and triangles, then add each one as its own area.</li>
+      <li>Include closets and alcoves if the flooring or carpet will run into them; leave out areas under fitted cabinets.</li>
+      <li>Convert feet and inches to decimal feet before entering them: divide the inches by 12, so 10 ft 9 in is 10.75 ft.</li>
+    </ul>
+
+    <h2>Area conversions</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Unit</th><th>Square feet</th><th>Square meters</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 square inch</td><td>0.00694</td><td>0.000645</td></tr>
+          <tr><td>1 square foot</td><td>1</td><td>0.0929</td></tr>
+          <tr><td>1 square yard</td><td>9</td><td>0.8361</td></tr>
+          <tr><td>1 square meter</td><td>10.764</td><td>1</td></tr>
+          <tr><td>1 acre</td><td>43,560</td><td>4,046.86</td></tr>
+          <tr><td>1 hectare</td><td>107,639</td><td>10,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { pieceArea, SHAPE_FORMULA, toSquareMetres, totals, withWaste, type AreaShape } from '../../../scripts/calculators/square-footage';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import { FT2_PER_M2, type LengthUnit } from '../../../scripts/lib/units';
+  import { out, setupCalculator, steps, table, toggle, type Step } from '../../../scripts/ui/calculator';
+
+  const form = document.getElementById('calc') as HTMLFormElement;
+  const areaEls = [...document.querySelectorAll<HTMLElement>('[data-area]')];
+  const addButton = document.querySelector<HTMLButtonElement>('[data-add-area]')!;
+
+  const LABELS: Record<AreaShape, string[]> = {
+    rectangle: ['Length', 'Width'],
+    lshape: ['Overall length', 'Overall width', 'Cut-out length', 'Cut-out width'],
+    triangle: ['Base', 'Height'],
+    circle: ['Diameter'],
+    semicircle: ['Diameter'],
+    trapezoid: ['Parallel side 1', 'Parallel side 2', 'Height'],
+  };
+  const SHAPE_NAMES: Record<AreaShape, string> = {
+    rectangle: 'Rectangle',
+    lshape: 'L-shape',
+    triangle: 'Triangle',
+    circle: 'Circle',
+    semicircle: 'Half circle',
+    trapezoid: 'Trapezoid',
+  };
+  const f = (n: number, d = 2) => formatNumber(n, d);
+  const refresh = () => form.dispatchEvent(new Event('input'));
+
+  function syncAddButton() {
+    addButton.hidden = !areaEls.some((el) => el.hidden);
+  }
+
+  addButton.addEventListener('click', () => {
+    const next = areaEls.find((el) => el.hidden);
+    if (!next) return;
+    // New areas use the same unit as the area above them.
+    const i = Number(next.dataset.area);
+    const prevUnit = form.querySelector<HTMLSelectElement>(`[name="a${i - 1}_unit"]`)?.value;
+    const unit = form.querySelector<HTMLSelectElement>(`[name="a${i}_unit"]`);
+    if (prevUnit && unit) unit.value = prevUnit;
+    next.hidden = false;
+    next.querySelector<HTMLInputElement>('input')?.focus();
+    syncAddButton();
+    refresh();
+  });
+
+  form.addEventListener('click', (e) => {
+    const button = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-remove]');
+    if (!button) return;
+    const el = areaEls[Number(button.dataset.remove)];
+    el.hidden = true;
+    for (const input of el.querySelectorAll('input')) input.value = '';
+    syncAddButton();
+    addButton.focus();
+    refresh();
+  });
+
+  setupCalculator(
+    (read) => {
+      let sqM = 0;
+      const tableRows: string[][] = [];
+      const work: Step[] = [];
+
+      for (const el of areaEls) {
+        if (el.hidden) continue;
+        const i = Number(el.dataset.area);
+        const shape = read.choice(`a${i}_shape`) as AreaShape;
+        const unit = read.choice(`a${i}_unit`) as LengthUnit;
+        const labels = LABELS[shape];
+
+        // Relabel and show only the measurements this shape needs.
+        ['a', 'b', 'c', 'd'].forEach((key, k) => {
+          const field = el.querySelector<HTMLElement>(`[data-field="a${i}_${key}"]`)!;
+          field.hidden = k >= labels.length;
+          const text = field.querySelector('[data-label-text]');
+          if (text && labels[k]) text.textContent = `${labels[k]} (${unit})`;
+        });
+
+        const values = labels.map((label, k) =>
+          read.number(`a${i}_${'abcd'[k]}`, { label: `the ${label.toLowerCase()} of area ${i + 1}`, min: 0, above: true, max: 1e9 }),
+        );
+        if (values.some((v) => v === null)) continue;
+        const [a, b, c, d] = values as number[];
+        const area = pieceArea({ shape, unit, a, b, c, d });
+        if (area === 'cutout-too-large') {
+          read.fail(`a${i}_c`, 'The cut-out must be smaller than the overall length and width.');
+          continue;
+        }
+        const m2 = toSquareMetres(area, unit);
+        sqM += m2;
+        const dims = values.map((v) => f(v as number, 3)).join(' × ');
+        tableRows.push([`Area ${i + 1}`, SHAPE_NAMES[shape], `${dims} ${unit}`, f(m2 * FT2_PER_M2), f(m2)]);
+        work.push([
+          `Area ${i + 1} (${SHAPE_NAMES[shape].toLowerCase()}): ${SHAPE_FORMULA[shape]}`,
+          `${f(area, 3)} ${unit}² = ${f(m2 * FT2_PER_M2)} ft²`,
+        ]);
+      }
+
+      const waste = read.number('waste', { label: 'the waste allowance', min: 0, max: 100, optional: true }) ?? 0;
+      const price = read.number('price', { label: 'the price', min: 0, optional: true });
+      if (!read.ok || tableRows.length === 0) return null;
+
+      const totalM2 = withWaste(sqM, waste);
+      const t = totals(totalM2);
+      out('sqft', f(t.sqFt));
+      out('sqft-sub', waste ? `Includes ${f(waste)}% extra (${f(sqM * FT2_PER_M2)} ft² before waste)` : `${tableRows.length} ${tableRows.length === 1 ? 'area' : 'areas'}`);
+      out('sqm', f(t.sqM));
+      out('sqyd', f(t.sqYd));
+      out('acres', f(t.acres, 4));
+      out('acres-sub', `${f(t.hectares, 4)} hectares`);
+
+      let costText = '';
+      if (price !== null && price > 0) {
+        const unit = read.unit('price');
+        const qty = unit === 'per-m2' ? t.sqM : unit === 'per-yd2' ? t.sqYd : t.sqFt;
+        const label = unit === 'per-m2' ? 'm²' : unit === 'per-yd2' ? 'yd²' : 'ft²';
+        costText = `Estimated cost: ${formatMoney(qty * price)} (${f(qty)} ${label} × ${formatMoney(price)})`;
+      }
+      out('cost', costText);
+      toggle('[data-out="cost"]', !!costText);
+
+      table('areas', tableRows, undefined, [1, 4]);
+      if (tableRows.length > 1) work.push(['Add the areas together', `${tableRows.map((r) => r[3]).join(' + ')} = ${f(sqM * FT2_PER_M2)} ft²`]);
+      if (waste) work.push(['Add the waste allowance', `${f(sqM * FT2_PER_M2)} × ${f(1 + waste / 100)} = ${f(t.sqFt)} ft²`]);
+      work.push(['Convert to other units', `${f(t.sqFt)} ft² ÷ 10.764 = ${f(t.sqM)} m²;  ÷ 9 = ${f(t.sqYd)} yd²`]);
+      steps(work);
+
+      return {
+        announce: `${f(t.sqFt)} square feet, ${f(t.sqM)} square meters.`,
+        copy: [...tableRows.map((r) => `${r[0]} (${r[1]}, ${r[2]}): ${r[3]} ft²`), `Total: ${f(t.sqFt)} ft² = ${f(t.sqM)} m² = ${f(t.sqYd)} yd²`, ...(costText ? [costText] : [])].join('\n'),
+      };
+    },
+    {
+      onReset() {
+        areaEls.forEach((el, i) => (el.hidden = i > 0));
+        syncAddButton();
+      },
+    },
+  );
+</script>

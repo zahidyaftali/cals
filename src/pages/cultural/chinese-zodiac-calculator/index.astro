@@ -1,0 +1,243 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import { ANIMALS, lunarNewYear, signForLunarYear } from '../../../scripts/calculators/chinese-zodiac';
+import { formatMedium } from '../../../scripts/lib/dates';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+// Reference tables computed at build time from the same calendar data.
+const animalYears = ANIMALS.map((a, i) => ({
+  animal: a,
+  // 1960 was a Rat year ((1960 − 4) mod 12 = 0), so animal i starts at 1960 + i.
+  years: Array.from({ length: 6 }, (_, k) => 1960 + i + 12 * k).filter((y) => y <= 2031),
+}));
+const newYears = Array.from({ length: 11 }, (_, i) => 2020 + i).map((y) => {
+  const s = signForLunarYear(y);
+  return { year: y, date: formatMedium(lunarNewYear(y)), sign: `${s.element} ${s.animal.name}` };
+});
+
+const faqs = [
+  {
+    q: 'What is my Chinese zodiac sign if I was born in January or February?',
+    a: 'It depends on the date of Lunar New Year in your birth year, which falls between January 21 and February 20. If you were born before it, your sign is the previous year’s animal. Someone born on January 20, 1990 is a Snake (the 1989 lunar year), because the Year of the Horse began on January 27, 1990.',
+  },
+  {
+    q: 'What are the five elements?',
+    a: 'Wood, Fire, Earth, Metal and Water. Each element rules two consecutive years, first in its yang form and then in its yin form, so the elements change every two years. Combined with the 12 animals, they make a 60-year cycle.',
+  },
+  {
+    q: 'What year of the Chinese zodiac is it now?',
+    a: '2026 is the Year of the Fire Horse. It began on Lunar New Year, February 17, 2026, and runs until February 5, 2027. The Year of the Fire Goat begins on February 6, 2027.',
+  },
+  {
+    q: 'How often does the same sign and element come around?',
+    a: 'Every 60 years. The animal returns every 12 years, but with a different element each time, so a Wood Dragon year (such as 2024) only recurs after 60 years, in 2084.',
+  },
+  {
+    q: 'Do all traditions start the year at Lunar New Year?',
+    a: 'Most people use Lunar New Year, and so does this calculator. Some Chinese astrologers, including those who use the Four Pillars (BaZi) system, start the zodiac year at Lichun, the start of spring, around February 4. For birthdays between Lichun and Lunar New Year the two methods give different animals. Related calendars differ too: the Vietnamese zodiac has the Cat in place of the Rabbit.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="chinese-zodiac-calculator"
+  intro="Find your Chinese zodiac animal, element and yin or yang from your date of birth, with the Lunar New Year boundary taken into account."
+  faqs={faqs}
+  disclaimer="The zodiac is a cultural tradition. This calculator reports the traditional sign for a date and does not make predictions."
+>
+  <CalcShell name="Chinese Zodiac Calculator">
+    <Tabs
+      slot="top"
+      legend="Find a sign"
+      options={[
+        { value: 'date', label: 'By date of birth' },
+        { value: 'year', label: 'By year' },
+      ]}
+    />
+    <Field name="birth" label="Date of birth" type="date" value="1990-01-20" min="1900-01-31" max="2100-12-31" mode="date" />
+    <Field name="year" label="Year" type="integer" value="2026" hint="Shows the zodiac year that begins in this year." mode="year" />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Zodiac animal" out="animal" primary sub />
+        <Stat label="Element" out="element" sub />
+        <Stat label="Chinese year name" out="ganzhi" sub />
+        <Stat label="Zodiac year" out="span" sub />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3 data-out="others-title">Other years of this sign</h3>
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <thead><tr><th>Sign</th><th>Year begins</th><th>Year ends</th></tr></thead>
+              <tbody data-table="others"></tbody>
+            </table>
+          </div>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the Chinese zodiac calculator</h2>
+    <ol>
+      <li>Enter a date of birth between 1900 and 2100.</li>
+      <li>Read the zodiac animal, its element and whether the year is yin or yang.</li>
+      <li>If the birthday is in January or February, check the note: it tells you whether the date falls before or after Lunar New Year.</li>
+      <li>Use "By year" to see which sign a year belongs to and exactly when that zodiac year starts and ends.</li>
+    </ol>
+
+    <h2>How the sign is worked out</h2>
+    <p>
+      The Chinese zodiac follows the lunisolar Chinese calendar, whose new year begins at the second new moon after the
+      winter solstice, between January 21 and February 20. The calculator first finds which lunar year a date belongs to,
+      using the official Lunar New Year dates published by the Hong Kong Observatory for 1901 to 2100. Then:
+    </p>
+    <ul>
+      <li><strong>Animal</strong> = (lunar year − 4) mod 12, counting Rat, Ox, Tiger, Rabbit, Dragon, Snake, Horse, Goat, Monkey, Rooster, Dog, Pig.</li>
+      <li><strong>Heavenly stem</strong> = (lunar year − 4) mod 10, which gives the element: two Wood years, two Fire, two Earth, two Metal, two Water, alternating yang and yin.</li>
+    </ul>
+    <p>
+      Together the ten stems and twelve animals (the earthly branches) make the 60-year cycle. The current cycle began with
+      the Wood Rat year of 1984.
+    </p>
+
+    <h2>Worked example</h2>
+    <p>Someone born on January 20, 1990:</p>
+    <ul>
+      <li>Lunar New Year in 1990 was on January 27, so January 20 still belongs to the lunar year that began on February 6, 1989.</li>
+      <li>Animal: (1989 − 4) mod 12 = 5, the sixth animal, the <strong>Snake</strong>.</li>
+      <li>Element: (1989 − 4) mod 10 = 5, the stem 己 (jǐ), which is yin <strong>Earth</strong>.</li>
+      <li>So the sign is the Earth Snake (己巳), not the Metal Horse that a birth later in 1990 would have.</li>
+    </ul>
+
+    <h2>The twelve animals and their recent years</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Animal</th><th>Years (from Lunar New Year)</th></tr>
+        </thead>
+        <tbody>
+          {
+            animalYears.map((a) => (
+              <tr>
+                <td>
+                  {a.animal.name} <span lang="zh">{a.animal.hanzi}</span>
+                </td>
+                <td>{a.years.join(', ')}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Lunar New Year dates, 2020 to 2030</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Year</th><th>Lunar New Year</th><th>Sign</th></tr>
+        </thead>
+        <tbody>
+          {
+            newYears.map((n) => (
+              <tr>
+                <td>{n.year}</td>
+                <td>{n.date}</td>
+                <td>{n.sign}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { FIRST_YEAR, LAST_YEAR, lunarYearOf, MAX_DATE, MIN_DATE, signForLunarYear, type ZodiacSign } from '../../../scripts/calculators/chinese-zodiac';
+  import { formatMedium, parseISODate, today, type YMD } from '../../../scripts/lib/dates';
+  import { out, setDefault, setupCalculator, steps, table, toggle } from '../../../scripts/ui/calculator';
+
+  const MIN_YEAR = FIRST_YEAR;
+  const MAX_YEAR = LAST_YEAR;
+  const ends = (d: YMD | null) => (d ? formatMedium(d) : 'early 2101');
+
+  function show(sign: ZodiacSign) {
+    out('animal', `${sign.animal.name} ${sign.animal.hanzi}`);
+    out('animal-sub', `Year of the ${sign.element} ${sign.animal.name}`);
+    out('element', sign.element);
+    out('element-sub', sign.yinYang);
+    out('ganzhi', `${sign.stem.stem}${sign.animal.branch}`);
+    out('ganzhi-sub', `${sign.stem.pinyin}-${sign.animal.pinyin}`);
+    out('span', `${formatMedium(sign.starts)} – ${ends(sign.ends)}`);
+    out('span-sub', `Lunar year ${sign.lunarYear}`);
+    out('others-title', `Other ${sign.animal.name} years`);
+    const years = [-36, -24, -12, 0, 12, 24].map((k) => sign.lunarYear + k).filter((y) => y >= MIN_YEAR && y <= MAX_YEAR);
+    table(
+      'others',
+      years.map((y) => {
+        const s = signForLunarYear(y);
+        return [`${s.element} ${s.animal.name}`, formatMedium(s.starts), ends(s.ends)];
+      }),
+      years.indexOf(sign.lunarYear),
+    );
+  }
+
+  function work(sign: ZodiacSign, lead: [string, string]) {
+    steps([
+      lead,
+      ['Animal = (lunar year − 4) mod 12', `(${sign.lunarYear} − 4) mod 12 = ${sign.animalIndex} → ${sign.animal.name} (${sign.animal.branch} ${sign.animal.pinyin})`],
+      ['Stem = (lunar year − 4) mod 10', `(${sign.lunarYear} − 4) mod 10 = ${sign.stemIndex} → ${sign.stem.stem} ${sign.stem.pinyin}, ${sign.yinYang.toLowerCase()} ${sign.element}`],
+    ]);
+  }
+
+  setupCalculator(
+    (read) => {
+      const mode = read.choice('mode');
+      toggle('[data-out="note"]', false);
+
+      if (mode === 'year') {
+        const year = read.number('year', { label: 'the year', min: MIN_YEAR + 1, max: MAX_YEAR, integer: true });
+        if (!read.ok || year === null) return null;
+        const sign = signForLunarYear(year);
+        const before = signForLunarYear(year - 1);
+        show(sign);
+        out('note', `People born in ${year} before ${formatMedium(sign.starts)} belong to the previous year: ${before.element} ${before.animal.name}.`);
+        toggle('[data-out="note"]', true);
+        work(sign, ['The lunar year that begins in this year', `Lunar New Year ${year}: ${formatMedium(sign.starts)}`]);
+        return {
+          announce: `${year} is the year of the ${sign.element} ${sign.animal.name}.`,
+          copy: `${year}: ${sign.element} ${sign.animal.name} (${sign.stem.stem}${sign.animal.branch}), ${formatMedium(sign.starts)} – ${ends(sign.ends)}`,
+        };
+      }
+
+      const iso = read.date('birth', { label: 'a date of birth', min: MIN_DATE, max: MAX_DATE });
+      if (!read.ok || !iso) return null;
+      const date = parseISODate(iso)!;
+      const sign = signForLunarYear(lunarYearOf(date));
+      show(sign);
+      if (sign.lunarYear < date.y) {
+        const next = signForLunarYear(date.y);
+        out('note', `Born before Lunar New Year (${formatMedium(next.starts)}), so the sign is from the previous lunar year, not the ${next.element} ${next.animal.name}.`);
+        toggle('[data-out="note"]', true);
+      }
+      work(sign, ['Find the lunar year the date belongs to', `${formatMedium(date)} is in the lunar year that began on ${formatMedium(sign.starts)} (${sign.lunarYear})`]);
+      return {
+        announce: `${formatMedium(date)}: ${sign.element} ${sign.animal.name}.`,
+        copy: `Born ${formatMedium(date)}: ${sign.yinYang} ${sign.element} ${sign.animal.name} (${sign.stem.stem}${sign.animal.branch}), zodiac year ${formatMedium(sign.starts)} – ${ends(sign.ends)}`,
+      };
+    },
+    {
+      onInit(form) {
+        setDefault(form, 'year', String(today().y));
+      },
+    },
+  );
+</script>

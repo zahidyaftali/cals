@@ -1,7 +1,7 @@
 export const site = {
   name: 'Infinite Calculators',
   url: 'https://infinitecalculators.com',
-  tagline: 'Free online calculators for everyday questions',
+  tagline: 'Answers with the working shown.',
   // TODO(owner): confirm this mailbox exists before launch.
   email: 'hello@infinitecalculators.com',
   defaultOgImage: {
@@ -11,10 +11,13 @@ export const site = {
     alt: 'Infinite Calculators — free online calculators',
   },
   logo: { src: '/logo-512.png', width: 512, height: 512 },
+  owner: {
+    name: 'IdeoXpert',
+    url: 'https://ideoxpert.com',
+  },
   ads: {
     // Turn on after AdSense approval. While false, <AdSlot> renders nothing
-    // in production and a dashed placeholder in development, and the AdSense
-    // script is not loaded.
+    // and the AdSense script is not loaded.
     enabled: false,
     // TODO(owner): your publisher ID from AdSense → Account → Account information.
     client: 'ca-pub-0000000000000000',
@@ -24,6 +27,8 @@ export const site = {
       homeTop: '0000000000',
       homeBottom: '0000000000',
       categoryList: '0000000000',
+      calculatorTop: '0000000000',
+      calculatorBottom: '0000000000',
     },
   },
 } as const;

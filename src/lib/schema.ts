@@ -25,6 +25,12 @@ export function organizationSchema(): JsonLd {
       height: site.logo.height,
     },
     email: site.email,
+    slogan: site.tagline,
+    parentOrganization: {
+      '@type': 'Organization',
+      name: site.owner.name,
+      url: site.owner.url,
+    },
   };
 }
 
@@ -36,6 +42,39 @@ export function websiteSchema(): JsonLd {
     url: `${site.url}/`,
     inLanguage: 'en',
     publisher: { '@id': `${site.url}/#organization` },
+  };
+}
+
+export function webApplicationSchema(opts: {
+  name: string;
+  description: string;
+  path: string;
+  dateModified: string;
+}): JsonLd {
+  return {
+    '@type': 'WebApplication',
+    name: opts.name,
+    description: opts.description,
+    url: abs(opts.path),
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    inLanguage: 'en',
+    dateModified: opts.dateModified,
+    publisher: { '@id': `${site.url}/#organization` },
+  };
+}
+
+export function faqSchema(items: { q: string; a: string }[]): JsonLd {
+  return {
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
   };
 }
 

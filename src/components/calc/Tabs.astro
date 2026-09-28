@@ -1,0 +1,24 @@
+---
+// Mode switch shown as a row of tabs (radio buttons named "mode"). Elements
+// with data-mode="a b" are shown only when one of those modes is selected.
+interface Props {
+  legend: string;
+  options: { value: string; label: string }[];
+  value?: string;
+}
+const { legend, options, value = options[0]?.value } = Astro.props;
+---
+
+<fieldset class="tabs-field">
+  <legend class="sr-only">{legend}</legend>
+  <div class="tabs">
+    {
+      options.map((o) => (
+        <label>
+          <input type="radio" name="mode" value={o.value} checked={o.value === value} />
+          <span>{o.label}</span>
+        </label>
+      ))
+    }
+  </div>
+</fieldset>

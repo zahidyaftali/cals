@@ -5,6 +5,7 @@ import Logo from './Logo.astro';
 
 const sitePages = [
   { name: 'About', href: '/about/' },
+  { name: 'Editorial Policy', href: '/editorial-policy/' },
   { name: 'Contact', href: '/contact/' },
   { name: 'Privacy Policy', href: '/privacy-policy/' },
   { name: 'Terms of Use', href: '/terms/' },
@@ -20,7 +21,8 @@ const year = new Date().getFullYear();
         <Logo size={28} />
         <span>{site.name}</span>
       </a>
-      <p class="mt-4 text-[0.9375rem] text-on-deep/70">
+      <p class="mt-4 font-medium">{site.tagline}</p>
+      <p class="mt-2 text-[0.9375rem] text-on-deep/70">
         Free calculators that run in your browser. Nothing you enter is sent to our server.
       </p>
       <p class="mt-4 text-[0.9375rem] text-on-deep/70">
@@ -61,9 +63,15 @@ const year = new Date().getFullYear();
     </nav>
   </div>
   <div class="border-t border-on-deep/10">
-    <p class="wrap py-5 text-sm text-on-deep/60">
-      © {year} {site.name}. Results are estimates for information only, as explained in our
-      <a href="/disclaimer/" class="text-on-deep/80 underline underline-offset-4 hover:text-accent">disclaimer</a>.
-    </p>
+    <div class="wrap flex flex-col gap-1 py-5 text-sm text-on-deep/60 sm:flex-row sm:justify-between sm:gap-6">
+      <p>
+        © {year} {site.name} · Owned &amp; operated by
+        <a href={site.owner.url} class="text-on-deep/85 underline underline-offset-4 hover:text-accent">{site.owner.name}</a>
+      </p>
+      <p>
+        Results are estimates for information only. See our
+        <a href="/disclaimer/" class="text-on-deep/85 underline underline-offset-4 hover:text-accent">disclaimer</a>.
+      </p>
+    </div>
   </div>
 </footer>

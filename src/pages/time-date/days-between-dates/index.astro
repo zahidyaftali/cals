@@ -1,0 +1,194 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Checkbox from '../../../components/calc/Checkbox.astro';
+import Field from '../../../components/calc/Field.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const faqs = [
+  {
+    q: 'How many days are there between two dates?',
+    a: 'Count the days from the start date up to the end date. From January 1 to January 31 is 30 days, because you move forward 30 times. If you want to count both the first and the last day, as for a hotel stay counted in days or an event that runs on both dates, tick "Include the end date" to add one.',
+  },
+  {
+    q: 'Does the result include the start date and the end date?',
+    a: 'By default the result is the difference between the dates, which counts the start date but not the end date (the same as counting nights). Ticking "Include the end date" counts both, so Monday to Friday becomes 5 days instead of 4.',
+  },
+  {
+    q: 'How do I count business days between two dates?',
+    a: 'The "Weekdays" figure counts Mondays to Fridays in the same span and leaves out Saturdays and Sundays. It does not remove public holidays, because they differ by country, state and employer, so subtract any holidays that fall in your range yourself.',
+  },
+  {
+    q: 'How are months counted?',
+    a: 'Months are counted the way a calendar does: from the 15th of one month to the 15th of the next is one month, whatever the month length. If the start day does not exist in a later month (such as the 31st), the last day of that month is used, so January 31 to March 1 is 1 month and 1 day.',
+  },
+  {
+    q: 'Are leap years included?',
+    a: 'Yes. Every date is counted on the real calendar, so February 29 is included in leap years such as 2024 and 2028. A leap year has 366 days and a common year has 365.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="days-between-dates"
+  intro="Count the days between two dates, with the total in weeks, months and years, and the number of weekdays."
+  faqs={faqs}
+>
+  <CalcShell name="Days Between Dates Calculator">
+    <Field name="start" label="Start date" type="date" value="2026-01-01" size="auto" today />
+    <Field name="end" label="End date" type="date" value="2026-12-25" size="auto" today />
+    <Checkbox name="include_end" label="Include the end date (count both days)" size="auto" />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Days" out="days" primary sub />
+        <Stat label="Weeks and days" out="weeks" />
+        <Stat label="Years, months and days" out="ymd" />
+        <Stat label="Weekdays (Mon–Fri)" out="weekdays" sub />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Details</h3>
+          <dl class="result-rows" data-rows="details"></dl>
+          <div class="mt-5" data-chart="split"></div>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the days between dates calculator</h2>
+    <ol>
+      <li>Choose the start date. Use "Today" to count from today.</li>
+      <li>Choose the end date. To count down to an event, put the event date here.</li>
+      <li>Tick "Include the end date" if both the first and the last day should count.</li>
+    </ol>
+    <p>
+      You get the number of days straight away, plus the same period in weeks, in months and years, and as weekdays and
+      weekend days. If the end date is before the start date, the calculator swaps them and tells you.
+    </p>
+
+    <h2>How the days are counted</h2>
+    <p>
+      Each date is turned into a day number on the calendar, and the start is subtracted from the end:
+    </p>
+    <p><strong>Days = end date − start date (+ 1 if the end date is included)</strong></p>
+    <p>
+      Weeks are the days divided by 7, with the remainder shown as days. Years and months are counted along the
+      calendar, one month at a time, and whatever is left over is shown as days. Weekdays are the days that fall on
+      Monday to Friday; weekend days are the Saturdays and Sundays.
+    </p>
+    <p>
+      The count uses whole calendar days, so time zones and daylight saving changes never add or remove a day.
+    </p>
+
+    <h2>Worked example</h2>
+    <p>How long is it from Monday, September 28, 2026 to Christmas Day, Friday, December 25, 2026?</p>
+    <ul>
+      <li>September 28 to October 28 is 30 days, to November 28 is 31 more, and to December 25 is 27 more.</li>
+      <li>Total: 30 + 31 + 27 = <strong>88 days</strong>.</li>
+      <li>In weeks: 88 ÷ 7 = 12 weeks and 4 days.</li>
+      <li>In months: 2 months (to November 28) and 27 days.</li>
+      <li>Weekdays: 12 full weeks give 60, and the 4 extra days (Monday to Thursday) add 4, so <strong>64 weekdays</strong>.</li>
+    </ul>
+
+    <h2>Days in each month</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Month</th><th>Days</th><th>Month</th><th>Days</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>January</td><td>31</td><td>July</td><td>31</td></tr>
+          <tr><td>February</td><td>28 (29 in a leap year)</td><td>August</td><td>31</td></tr>
+          <tr><td>March</td><td>31</td><td>September</td><td>30</td></tr>
+          <tr><td>April</td><td>30</td><td>October</td><td>31</td></tr>
+          <tr><td>May</td><td>31</td><td>November</td><td>30</td></tr>
+          <tr><td>June</td><td>30</td><td>December</td><td>31</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A year is a leap year if it divides by 4, except century years, which must divide by 400. So 2024 and 2000 were
+      leap years, but 1900 was not.
+    </p>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { daysBetweenDates } from '../../../scripts/calculators/days-between';
+  import { formatLong, parseISODate, today, toISO, toDayNumber, weekdayName } from '../../../scripts/lib/dates';
+  import { formatNumber, plural } from '../../../scripts/lib/format';
+  import { stackedBar } from '../../../scripts/ui/chart';
+  import { out, rows, setDefault, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
+
+  setupCalculator(
+    (read) => {
+      const startISO = read.date('start', { label: 'a start date', min: '0001-01-01', max: '9999-12-31' });
+      const endISO = read.date('end', { label: 'an end date', min: '0001-01-01', max: '9999-12-31' });
+      if (!read.ok || !startISO || !endISO) return null;
+      const start = parseISODate(startISO)!;
+      const end = parseISODate(endISO)!;
+      const includeEnd = read.checked('include_end');
+      const r = daysBetweenDates(start, end, includeEnd);
+      const [first, last] = r.swapped ? [end, start] : [start, end];
+
+      out('days', formatNumber(r.days, 0));
+      out('days-sub', includeEnd ? 'End date included' : 'End date not included');
+      out('weeks', `${plural(r.weeks, 'week')}, ${plural(r.remainderDays, 'day')}`);
+      const ymd = [
+        r.years ? plural(r.years, 'year') : '',
+        r.months ? plural(r.months, 'month') : '',
+        plural(r.monthDays, 'day'),
+      ].filter(Boolean);
+      out('ymd', ymd.join(', '));
+      out('weekdays', formatNumber(r.weekdays, 0));
+      out('weekdays-sub', `${plural(r.weekendDays, 'weekend day')}`);
+
+      toggle('[data-out="note"]', r.swapped);
+      if (r.swapped) out('note', 'The end date is before the start date, so the dates were swapped to count forward.');
+
+      rows('details', [
+        ['From', formatLong(first)],
+        ['To', formatLong(last)],
+        ['Weekend days', formatNumber(r.weekendDays, 0)],
+        ['Hours', formatNumber(r.days * 24, 0)],
+        ['Minutes', formatNumber(r.days * 1440, 0)],
+        ['Seconds', formatNumber(r.days * 86400, 0)],
+      ]);
+      stackedBar(document.querySelector('[data-chart="split"]'), [
+        { label: 'Weekdays', value: r.weekdays, text: formatNumber(r.weekdays, 0), tone: 'primary' },
+        { label: 'Weekend days', value: r.weekendDays, text: formatNumber(r.weekendDays, 0), tone: 'accent' },
+      ]);
+
+      const diff = toDayNumber(last) - toDayNumber(first);
+      steps([
+        [
+          'Count the calendar days from the start date to the end date',
+          `${weekdayName(first)}, ${toISO(first)} → ${weekdayName(last)}, ${toISO(last)} = ${formatNumber(diff, 0)} days`,
+        ],
+        includeEnd ? ['Add 1 to include the end date', `${formatNumber(diff, 0)} + 1 = ${formatNumber(r.days, 0)} days`] : 'The end date is not counted (tick the box to include it).',
+        ['Divide by 7 for weeks', `${formatNumber(r.days, 0)} ÷ 7 = ${r.weeks} weeks, remainder ${r.remainderDays} days`],
+        ['Leave out Saturdays and Sundays for weekdays', `${formatNumber(r.days, 0)} − ${formatNumber(r.weekendDays, 0)} weekend days = ${formatNumber(r.weekdays, 0)} weekdays`],
+      ]);
+
+      return {
+        announce: `${formatNumber(r.days, 0)} days, or ${r.weeks} weeks and ${r.remainderDays} days.`,
+        copy: `${formatLong(first)} to ${formatLong(last)}: ${formatNumber(r.days, 0)} days${includeEnd ? ' (end date included)' : ''} = ${r.weeks} weeks ${r.remainderDays} days = ${ymd.join(', ')}; ${formatNumber(r.weekdays, 0)} weekdays`,
+      };
+    },
+    {
+      onInit(form) {
+        // Start today and count to the next Christmas Day.
+        const now = today();
+        let christmas = { y: now.y, m: 12, d: 25 };
+        if (toDayNumber(christmas) <= toDayNumber(now)) christmas = { y: now.y + 1, m: 12, d: 25 };
+        setDefault(form, 'start', toISO(now));
+        setDefault(form, 'end', toISO(christmas));
+      },
+    },
+  );
+</script>

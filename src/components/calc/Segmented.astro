@@ -1,0 +1,28 @@
+---
+// A group of radio buttons styled as a segmented switch (e.g. Add / Subtract).
+interface Props {
+  name: string;
+  legend: string;
+  options: { value: string; label: string }[];
+  value?: string;
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  mode?: string;
+  hint?: string;
+}
+const { name, legend, options, value = options[0]?.value, size = 'auto', mode, hint } = Astro.props;
+---
+
+<fieldset class:list={['field segmented-field', `f-${size}`]} data-field={name} data-mode={mode}>
+  <legend class="field-label">{legend}</legend>
+  <div class="segmented">
+    {
+      options.map((o) => (
+        <label>
+          <input type="radio" name={name} value={o.value} checked={o.value === value} />
+          <span>{o.label}</span>
+        </label>
+      ))
+    }
+  </div>
+  {hint && <p class="field-hint">{hint}</p>}
+</fieldset>

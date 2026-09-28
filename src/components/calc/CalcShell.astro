@@ -1,0 +1,55 @@
+---
+// The calculator: a form card (mode tabs and unit switch on top, fields in a
+// responsive grid, Calculate / Reset) followed by a full-width result card.
+// scripts/ui/calculator.ts wires everything up; pages fill the "result" slot
+// with <Stat> tiles, [data-out] text, tables, charts and <Steps>.
+import { site } from '../../data/site';
+
+interface Props {
+  /** Calculator name, used in the "tell us" email subject. */
+  name: string;
+  /** Shown in the result card until the inputs are complete. */
+  emptyMessage?: string;
+  resultTitle?: string;
+}
+const { name, emptyMessage = 'Fill in the fields above to see the result.', resultTitle = 'Results' } = Astro.props;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const reportHref = `mailto:${site.email}?subject=${encodeURIComponent(`Result check: ${name}`)}&body=${encodeURIComponent(
+  `Page: ${pageUrl}\n\nValues I entered:\n\nResult shown:\n\nResult I expected:\n`,
+)}`;
+const hasTop = Astro.slots.has('top');
+---
+
+<div class="calc-shell">
+  <form id="calc" class="calc" novalidate>
+    {
+      hasTop && (
+        <div class="calc-top">
+          <slot name="top" />
+        </div>
+      )
+    }
+    <div class="calc-fields">
+      <slot />
+    </div>
+    <div class="calc-actions">
+      <button type="submit" class="btn btn-primary">Calculate</button>
+      <button type="reset" class="btn btn-outline">Reset</button>
+    </div>
+  </form>
+
+  <section class="result" data-result data-state="empty" aria-labelledby="result-title">
+    <div class="result-head">
+      <h2 id="result-title">{resultTitle}</h2>
+      <button type="button" class="btn btn-outline btn-sm" data-copy disabled>Copy result</button>
+    </div>
+    <p class="result-empty" data-empty>{emptyMessage}</p>
+    <div class="result-body" data-output>
+      <slot name="result" />
+    </div>
+    <p class="result-report">
+      Result look wrong? <a href={reportHref}>Tell us</a> and we'll check it.
+    </p>
+    <p class="sr-only" aria-live="polite" data-announce></p>
+  </section>
+</div>

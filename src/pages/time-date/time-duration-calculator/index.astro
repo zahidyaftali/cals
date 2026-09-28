@@ -1,0 +1,327 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import Segmented from '../../../components/calc/Segmented.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const sumRows = [
+  { h: '1', m: '30', s: '' },
+  { h: '2', m: '45', s: '' },
+  { h: '0', m: '45', s: '' },
+  { h: '', m: '', s: '' },
+  { h: '', m: '', s: '' },
+  { h: '', m: '', s: '' },
+];
+
+const faqs = [
+  {
+    q: 'How do I calculate the time between two times?',
+    a: 'Convert both times to minutes after midnight, subtract the start from the end, and convert back to hours and minutes. From 9:15 AM (555 minutes) to 5:45 PM (1,065 minutes) is 510 minutes, which is 8 hours 30 minutes.',
+  },
+  {
+    q: 'How do I work out time that goes past midnight?',
+    a: 'If the end time is earlier than the start time, add 24 hours to the end time before subtracting. 10:30 PM to 1:15 AM is (1:15 + 24:00) − 22:30 = 2 hours 45 minutes. The calculator does this automatically when you leave the dates empty.',
+  },
+  {
+    q: 'How do I add hours and minutes to a time?',
+    a: 'Add the minutes first and carry any 60 minutes over as an hour, then add the hours and carry any 24 hours over as a day. 10:00 PM plus 5 hours 30 minutes is 3:30 AM the next day. Use the "Add or subtract" tab to do this with dates as well.',
+  },
+  {
+    q: 'How do I convert hours and minutes to decimal hours?',
+    a: 'Divide the minutes by 60 and add them to the hours. 8 hours 30 minutes is 8 + 30 ÷ 60 = 8.5 hours, and 2 hours 45 minutes is 2.75 hours. Decimal hours are what payroll and billing systems usually ask for.',
+  },
+  {
+    q: 'Does the calculator allow for daylight saving time?',
+    a: 'No. It measures clock time, the same way you would read two clocks on the wall. If a daylight saving change happens between your start and end, the real elapsed time is one hour more (in autumn) or one hour less (in spring) than the result.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="time-duration-calculator"
+  intro="Find the exact time between two times or dates, add or subtract hours and minutes, or add up a list of durations."
+  faqs={faqs}
+>
+  <CalcShell name="Time Duration Calculator">
+    <Tabs
+      slot="top"
+      legend="What do you want to calculate?"
+      options={[
+        { value: 'between', label: 'Time between' },
+        { value: 'add', label: 'Add or subtract time' },
+        { value: 'sum', label: 'Add up durations' },
+      ]}
+    />
+
+    <Field name="start_time" label="Start time" type="time" step="1" value="09:15" size="quarter" mode="between" />
+    <Field name="start_date" label="Start date (optional)" type="date" size="quarter" mode="between" today />
+    <Field name="end_time" label="End time" type="time" step="1" value="17:45" size="quarter" mode="between" />
+    <Field name="end_date" label="End date (optional)" type="date" size="quarter" mode="between" today />
+    <p class="field-hint f-full" data-mode="between">
+      Leave the dates empty to measure within one day. An end time earlier than the start counts as the next day.
+    </p>
+
+    <Field name="base_time" label="Start time" type="time" step="1" value="22:00" size="quarter" mode="add" />
+    <Field name="base_date" label="Date (optional)" type="date" size="quarter" mode="add" today />
+    <Segmented
+      name="direction"
+      legend="Operation"
+      options={[
+        { value: 'add', label: 'Add' },
+        { value: 'subtract', label: 'Subtract' },
+      ]}
+      size="quarter"
+      mode="add"
+    />
+    <Field name="add_days" label="Days" type="integer" value="0" size="quarter" mode="add" />
+    <Field name="add_hours" label="Hours" type="number" value="5" size="quarter" mode="add" />
+    <Field name="add_minutes" label="Minutes" type="number" value="30" size="quarter" mode="add" />
+    <Field name="add_seconds" label="Seconds" type="number" value="0" size="quarter" mode="add" />
+
+    {
+      sumRows.map((row, i) => (
+        <>
+          <p class="calc-subhead" data-mode="sum">Duration {i + 1}</p>
+          <Field name={`sum${i}_h`} label="Hours" srPrefix={`Duration ${i + 1}`} type="number" value={row.h} size="third" mode="sum" />
+          <Field name={`sum${i}_m`} label="Minutes" srPrefix={`Duration ${i + 1}`} type="number" value={row.m} size="third" mode="sum" />
+          <Field name={`sum${i}_s`} label="Seconds" srPrefix={`Duration ${i + 1}`} type="number" value={row.s} size="third" mode="sum" />
+        </>
+      ))
+    }
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Duration" out="main" primary sub />
+        <Stat label="Decimal hours" out="decimal" sub />
+        <Stat label="Total minutes" out="minutes" />
+        <Stat label="Total seconds" out="seconds" />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Breakdown</h3>
+          <dl class="result-rows" data-rows="details"></dl>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the time duration calculator</h2>
+    <ul>
+      <li>
+        <strong>Time between:</strong> enter a start time and an end time. Add dates if the period spans more than one
+        day, such as a trip from Friday evening to Sunday afternoon.
+      </li>
+      <li>
+        <strong>Add or subtract time:</strong> enter a start time (and a date if you like), choose Add or Subtract, then
+        enter the days, hours, minutes and seconds to move by.
+      </li>
+      <li>
+        <strong>Add up durations:</strong> enter up to six durations, such as the lengths of several videos, tasks or
+        laps, to get the total.
+      </li>
+    </ul>
+    <p>Results update as you type, and seconds are optional everywhere.</p>
+
+    <h2>How the calculation works</h2>
+    <p>
+      Every time is first turned into seconds after midnight: hours × 3,600 + minutes × 60 + seconds. The calculator then
+      subtracts (or adds) and turns the answer back into hours, minutes and seconds.
+    </p>
+    <p><strong>Duration = (end date and time) − (start date and time)</strong></p>
+    <p>
+      With no dates, both times are on the same day, and if the end time is earlier the calculator adds 24 hours to it,
+      because the period must have crossed midnight. Decimal hours are the total minutes divided by 60.
+    </p>
+
+    <h2>Worked examples</h2>
+    <ul>
+      <li>
+        <strong>A work shift:</strong> 9:15 AM to 5:45 PM is 555 to 1,065 minutes after midnight. 1,065 − 555 = 510
+        minutes = 8 hours 30 minutes = 8.5 decimal hours.
+      </li>
+      <li>
+        <strong>A night shift:</strong> 10:30 PM to 1:15 AM. The end is earlier, so add 24 hours: 25:15 − 22:30 = 2 hours
+        45 minutes.
+      </li>
+      <li>
+        <strong>Adding time:</strong> 10:00 PM plus 5 hours 30 minutes is 27:30, which is 3:30 AM on the next day.
+      </li>
+      <li>
+        <strong>A total:</strong> 1:30 + 2:45 + 0:45 = 4 hours 120 minutes = 5 hours exactly.
+      </li>
+    </ul>
+
+    <h2>A common timesheet mistake</h2>
+    <p>
+      Hours and minutes are not decimals. A shift of 7:45 is 7 hours 45 minutes, which is 7.75 hours, not 7.45. Entering
+      7.45 on a timesheet that expects decimal hours would lose 18 minutes of pay. The calculator shows every duration both
+      ways, as hours:minutes:seconds and as decimal hours, so you can copy whichever one your form asks for.
+    </p>
+
+    <h2>Time unit conversions</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Period</th><th>Hours</th><th>Minutes</th><th>Seconds</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 minute</td><td>0.0167</td><td>1</td><td>60</td></tr>
+          <tr><td>1 hour</td><td>1</td><td>60</td><td>3,600</td></tr>
+          <tr><td>1 day</td><td>24</td><td>1,440</td><td>86,400</td></tr>
+          <tr><td>1 week</td><td>168</td><td>10,080</td><td>604,800</td></tr>
+          <tr><td>30 days</td><td>720</td><td>43,200</td><td>2,592,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { clock12, describe, duration, hms, shiftTime, split, sumDurations } from '../../../scripts/calculators/time-duration';
+  import { formatLong, parseISODate } from '../../../scripts/lib/dates';
+  import { formatNumber } from '../../../scripts/lib/format';
+  import { out, rows, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
+
+  const n = (v: number) => formatNumber(v, 2);
+
+  function showTotals(total: number) {
+    out('decimal', formatNumber(total / 3600, 4));
+    out('decimal-sub', 'hours');
+    out('minutes', formatNumber(total / 60, 2));
+    out('seconds', formatNumber(total, 0));
+  }
+
+  setupCalculator((read) => {
+    const mode = read.choice('mode');
+    toggle('[data-out="note"]', false);
+    out('main-label', mode === 'add' ? 'Resulting time' : mode === 'sum' ? 'Total duration' : 'Duration');
+
+    if (mode === 'between') {
+      const start = read.time('start_time', { label: 'a start time' });
+      const end = read.time('end_time', { label: 'an end time' });
+      const startDate = read.date('start_date', { label: 'the start date', optional: true, min: '0001-01-01' });
+      const endDate = read.date('end_date', { label: 'the end date', optional: true, min: '0001-01-01' });
+      if (!read.ok || start === null || end === null) return null;
+
+      const r = duration({ startTime: start, endTime: end, startDate: startDate ?? '', endDate: endDate ?? '' });
+      if (r === 'end-before-start') {
+        read.fail('end_date', 'The end is before the start. Check the dates and times.');
+        return null;
+      }
+      if (r === 'bad-date') return null;
+
+      out('main', hms(r.totalSeconds));
+      out('main-sub', describe(r.totalSeconds));
+      showTotals(r.totalSeconds);
+      if (r.crossesMidnight) {
+        out('note', 'The end time is earlier than the start time, so it is counted on the next day.');
+        toggle('[data-out="note"]', true);
+      }
+      rows('details', [
+        ['Days', String(r.days)],
+        ['Hours', String(r.hours)],
+        ['Minutes', String(r.minutes)],
+        ['Seconds', String(r.seconds)],
+      ]);
+      const from = `${startDate ? formatLong(parseISODate(startDate)!) + ', ' : ''}${clock12(start)}`;
+      const to = `${endDate ? formatLong(parseISODate(endDate)!) + ', ' : ''}${clock12(end)}`;
+      steps([
+        ['Convert both times to seconds after midnight', `${clock12(start)} = ${formatNumber(start, 0)} s;  ${clock12(end)} = ${formatNumber(end, 0)} s`],
+        startDate || endDate
+          ? ['Add whole days between the dates and subtract', `${formatNumber(r.totalSeconds, 0)} s from ${from} to ${to}`]
+          : r.crossesMidnight
+            ? ['The end is earlier, so add 24 hours (86,400 s) and subtract', `${formatNumber(end, 0)} + 86,400 − ${formatNumber(start, 0)} = ${formatNumber(r.totalSeconds, 0)} s`]
+            : ['Subtract the start from the end', `${formatNumber(end, 0)} − ${formatNumber(start, 0)} = ${formatNumber(r.totalSeconds, 0)} s`],
+        ['Convert seconds back to hours, minutes and seconds', `${formatNumber(r.totalSeconds, 0)} s = ${hms(r.totalSeconds)} = ${n(r.totalSeconds / 3600)} hours`],
+      ]);
+      return {
+        announce: `Duration ${describe(r.totalSeconds)}.`,
+        copy: `From ${from} to ${to}: ${hms(r.totalSeconds)} (${describe(r.totalSeconds)}, ${n(r.totalSeconds / 3600)} hours)`,
+      };
+    }
+
+    if (mode === 'add') {
+      const base = read.time('base_time', { label: 'a start time' });
+      const baseDate = read.date('base_date', { label: 'the date', optional: true, min: '0001-01-01' });
+      const d = read.amount('add_days', { label: 'the days', min: 0, integer: true });
+      const h = read.amount('add_hours', { label: 'the hours', min: 0 });
+      const m = read.amount('add_minutes', { label: 'the minutes', min: 0 });
+      const s = read.amount('add_seconds', { label: 'the seconds', min: 0 });
+      if (!read.ok || base === null) return null;
+
+      const sign = read.choice('direction') === 'subtract' ? -1 : 1;
+      const delta = Math.round(d * 86400 + h * 3600 + m * 60 + s);
+      const date = baseDate ? parseISODate(baseDate)! : undefined;
+      const r = shiftTime(base, sign * delta, date);
+      const dayText =
+        r.date !== undefined
+          ? formatLong(r.date)
+          : r.dayOffset === 0
+            ? 'Same day'
+            : `${r.dayOffset > 0 ? '+' : '−'}${Math.abs(r.dayOffset)} ${Math.abs(r.dayOffset) === 1 ? 'day' : 'days'}`;
+
+      out('main', clock12(r.time));
+      out('main-sub', dayText);
+      showTotals(delta);
+      out('decimal-sub', `hours ${sign > 0 ? 'added' : 'subtracted'}`);
+      rows('details', [
+        ['Start', `${date ? formatLong(date) + ', ' : ''}${clock12(base)}`],
+        [sign > 0 ? 'Added' : 'Subtracted', describe(delta)],
+        ['Result', `${r.date ? formatLong(r.date) + ', ' : ''}${clock12(r.time)}`],
+        ['Days moved', String(r.dayOffset)],
+      ]);
+      steps([
+        ['Convert the start time to seconds after midnight', `${clock12(base)} = ${formatNumber(base, 0)} s`],
+        ['Convert the time to add into seconds', `${d} × 86,400 + ${n(h)} × 3,600 + ${n(m)} × 60 + ${n(s)} = ${formatNumber(delta, 0)} s`],
+        [sign > 0 ? 'Add' : 'Subtract', `${formatNumber(base, 0)} ${sign > 0 ? '+' : '−'} ${formatNumber(delta, 0)} = ${formatNumber(base + sign * delta, 0)} s`],
+        ['Take out whole days (86,400 s each) to get the clock time', `${r.dayOffset} day(s), ${clock12(r.time)}`],
+      ]);
+      return {
+        announce: `Result ${clock12(r.time)}, ${dayText}.`,
+        copy: `${clock12(base)} ${sign > 0 ? '+' : '−'} ${describe(delta)} = ${clock12(r.time)} (${dayText})`,
+      };
+    }
+
+    // Add up durations
+    const items: number[] = [];
+    const parts: string[] = [];
+    for (let i = 0; i < 6; i++) {
+      const raw = ['h', 'm', 's'].map((u) => read.input(`sum${i}_${u}`).value.trim());
+      if (raw.every((v) => v === '')) continue;
+      const h = read.amount(`sum${i}_h`, { label: 'the hours', min: 0 });
+      const m = read.amount(`sum${i}_m`, { label: 'the minutes', min: 0 });
+      const s = read.amount(`sum${i}_s`, { label: 'the seconds', min: 0 });
+      const secs = Math.round(h * 3600 + m * 60 + s);
+      items.push(secs);
+      parts.push(hms(secs));
+    }
+    if (!read.ok || items.length === 0) return null;
+
+    const total = sumDurations(items);
+    const t = split(total);
+    out('main', hms(total));
+    out('main-sub', describe(total));
+    showTotals(total);
+    rows('details', [
+      ['Durations added', String(items.length)],
+      ['Days', String(t.days)],
+      ['Hours', String(t.hours)],
+      ['Minutes', String(t.minutes)],
+      ['Seconds', String(t.seconds)],
+    ]);
+    steps([
+      ['Convert each duration to seconds and add them', `${items.map((v) => formatNumber(v, 0)).join(' + ')} = ${formatNumber(total, 0)} s`],
+      ['Convert back to hours, minutes and seconds', `${formatNumber(total, 0)} s = ${hms(total)}`],
+    ]);
+    return {
+      announce: `Total ${describe(total)}.`,
+      copy: `${parts.join(' + ')} = ${hms(total)} (${n(total / 3600)} hours)`,
+    };
+  });
+</script>

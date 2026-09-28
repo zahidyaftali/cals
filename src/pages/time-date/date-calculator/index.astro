@@ -1,0 +1,290 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Checkbox from '../../../components/calc/Checkbox.astro';
+import Field from '../../../components/calc/Field.astro';
+import Segmented from '../../../components/calc/Segmented.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import Tabs from '../../../components/calc/Tabs.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const faqs = [
+  {
+    q: 'How do I add days to a date?',
+    a: 'Count forward one calendar day at a time, moving into the next month when you pass its last day. 90 days after January 1, 2026 is April 1, 2026: January has 30 more days after the 1st, February 28 and March 31, which makes 89, and one more day reaches April 1.',
+  },
+  {
+    q: 'What date is 30, 60 or 90 days from today?',
+    a: 'Press "Today" next to the start date, leave the operation on Add and enter 30, 60 or 90 in the Days box. The result shows the date, the day of the week, and how many days away it is.',
+  },
+  {
+    q: 'What happens when I add a month to January 31?',
+    a: 'February has no 31st, so the result moves back to the last day of February: February 28, or February 29 in a leap year. This is the same rule banks and most calendar apps use, and the result tells you when it has been applied.',
+  },
+  {
+    q: 'Can I count only business days?',
+    a: 'Yes. Tick "Count days as business days" and the Days value skips Saturdays and Sundays, so 1 business day after a Friday is the following Monday. Public holidays are not skipped, because they vary by country and employer.',
+  },
+  {
+    q: 'How do I find the day of the week for a date?',
+    a: 'Choose the "Day of the week" tab and enter any date. You get the weekday, the day of the year, the ISO week number and how far the date is from today. For example, July 4, 1776 was a Thursday.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="date-calculator"
+  intro="Add or subtract days, weeks, months or years from a date, count business days, or find the day of the week for any date."
+  faqs={faqs}
+>
+  <CalcShell name="Date Calculator">
+    <Tabs
+      slot="top"
+      legend="What do you want to calculate?"
+      options={[
+        { value: 'add', label: 'Add or subtract' },
+        { value: 'weekday', label: 'Day of the week' },
+      ]}
+    />
+
+    <Field name="start" label="Start date" type="date" value="2026-01-01" size="auto" mode="add" today />
+    <Segmented
+      name="direction"
+      legend="Operation"
+      options={[
+        { value: 'add', label: 'Add' },
+        { value: 'subtract', label: 'Subtract' },
+      ]}
+      mode="add"
+    />
+    <Field name="years" label="Years" type="integer" value="0" size="quarter" mode="add" />
+    <Field name="months" label="Months" type="integer" value="0" size="quarter" mode="add" />
+    <Field name="weeks" label="Weeks" type="integer" value="0" size="quarter" mode="add" />
+    <Field name="days" label="Days" type="integer" value="90" size="quarter" mode="add" />
+    <Checkbox
+      name="business"
+      label="Count days as business days (skip weekends)"
+      hint="Applies to the Days value only. Public holidays are not skipped."
+      mode="add"
+    />
+
+    <Field name="date" label="Date" type="date" value="2026-01-01" size="auto" mode="weekday" today />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Result" out="main" primary sub />
+        <Stat label="Day of the year" out="doy" sub />
+        <Stat label="ISO week" out="week" sub />
+        <Stat label="From today" out="fromToday" sub />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Details</h3>
+          <dl class="result-rows" data-rows="details"></dl>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the date calculator</h2>
+    <ol>
+      <li>Pick a start date, or press "Today".</li>
+      <li>Choose Add or Subtract.</li>
+      <li>Enter any mix of years, months, weeks and days, for example 1 year, 2 months and 10 days.</li>
+      <li>Tick the business days box to count the days as Monday to Friday only.</li>
+    </ol>
+    <p>
+      The "Day of the week" tab takes a single date and tells you its weekday, day of the year, ISO week number and
+      distance from today.
+    </p>
+
+    <h2>How the date is calculated</h2>
+    <p>The calculator applies each part in a fixed order, the same way you would on a paper calendar:</p>
+    <ol>
+      <li>
+        <strong>Years and months</strong> move the date to the same day in the target month. If that month is shorter
+        and the day doesn't exist, the last day of the month is used (January 31 + 1 month = February 28 or 29).
+      </li>
+      <li><strong>Weeks</strong> add 7 days each.</li>
+      <li>
+        <strong>Days</strong> are counted one by one on the calendar. With business days switched on, Saturdays and
+        Sundays are skipped.
+      </li>
+    </ol>
+    <p>
+      Subtracting works the same way in reverse. Because the calculation uses whole calendar days, daylight saving
+      changes and time zones never shift the answer.
+    </p>
+
+    <h2>Worked example</h2>
+    <p>A contract starts on Thursday, January 1, 2026 and ends 90 days later.</p>
+    <ul>
+      <li>January 1 → January 31 is 30 days.</li>
+      <li>February adds 28 days (2026 is not a leap year): 58 days, February 28.</li>
+      <li>March adds 31 days: 89 days, March 31.</li>
+      <li>One more day: <strong>Wednesday, April 1, 2026</strong>.</li>
+    </ul>
+    <p>
+      Adding 90 business days instead skips 36 weekend days along the way and lands on Thursday, May 7, 2026.
+    </p>
+
+    <h2>Business days and public holidays</h2>
+    <p>
+      The business day option skips Saturdays and Sundays but not public holidays, because they depend on your country,
+      state and employer. The US has 11 federal holidays: New Year's Day, Martin Luther King Jr. Day, Washington's
+      Birthday, Memorial Day, Juneteenth, Independence Day, Labor Day, Columbus Day, Veterans Day, Thanksgiving and
+      Christmas. For a deadline counted in business days, add one day for each holiday that falls on a weekday in your
+      range.
+    </p>
+
+    <h2>Common dates from January 1, 2026</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Add</th><th>Date</th><th>Day</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>30 days</td><td>January 31, 2026</td><td>Saturday</td></tr>
+          <tr><td>60 days</td><td>March 2, 2026</td><td>Monday</td></tr>
+          <tr><td>90 days</td><td>April 1, 2026</td><td>Wednesday</td></tr>
+          <tr><td>180 days</td><td>June 30, 2026</td><td>Tuesday</td></tr>
+          <tr><td>6 months</td><td>July 1, 2026</td><td>Wednesday</td></tr>
+          <tr><td>365 days</td><td>January 1, 2027</td><td>Friday</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { calculateDate } from '../../../scripts/calculators/date-calc';
+  import {
+    dayOfYear,
+    daysBetween,
+    formatLong,
+    isLeapYear,
+    isoWeek,
+    parseISODate,
+    today,
+    toISO,
+    weekdayName,
+    type YMD,
+  } from '../../../scripts/lib/dates';
+  import { formatNumber, plural } from '../../../scripts/lib/format';
+  import { out, rows, setDefault, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
+
+  function relative(date: YMD) {
+    const diff = daysBetween(today(), date);
+    if (diff === 0) return { text: 'Today', sub: '' };
+    return diff > 0
+      ? { text: `In ${plural(diff, 'day')}`, sub: `${formatNumber(diff / 7, 1)} weeks from now` }
+      : { text: `${plural(-diff, 'day')} ago`, sub: `${formatNumber(-diff / 7, 1)} weeks ago` };
+  }
+
+  function showInfo(date: YMD) {
+    const doy = dayOfYear(date);
+    const yearLength = isLeapYear(date.y) ? 366 : 365;
+    const week = isoWeek(date);
+    const rel = relative(date);
+    out('doy', `Day ${doy}`);
+    out('doy-sub', `${yearLength - doy} days left in ${date.y}`);
+    out('week', `Week ${week.week}`);
+    out('week-sub', `of ${week.year} (weeks start Monday)`);
+    out('fromToday', rel.text);
+    out('fromToday-sub', rel.sub);
+  }
+
+  setupCalculator(
+    (read) => {
+      const mode = read.choice('mode');
+      toggle('[data-out="note"]', false);
+
+      if (mode === 'weekday') {
+        const iso = read.date('date', { label: 'a date', min: '0001-01-01', max: '9999-12-31' });
+        if (!read.ok || !iso) return null;
+        const date = parseISODate(iso)!;
+        out('main-label', 'Day of the week');
+        out('main', weekdayName(date));
+        out('main-sub', formatLong(date));
+        showInfo(date);
+        rows('details', [
+          ['Date', formatLong(date)],
+          ['Quarter', `Q${Math.ceil(date.m / 3)}`],
+          ['Leap year', isLeapYear(date.y) ? `Yes, ${date.y} has 366 days` : `No, ${date.y} has 365 days`],
+        ]);
+        steps([
+          ['Count the days from a known date (January 1, 1970, a Thursday)', `${formatNumber(daysBetween({ y: 1970, m: 1, d: 1 }, date), 0)} days`],
+          ['The remainder after dividing by 7 gives the weekday', weekdayName(date)],
+        ]);
+        return { announce: `${formatLong(date)}.`, copy: formatLong(date) };
+      }
+
+      const startISO = read.date('start', { label: 'a start date', min: '0001-01-01', max: '9999-12-31' });
+      const years = read.amount('years', { label: 'the years', min: 0, max: 9999, integer: true });
+      const months = read.amount('months', { label: 'the months', min: 0, max: 120000, integer: true });
+      const weeks = read.amount('weeks', { label: 'the weeks', min: 0, max: 520000, integer: true });
+      const days = read.amount('days', { label: 'the days', min: 0, max: 3650000, integer: true });
+      if (!read.ok || !startISO) return null;
+
+      const start = parseISODate(startISO)!;
+      const direction = read.choice('direction') === 'subtract' ? -1 : 1;
+      const business = read.checked('business');
+      const r = calculateDate({ start, direction, years, months, weeks, days, businessDays: business });
+      if (r.date.y < 1 || r.date.y > 9999) {
+        read.fail('days', 'That takes the date outside the years 1 to 9999.');
+        return null;
+      }
+
+      const sign = direction > 0 ? '+' : '−';
+      const change = [
+        years && plural(years, 'year'),
+        months && plural(months, 'month'),
+        weeks && plural(weeks, 'week'),
+        days && plural(days, business ? 'business day' : 'day'),
+      ].filter(Boolean) as string[];
+      const changeText = change.length ? change.join(', ') : 'nothing';
+
+      out('main-label', direction > 0 ? 'Date after adding' : 'Date after subtracting');
+      out('main', formatLong(r.date));
+      out('main-sub', toISO(r.date));
+      showInfo(r.date);
+      if (r.clamped) {
+        out('note', `The day ${start.d} doesn't exist in the target month, so the last day of that month was used.`);
+        toggle('[data-out="note"]', true);
+      }
+      rows('details', [
+        ['Start', formatLong(start)],
+        [direction > 0 ? 'Added' : 'Subtracted', changeText],
+        ['Result', formatLong(r.date)],
+        ['Calendar days apart', formatNumber(Math.abs(r.calendarDays), 0)],
+      ]);
+
+      const work: (string | [string, string])[] = [];
+      if (years || months)
+        work.push([`${direction > 0 ? 'Add' : 'Subtract'} ${[years && plural(years, 'year'), months && plural(months, 'month')].filter(Boolean).join(' and ')}`, `${toISO(start)} ${sign} ${years * 12 + months} months = ${toISO(r.afterMonths)}${r.clamped ? ' (moved to the month’s last day)' : ''}`]);
+      if (weeks) work.push([`${direction > 0 ? 'Add' : 'Subtract'} ${plural(weeks, 'week')}`, `${weeks} × 7 = ${weeks * 7} days`]);
+      if (days)
+        work.push([
+          business ? `${direction > 0 ? 'Count forward' : 'Count back'} ${plural(days, 'business day')}, skipping Saturdays and Sundays` : `${direction > 0 ? 'Add' : 'Subtract'} ${plural(days, 'day')}`,
+          `→ ${formatLong(r.date)}`,
+        ]);
+      if (!work.length) work.push('Nothing to add, so the date is unchanged.');
+      steps(work);
+
+      return {
+        announce: `${formatLong(r.date)}.`,
+        copy: `${formatLong(start)} ${sign} ${changeText} = ${formatLong(r.date)}`,
+      };
+    },
+    {
+      onInit(form) {
+        const now = toISO(today());
+        setDefault(form, 'start', now);
+        setDefault(form, 'date', now);
+      },
+    },
+  );
+</script>

@@ -1,0 +1,24 @@
+---
+import { relatedTo, type Calculator } from '../data/calculators';
+import CalculatorCard from './CalculatorCard.astro';
+
+interface Props {
+  calculator: Calculator;
+}
+const related = relatedTo(Astro.props.calculator);
+---
+
+{
+  related.length > 0 && (
+    <nav aria-labelledby="related-title" class="mt-12">
+      <h2 id="related-title" class="text-2xl">Related calculators</h2>
+      <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+        {related.map((c) => (
+          <li>
+            <CalculatorCard calculator={c} showCategory />
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

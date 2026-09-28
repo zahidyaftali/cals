@@ -1,0 +1,300 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Field from '../../../components/calc/Field.astro';
+import MeasureField from '../../../components/calc/MeasureField.astro';
+import Segmented from '../../../components/calc/Segmented.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const currencies = [
+  ['USD', 'US dollar'],
+  ['GBP', 'British pound'],
+  ['EUR', 'Euro'],
+  ['CAD', 'Canadian dollar'],
+  ['AUD', 'Australian dollar'],
+  ['SAR', 'Saudi riyal'],
+  ['AED', 'UAE dirham'],
+  ['QAR', 'Qatari riyal'],
+  ['KWD', 'Kuwaiti dinar'],
+  ['PKR', 'Pakistani rupee'],
+  ['INR', 'Indian rupee'],
+  ['BDT', 'Bangladeshi taka'],
+  ['MYR', 'Malaysian ringgit'],
+  ['IDR', 'Indonesian rupiah'],
+  ['TRY', 'Turkish lira'],
+  ['EGP', 'Egyptian pound'],
+  ['NGN', 'Nigerian naira'],
+  ['ZAR', 'South African rand'],
+].map(([value, name]) => ({ value, label: `${value} – ${name}` }));
+
+const weightUnits = ['g', 'tola', 'ozt'];
+const priceUnits = ['per-g', 'per-tola', 'per-ozt'];
+
+const faqs = [
+  {
+    q: 'What is the nisab for zakat?',
+    a: 'The nisab is the minimum amount of wealth a Muslim must own, for a full lunar year, before zakat is due. It is set by weight: 87.48 grams of gold or 612.36 grams of silver. Its value in money changes with the price of gold and silver, so enter today’s price per gram to find the current nisab.',
+  },
+  {
+    q: 'Should I use the gold or silver nisab?',
+    a: 'Both are recognized by scholars. The silver nisab is much lower, so more people become liable to pay and more zakat reaches those in need; many scholars and zakat organizations recommend it, especially for mixed wealth. Others use the gold nisab. If you are unsure which applies to you, ask a qualified scholar.',
+  },
+  {
+    q: 'How is zakat calculated?',
+    a: 'Add up your zakatable wealth (cash, gold, silver, investments, business stock and money owed to you that you expect to be repaid), subtract debts that are due now, and compare the result with the nisab. If it is equal to or above the nisab, zakat is 2.5% of the net amount, which is the same as dividing it by 40.',
+  },
+  {
+    q: 'Is zakat due on jewelry I wear?',
+    a: 'Scholars differ. The Hanafi school holds that zakat is due on gold and silver jewelry, while many scholars of the Maliki, Shafi’i and Hanbali schools hold that jewelry kept for normal personal use is exempt. Include your jewelry in the gold and silver boxes if your school or scholar considers it zakatable.',
+  },
+  {
+    q: 'When is zakat due?',
+    a: 'Zakat becomes due when your wealth has stayed at or above the nisab for one full lunar (Hijri) year, which is about 354 days. Many people choose a fixed date each year, often in Ramadan, to calculate and pay it. Our Hijri date converter can help you track the date.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="zakat-calculator"
+  intro="Calculate the zakat due on your savings, gold, silver and investments at 2.5%, using the gold or silver nisab and today’s metal prices."
+  faqs={faqs}
+  disclaimer="This calculator is a guide to zakat on wealth, not a religious ruling. Rules for business assets, debts, retirement funds, jewelry and other holdings differ between schools of thought, so please consult a qualified scholar about your own zakat."
+>
+  <CalcShell name="Zakat Calculator">
+    <SelectField name="currency" label="Currency" options={currencies} value="USD" />
+    <Segmented
+      name="standard"
+      legend="Nisab standard"
+      options={[
+        { value: 'silver', label: 'Silver (612.36 g)' },
+        { value: 'gold', label: 'Gold (87.48 g)' },
+      ]}
+      value="silver"
+    />
+    <p class="field-hint f-auto self-end">
+      Enter today’s prices below. They set the nisab and the value of any gold and silver you own.
+    </p>
+
+    <p class="calc-subhead">Today’s metal prices</p>
+    <MeasureField name="gold_price" label="Gold price (24 karat)" units={priceUnits} imperial="per-g" metric="per-g" value="100" />
+    <MeasureField name="silver_price" label="Silver price (fine silver)" units={priceUnits} imperial="per-g" metric="per-g" value="1.25" />
+
+    <p class="calc-subhead">What you own</p>
+    <Field name="cash" label="Cash and bank balances" value="10000" hint="Cash at home, checking and savings accounts." />
+    <MeasureField name="gold" label="Gold you own (weight)" units={weightUnits} imperial="g" metric="g" value="20" />
+    <SelectField
+      name="karat"
+      label="Gold purity"
+      options={[
+        { value: '24', label: '24 karat (99.9%)' },
+        { value: '22', label: '22 karat (91.7%)' },
+        { value: '21', label: '21 karat (87.5%)' },
+        { value: '18', label: '18 karat (75%)' },
+        { value: '14', label: '14 karat (58.3%)' },
+        { value: '10', label: '10 karat (41.7%)' },
+      ]}
+      value="22"
+    />
+    <MeasureField name="silver" label="Silver you own (weight)" units={weightUnits} imperial="g" metric="g" />
+    <SelectField
+      name="fineness"
+      label="Silver purity"
+      options={[
+        { value: '999', label: 'Fine silver (999)' },
+        { value: '958', label: 'Britannia silver (958)' },
+        { value: '925', label: 'Sterling silver (925)' },
+        { value: '900', label: 'Coin silver (900)' },
+        { value: '800', label: '800 silver' },
+      ]}
+      value="925"
+    />
+    <Field name="investments" label="Shares, funds and other investments" hint="Current market value." />
+    <Field name="business" label="Business stock and trade goods" hint="Value of goods held for sale." />
+    <Field name="owed" label="Money owed to you" hint="Loans you expect to be repaid." />
+    <Field name="other" label="Other zakatable wealth" />
+
+    <p class="calc-subhead">What you owe</p>
+    <Field name="debts" label="Debts and bills due now" value="1000" hint="Rent, bills and loan payments currently due." />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Zakat due" out="zakat" primary sub />
+        <Stat label="Net zakatable wealth" out="wealth" sub />
+        <Stat label="Nisab threshold" out="nisab" sub />
+        <Stat label="Status" out="status" sub />
+      </div>
+      <p class="result-note" data-out="note" hidden></p>
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Your wealth against the nisab</h3>
+          <div data-chart="nisab"></div>
+          <h3 class="mt-6">Breakdown</h3>
+          <dl class="result-rows" data-rows="details"></dl>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the zakat calculator</h2>
+    <ol>
+      <li>Choose your currency and the nisab standard you follow, gold or silver.</li>
+      <li>Enter today’s price of gold and silver. Prices can be per gram, per tola or per troy ounce.</li>
+      <li>Enter what you own: cash and bank balances, gold and silver by weight and purity, investments, business stock and money owed to you.</li>
+      <li>Enter debts and bills that are due now.</li>
+      <li>Read the zakat due. If your wealth is below the nisab, no zakat is due this year.</li>
+    </ol>
+
+    <h2>How zakat is calculated</h2>
+    <p>This calculator follows the widely used method for zakat on wealth:</p>
+    <ol>
+      <li>
+        <strong>Value your gold and silver</strong> by their pure metal content. 20 grams of 22 karat gold contains
+        20 × 22 ÷ 24 = 18.33 grams of pure gold.
+      </li>
+      <li><strong>Add up zakatable wealth:</strong> cash, gold, silver, investments, business stock and receivable loans.</li>
+      <li><strong>Subtract debts</strong> that are due now.</li>
+      <li>
+        <strong>Compare with the nisab:</strong> 87.48 g × gold price, or 612.36 g × silver price, depending on the
+        standard you choose.
+      </li>
+      <li><strong>Zakat = 2.5% of net wealth</strong> if it is at or above the nisab (the same as dividing by 40).</li>
+    </ol>
+    <p>
+      Zakat is due only when this wealth has been held for a full lunar year. Livestock, crops, minerals and some types of
+      business or retirement assets follow their own rules and are not covered here.
+    </p>
+
+    <h2>Worked example</h2>
+    <p>
+      Aisha has $10,000 in the bank, 20 grams of 22 karat gold and a $1,000 bill due. Gold is $100 per gram and silver
+      $1.25 per gram, and she uses the silver nisab.
+    </p>
+    <ul>
+      <li>Gold: 20 g × 22 ÷ 24 × $100 = $1,833.33.</li>
+      <li>Net wealth: $10,000 + $1,833.33 − $1,000 = $10,833.33.</li>
+      <li>Silver nisab: 612.36 g × $1.25 = $765.45. Her wealth is above it.</li>
+      <li>Zakat: $10,833.33 × 2.5% = <strong>$270.83</strong>.</li>
+    </ul>
+    <p>
+      With the gold nisab (87.48 g × $100 = $8,748) she would also pay $270.83, because her wealth is above both
+      thresholds. The choice of nisab only changes the result for people whose wealth falls between the two.
+    </p>
+
+    <h2>Nisab weights</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Standard</th><th>Grams</th><th>Tola</th><th>Troy ounces</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Gold nisab</td><td>87.48 g</td><td>7.5 tola</td><td>2.81 oz t</td></tr>
+          <tr><td>Silver nisab</td><td>612.36 g</td><td>52.5 tola</td><td>19.69 oz t</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>One tola is 11.664 grams and one troy ounce is 31.103 grams, the units used for gold prices in South Asia and on world markets.</p>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { NISAB_GOLD_GRAMS, NISAB_SILVER_GRAMS, pricePerGram, toGrams, zakat } from '../../../scripts/calculators/zakat';
+  import { formatMoney, formatNumber } from '../../../scripts/lib/format';
+  import type { MetalWeightUnit } from '../../../scripts/lib/units';
+  import { barRows } from '../../../scripts/ui/chart';
+  import { out, rows, setupCalculator, steps, toggle } from '../../../scripts/ui/calculator';
+
+  setupCalculator((read) => {
+    const currency = read.choice('currency');
+    const m = (n: number) => formatMoney(n, currency);
+    const standard = read.choice('standard') as 'gold' | 'silver';
+    const unitOf = (name: string) => read.unit(name).replace('per-', '') as MetalWeightUnit;
+
+    const goldPriceRaw = read.number('gold_price', { label: 'the gold price', min: 0, above: standard === 'gold', max: 1e9, optional: standard !== 'gold' });
+    const silverPriceRaw = read.number('silver_price', { label: 'the silver price', min: 0, above: standard === 'silver', max: 1e9, optional: standard !== 'silver' });
+    const cash = read.amount('cash', { label: 'your cash', min: 0 });
+    const goldWeight = read.amount('gold', { label: 'the gold weight', min: 0 });
+    const silverWeight = read.amount('silver', { label: 'the silver weight', min: 0 });
+    const investments = read.amount('investments', { label: 'your investments', min: 0 });
+    const business = read.amount('business', { label: 'business stock', min: 0 });
+    const owed = read.amount('owed', { label: 'money owed to you', min: 0 });
+    const other = read.amount('other', { label: 'other wealth', min: 0 });
+    const debts = read.amount('debts', { label: 'your debts', min: 0 });
+    if (goldWeight > 0 && !goldPriceRaw) read.fail('gold_price', 'Enter the gold price to value your gold.');
+    if (silverWeight > 0 && !silverPriceRaw) read.fail('silver_price', 'Enter the silver price to value your silver.');
+    if (!read.ok) return null;
+
+    const goldPrice = pricePerGram(goldPriceRaw ?? 0, unitOf('gold_price'));
+    const silverPrice = pricePerGram(silverPriceRaw ?? 0, unitOf('silver_price'));
+    const karat = Number(read.choice('karat'));
+    const fineness = Number(read.choice('fineness'));
+    const r = zakat({
+      standard,
+      goldPricePerGram: goldPrice,
+      silverPricePerGram: silverPrice,
+      cash,
+      goldGrams: toGrams(goldWeight, unitOf('gold')),
+      goldKarat: karat,
+      silverGrams: toGrams(silverWeight, unitOf('silver')),
+      silverFineness: fineness,
+      investments,
+      businessAssets: business,
+      owedToYou: owed,
+      otherAssets: other,
+      liabilities: debts,
+    });
+
+    out('zakat', m(r.zakat));
+    out('zakat-sub', r.aboveNisab ? '2.5% of your net wealth' : 'Below the nisab: no zakat due');
+    out('wealth', m(r.netWealth));
+    out('wealth-sub', `${m(r.totalAssets)} assets − ${m(debts)} debts`);
+    out('nisab', m(r.nisab));
+    out('nisab-sub', standard === 'gold' ? `${NISAB_GOLD_GRAMS} g of gold × ${m(goldPrice)}/g` : `${NISAB_SILVER_GRAMS} g of silver × ${m(silverPrice)}/g`);
+    out('status', r.aboveNisab ? 'Zakat is due' : 'Not due');
+    out('status-sub', r.aboveNisab ? `${m(r.netWealth - r.nisab)} above the nisab` : `${m(Math.max(0, r.nisab - r.netWealth))} below the nisab`);
+
+    const other2 = standard === 'gold' ? { name: 'silver', value: r.nisabSilver, price: silverPrice } : { name: 'gold', value: r.nisabGold, price: goldPrice };
+    const betweenThresholds = other2.price > 0 && (r.netWealth >= Math.min(r.nisab, other2.value) && r.netWealth < Math.max(r.nisab, other2.value));
+    toggle('[data-out="note"]', betweenThresholds);
+    if (betweenThresholds) {
+      out('note', `Your wealth is between the two nisab values: it is ${r.aboveNisab ? 'above' : 'below'} the ${standard} nisab but ${r.aboveNisab ? 'below' : 'above'} the ${other2.name} nisab (${m(other2.value)}). The standard you follow decides whether zakat is due, so check with a scholar if you are unsure.`);
+    }
+
+    barRows(
+      document.querySelector('[data-chart="nisab"]'),
+      [
+        { label: 'Your net wealth', value: Math.max(0, r.netWealth), text: m(r.netWealth), tone: 'primary' },
+        { label: `${standard === 'gold' ? 'Gold' : 'Silver'} nisab`, value: r.nisab, text: m(r.nisab), tone: 'accent' },
+      ],
+      { value: r.nisab, label: 'The red line marks the nisab. Zakat is due when your wealth reaches it.' },
+    );
+
+    rows('details', [
+      ['Cash and bank', m(cash)],
+      ['Gold', `${m(r.goldValue)} (${formatNumber(r.pureGoldGrams, 2)} g pure)`],
+      ['Silver', `${m(r.silverValue)} (${formatNumber(r.pureSilverGrams, 2)} g pure)`],
+      ['Investments', m(investments)],
+      ['Business stock', m(business)],
+      ['Owed to you', m(owed)],
+      ['Other', m(other)],
+      ['Debts due now', `− ${m(debts)}`],
+      ['Net zakatable wealth', m(r.netWealth)],
+    ]);
+
+    const work: [string, string][] = [];
+    if (r.goldValue) work.push(['Gold value = weight × purity × price', `${formatNumber(toGrams(goldWeight, unitOf('gold')), 3)} g × ${karat}/24 × ${m(goldPrice)} = ${m(r.goldValue)}`]);
+    if (r.silverValue) work.push(['Silver value = weight × purity × price', `${formatNumber(toGrams(silverWeight, unitOf('silver')), 3)} g × ${fineness}/1000 × ${m(silverPrice)} = ${m(r.silverValue)}`]);
+    work.push(['Net wealth = total assets − debts due now', `${m(r.totalAssets)} − ${m(debts)} = ${m(r.netWealth)}`]);
+    work.push([`Nisab = ${standard === 'gold' ? NISAB_GOLD_GRAMS : NISAB_SILVER_GRAMS} g × ${standard} price`, `${m(r.nisab)} → wealth is ${r.aboveNisab ? 'at or above' : 'below'} the nisab`]);
+    work.push(r.aboveNisab ? ['Zakat = net wealth × 2.5%', `${m(r.netWealth)} × 0.025 = ${m(r.zakat)}`] : ['Below the nisab, so no zakat is due', m(0)]);
+    steps(work);
+
+    return {
+      announce: r.aboveNisab ? `Zakat due: ${m(r.zakat)}.` : 'Your wealth is below the nisab, so no zakat is due.',
+      copy: `Net zakatable wealth ${m(r.netWealth)}; ${standard} nisab ${m(r.nisab)}; zakat due ${m(r.zakat)}`,
+    };
+  });
+</script>

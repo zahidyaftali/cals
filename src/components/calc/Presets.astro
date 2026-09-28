@@ -1,0 +1,22 @@
+---
+// Quick-fill buttons for a field, e.g. tip 15% / 18% / 20%. The button whose
+// value matches the field is marked pressed.
+interface Props {
+  field: string;
+  label: string;
+  options: { value: string; label: string }[];
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  mode?: string;
+}
+const { field, label, options, size = 'full', mode } = Astro.props;
+---
+
+<div class:list={['presets', `f-${size}`]} role="group" aria-label={label} data-mode={mode}>
+  {
+    options.map((o) => (
+      <button type="button" class="preset" data-set={field} data-value={o.value} aria-pressed="false">
+        {o.label}
+      </button>
+    ))
+  }
+</div>

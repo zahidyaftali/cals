@@ -1,0 +1,309 @@
+---
+import CalcShell from '../../../components/calc/CalcShell.astro';
+import Checkbox from '../../../components/calc/Checkbox.astro';
+import Field from '../../../components/calc/Field.astro';
+import SelectField from '../../../components/calc/SelectField.astro';
+import Stat from '../../../components/calc/Stat.astro';
+import Steps from '../../../components/calc/Steps.astro';
+import CalculatorLayout from '../../../layouts/CalculatorLayout.astro';
+
+const days = [
+  { key: 'mon', name: 'Monday', work: true },
+  { key: 'tue', name: 'Tuesday', work: true },
+  { key: 'wed', name: 'Wednesday', work: true },
+  { key: 'thu', name: 'Thursday', work: true },
+  { key: 'fri', name: 'Friday', work: true },
+  { key: 'sat', name: 'Saturday', work: false },
+  { key: 'sun', name: 'Sunday', work: false },
+];
+
+const faqs = [
+  {
+    q: 'How do I calculate the hours I worked?',
+    a: 'Subtract your start time from your end time, then subtract any unpaid break. For example, 8:45 AM to 5:15 PM is 8 hours 30 minutes; with a 30-minute unpaid lunch that leaves 8 hours worked. Do this for each day and add the days together for your weekly total.',
+  },
+  {
+    q: 'How do I convert minutes to decimal hours?',
+    a: 'Divide the minutes by 60. 15 minutes is 0.25 hours, 30 minutes is 0.5 hours and 45 minutes is 0.75 hours, so 7 hours 45 minutes is 7.75 hours. Payroll usually needs decimal hours because pay is hourly rate × decimal hours.',
+  },
+  {
+    q: 'How does the calculator handle overnight shifts?',
+    a: 'If the end time is earlier than the start time, the calculator assumes the shift finished the next day. A shift from 10:00 PM to 6:00 AM is counted as 8 hours, not a negative number.',
+  },
+  {
+    q: 'When do I get overtime pay?',
+    a: 'Under the federal Fair Labor Standards Act, non-exempt employees must be paid at least 1.5 times their regular rate for hours over 40 in a workweek. Some states add their own rules; California, for example, also requires overtime after 8 hours in a single day. Tick "Pay overtime" and set the threshold and rate that apply to you.',
+  },
+  {
+    q: 'Should breaks be subtracted from my hours?',
+    a: 'Only unpaid breaks. Under US federal rules, short rest breaks of about 5 to 20 minutes count as paid work time, while a meal break of 30 minutes or more when you are fully relieved of duty is normally unpaid. Enter only the unpaid break time in the Break column.',
+  },
+];
+---
+
+<CalculatorLayout
+  slug="hours-calculator"
+  intro="Enter your start and end times for each day to total the hours on your time card, with breaks, overtime and pay."
+  faqs={faqs}
+  disclaimer="Pay figures are gross pay before taxes and deductions. Overtime rules differ by state and by job, so check with your employer or your state labor department."
+>
+  <CalcShell name="Hours Calculator" emptyMessage="Enter a start and end time for at least one day to see your hours.">
+    <div class="f-full day-rows">
+      {
+        days.map((day) => (
+          <div class="day-row" data-day={day.key}>
+            <p class="day-name">{day.name}</p>
+            <Field name={`${day.key}_start`} label="Start" srPrefix={day.name} type="time" value={day.work ? '09:00' : ''} />
+            <Field name={`${day.key}_end`} label="End" srPrefix={day.name} type="time" value={day.work ? '17:30' : ''} />
+            <Field name={`${day.key}_break`} label="Break (min)" srPrefix={day.name} type="integer" value={day.work ? '30' : ''} />
+            <p class="day-total" data-out={`${day.key}-total`}></p>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="calc-subhead">Pay and rounding (optional)</p>
+    <Field name="rate" label="Hourly rate" prefix="$" placeholder="e.g. 20" size="quarter" />
+    <SelectField
+      name="rounding"
+      label="Round clock times"
+      size="quarter"
+      options={[
+        { value: '1', label: 'No rounding' },
+        { value: '5', label: 'Nearest 5 minutes' },
+        { value: '6', label: 'Nearest 6 minutes (0.1 h)' },
+        { value: '15', label: 'Nearest 15 minutes' },
+      ]}
+    />
+    <Field name="ot_after" label="Overtime after" type="number" value="40" suffix="h/week" size="quarter" />
+    <Field name="ot_rate" label="Overtime rate" type="number" value="1.5" suffix="×" size="quarter" />
+    <Checkbox name="overtime" label="Pay overtime" hint="Hours over the weekly threshold are paid at the overtime rate." />
+
+    <Fragment slot="result">
+      <div class="stats">
+        <Stat label="Total hours" out="total" primary sub />
+        <Stat label="Decimal hours" out="decimal" sub />
+        <Stat label="Overtime hours" out="ot" sub />
+        <Stat label="Gross pay" out="pay" sub />
+      </div>
+
+      <div class="result-section">
+        <h3>Time card</h3>
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr><th>Day</th><th class="col-optional">Start</th><th class="col-optional">End</th><th class="col-optional">Break</th><th>Hours</th><th>Decimal</th></tr>
+            </thead>
+            <tbody data-table="days"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="result-split">
+        <div class="result-section">
+          <h3>Hours by day</h3>
+          <div data-chart="days"></div>
+        </div>
+        <Steps />
+      </div>
+    </Fragment>
+  </CalcShell>
+
+  <Fragment slot="content">
+    <h2>How to use the hours calculator</h2>
+    <ol>
+      <li>Enter the start and end time for each day you worked. Leave both fields blank for days off.</li>
+      <li>Enter any unpaid break in minutes, such as a 30-minute lunch.</li>
+      <li>Optionally add your hourly rate to see your gross pay, and tick "Pay overtime" if hours over a weekly limit are paid at a higher rate.</li>
+      <li>If your employer rounds clock-in and clock-out times, choose the same rounding so your totals match your pay stub.</li>
+    </ol>
+    <p>
+      The totals update as you type. Each day's hours appear next to the row, and the full time card, a chart and the
+      working are shown in the results.
+    </p>
+
+    <h2>How the hours are calculated</h2>
+    <p>For each day the calculator works out:</p>
+    <p><strong>Hours worked = end time − start time − unpaid break</strong></p>
+    <p>
+      If the end time is earlier than the start time, the shift is treated as ending the next day, so 10:00 PM to 6:00 AM
+      counts as 8 hours. The daily figures are added for the week, then shown two ways: as hours and minutes (38 h 15 min)
+      and as decimal hours (38.25), which is the number payroll uses.
+    </p>
+    <p>
+      To turn minutes into decimal hours, divide by 60. With pay switched on, regular hours are paid at your hourly rate,
+      and any hours above the overtime threshold are paid at the rate times the overtime multiplier:
+    </p>
+    <p><strong>Pay = regular hours × rate + overtime hours × rate × 1.5</strong></p>
+
+    <h2>Worked example</h2>
+    <p>
+      Sam works 8:00 AM to 5:30 PM, Monday to Friday, with a 30-minute unpaid lunch, and earns $20 an hour with overtime
+      after 40 hours.
+    </p>
+    <ul>
+      <li>Each day: 5:30 PM − 8:00 AM = 9 h 30 min, minus 30 min = 9 hours.</li>
+      <li>Week: 5 × 9 = 45 hours, of which 40 are regular and 5 are overtime.</li>
+      <li>Regular pay: 40 × $20 = $800. Overtime pay: 5 × $20 × 1.5 = $150.</li>
+      <li>Gross pay: $800 + $150 = <strong>$950</strong>.</li>
+    </ul>
+
+    <h2>Minutes to decimal hours</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Minutes</th><th>Decimal hours</th><th>Minutes</th><th>Decimal hours</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>5</td><td>0.08</td><td>30</td><td>0.50</td></tr>
+          <tr><td>6</td><td>0.10</td><td>36</td><td>0.60</td></tr>
+          <tr><td>10</td><td>0.17</td><td>40</td><td>0.67</td></tr>
+          <tr><td>12</td><td>0.20</td><td>45</td><td>0.75</td></tr>
+          <tr><td>15</td><td>0.25</td><td>50</td><td>0.83</td></tr>
+          <tr><td>20</td><td>0.33</td><td>55</td><td>0.92</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Clock rounding rules</h2>
+    <p>
+      Many time clocks round punches to the nearest 5 minutes, 6 minutes (a tenth of an hour) or 15 minutes. With
+      15-minute rounding, a punch at 8:07 counts as 8:00 and a punch at 8:08 counts as 8:15. US federal rules allow
+      rounding only if, over time, it doesn't reduce the hours employees are paid for. Choosing the same rounding here
+      shows you exactly what your employer's system should record.
+    </p>
+  </Fragment>
+</CalculatorLayout>
+
+<script>
+  import { roundClock, shift, week } from '../../../scripts/calculators/hours';
+  import { barRows } from '../../../scripts/ui/chart';
+  import { out, setupCalculator, steps, table, type Step } from '../../../scripts/ui/calculator';
+  import { clockDuration, formatMoney, formatNumber, hoursMinutes } from '../../../scripts/lib/format';
+
+  const DAYS = [
+    ['mon', 'Monday'],
+    ['tue', 'Tuesday'],
+    ['wed', 'Wednesday'],
+    ['thu', 'Thursday'],
+    ['fri', 'Friday'],
+    ['sat', 'Saturday'],
+    ['sun', 'Sunday'],
+  ] as const;
+
+  const clock = (min: number) => {
+    const h24 = Math.floor(min / 60) % 24;
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return `${h12}:${String(min % 60).padStart(2, '0')} ${h24 < 12 ? 'AM' : 'PM'}`;
+  };
+
+  setupCalculator((read) => {
+    const step = Number(read.choice('rounding')) || 1;
+    const worked: number[] = [];
+    const tableRows: string[][] = [];
+    const bars: { label: string; value: number; text: string }[] = [];
+    const work: Step[] = [];
+    const dayGroups: { text: string; math: string; days: string[] }[] = [];
+
+    for (const [key, name] of DAYS) {
+      const startEl = read.input(`${key}_start`);
+      const endEl = read.input(`${key}_end`);
+      const hasStart = startEl.value !== '';
+      const hasEnd = endEl.value !== '';
+      out(`${key}-total`, '');
+      if (!hasStart && !hasEnd) continue;
+
+      const start = read.time(`${key}_start`, { label: `a start time for ${name}` });
+      const end = read.time(`${key}_end`, { label: `an end time for ${name}` });
+      const brk = read.amount(`${key}_break`, { label: `${name}'s break`, min: 0, max: 1440, integer: true });
+      if (start === null || end === null) continue;
+
+      const s = roundClock(start / 60, step);
+      const e = roundClock(end / 60, step);
+      const r = shift({ start: s, end: e, breakMinutes: brk });
+      if (!r) {
+        read.fail(`${key}_break`, `The break is longer than the ${name} shift.`);
+        continue;
+      }
+      worked.push(r.worked);
+      out(`${key}-total`, `= ${hoursMinutes(r.worked)}`);
+      tableRows.push([
+        name,
+        clock(s),
+        `${clock(e)}${r.overnight ? ' (+1 day)' : ''}`,
+        brk ? `${brk} min` : '–',
+        clockDuration(r.worked),
+        formatNumber(r.worked / 60, 2, 2),
+      ]);
+      bars.push({ label: name, value: r.worked, text: hoursMinutes(r.worked) });
+      // Days with identical times are grouped into one step.
+      const text = `${clock(s)} to ${clock(e)}${r.overnight ? ' next day' : ''}${brk ? `, minus ${brk} min break` : ''}`;
+      const math = brk ? `${hoursMinutes(r.span)} − ${brk} min = ${hoursMinutes(r.worked)}` : hoursMinutes(r.worked);
+      const same = dayGroups.find((g) => g.text === text);
+      if (same) same.days.push(name);
+      else dayGroups.push({ text, math, days: [name] });
+    }
+
+    const rate = read.number('rate', { label: 'the hourly rate', min: 0, optional: true });
+    const overtime = read.checked('overtime');
+    const threshold = read.number('ot_after', { label: 'the overtime threshold', min: 0, max: 168, optional: !overtime }) ?? 40;
+    const multiplier = read.number('ot_rate', { label: 'the overtime rate', min: 1, max: 5, optional: !overtime }) ?? 1.5;
+    if (!read.ok || worked.length === 0) return null;
+
+    const w = week(worked, { rate: rate ?? undefined, overtime, thresholdHours: threshold, multiplier });
+
+    out('total', hoursMinutes(w.totalMinutes));
+    out('total-sub', `${worked.length} ${worked.length === 1 ? 'day' : 'days'} worked`);
+    out('decimal', formatNumber(w.decimalHours, 2, 2));
+    out('decimal-sub', `${clockDuration(w.totalMinutes)} on a time card`);
+    out('ot', overtime ? hoursMinutes(w.overtimeMinutes) : '–');
+    out('ot-sub', overtime ? `Over ${formatNumber(threshold)} h at ${formatNumber(multiplier)}×` : 'Overtime is off');
+    out('pay', w.totalPay !== undefined ? formatMoney(w.totalPay) : '–');
+    out(
+      'pay-sub',
+      w.totalPay !== undefined
+        ? overtime && w.overtimePay
+          ? `${formatMoney(w.regularPay!)} regular + ${formatMoney(w.overtimePay)} overtime`
+          : `${formatNumber(w.decimalHours, 2, 2)} h × ${formatMoney(rate!)}`
+        : 'Add an hourly rate to see pay',
+    );
+
+    table('days', [
+      ...tableRows,
+      ['Total', '', '', '', clockDuration(w.totalMinutes), formatNumber(w.decimalHours, 2, 2)],
+    ], undefined, [1, 2, 3]);
+    barRows(document.querySelector('[data-chart="days"]'), bars);
+
+    for (const g of dayGroups) {
+      const who = g.days.length === 1 ? g.days[0] : `${g.days.slice(0, -1).join(', ')} and ${g.days.at(-1)} (each)`;
+      work.push([`${who}: ${g.text}`, g.math]);
+    }
+    work.push([
+      'Add the days together',
+      `${worked.map((m) => formatNumber(m / 60, 2)).join(' + ')} = ${formatNumber(w.decimalHours, 2)} hours`,
+    ]);
+    if (w.totalPay !== undefined) {
+      work.push(
+        overtime && w.overtimeMinutes > 0
+          ? [
+              'Pay regular hours at the rate and overtime hours at the overtime rate',
+              `${formatNumber(w.regularMinutes / 60, 2)} × ${formatMoney(rate!)} + ${formatNumber(w.overtimeMinutes / 60, 2)} × ${formatMoney(rate!)} × ${formatNumber(multiplier)} = ${formatMoney(w.totalPay)}`,
+            ]
+          : ['Multiply the hours by the hourly rate', `${formatNumber(w.decimalHours, 2)} × ${formatMoney(rate!)} = ${formatMoney(w.totalPay)}`],
+      );
+    }
+    steps(work);
+
+    const copy = [
+      'Time card (Infinite Calculators)',
+      ...tableRows.map((r) => `${r[0]}: ${r[1]} – ${r[2]}, break ${r[3]} = ${r[4]} (${r[5]} h)`),
+      `Total: ${clockDuration(w.totalMinutes)} (${formatNumber(w.decimalHours, 2, 2)} hours)`,
+      ...(w.totalPay !== undefined ? [`Gross pay: ${formatMoney(w.totalPay)}`] : []),
+    ].join('\n');
+
+    return {
+      announce: `Total ${hoursMinutes(w.totalMinutes)}, ${formatNumber(w.decimalHours, 2)} decimal hours${w.totalPay !== undefined ? `, pay ${formatMoney(w.totalPay)}` : ''}.`,
+      copy,
+    };
+  });
+</script>

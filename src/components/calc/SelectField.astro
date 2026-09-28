@@ -1,0 +1,43 @@
+---
+interface Option {
+  value: string;
+  label: string;
+}
+interface Props {
+  name: string;
+  label: string;
+  options: Option[];
+  value?: string;
+  hint?: string;
+  size?: 'auto' | 'full' | 'half' | 'third' | 'quarter';
+  mode?: string;
+  /** For unit menus: the values the Imperial / Metric switch selects. */
+  unitSystem?: { imperial: string; metric: string };
+  /** Screen-reader-only words before the label, when rows repeat labels. */
+  srPrefix?: string;
+}
+const { name, label, options, value, hint, size = 'auto', mode, unitSystem, srPrefix } = Astro.props;
+const id = `f-${name}`;
+---
+
+<div class:list={['field', `f-${size}`]} data-field={name} data-mode={mode}>
+  <label for={id} class="field-label">{srPrefix && <span class="sr-only">{srPrefix} </span>}{label}</label>
+  <div class="field-control select">
+    <select
+      id={id}
+      name={name}
+      aria-describedby={hint ? `${id}-hint` : undefined}
+      data-unit-imperial={unitSystem?.imperial}
+      data-unit-metric={unitSystem?.metric}
+    >
+      {
+        options.map((o) => (
+          <option value={o.value} selected={o.value === value}>
+            {o.label}
+          </option>
+        ))
+      }
+    </select>
+  </div>
+  {hint && <p id={`${id}-hint`} class="field-hint">{hint}</p>}
+</div>

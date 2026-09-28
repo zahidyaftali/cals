@@ -1,7 +1,6 @@
 ---
 // One AdSense unit with a fixed, reserved size (see .ad-unit in global.css).
-// While ads are off, production renders nothing and development shows a
-// dashed box of the exact size, so placements can be reviewed.
+// Renders nothing until ads are switched on in src/data/site.ts.
 import { site } from '../data/site';
 
 interface Props {
@@ -13,21 +12,14 @@ interface Props {
 }
 const { unit, format = 'rectangle', class: className } = Astro.props;
 const { enabled, client, units } = site.ads;
-const placeholder = !enabled && import.meta.env.DEV;
 ---
 
 {
-  (enabled || placeholder) && (
+  enabled && (
     <aside aria-label="Advertisement" class:list={['ad', `ad-${format}`, className]}>
       <p class="ad-label">Advertisement</p>
-      {enabled ? (
-        <>
-          <ins class="adsbygoogle ad-unit" data-ad-client={client} data-ad-slot={units[unit]}></ins>
-          <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </>
-      ) : (
-        <div class="ad-unit ad-placeholder">Ad · {unit}</div>
-      )}
+      <ins class="adsbygoogle ad-unit" data-ad-client={client} data-ad-slot={units[unit]}></ins>
+      <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
     </aside>
   )
 }

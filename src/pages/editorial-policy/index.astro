@@ -1,0 +1,95 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import { site } from '../../data/site';
+
+const updated = '2026-09-28';
+---
+
+<InfoLayout
+  title="Editorial Policy | Infinite Calculators"
+  description="How Infinite Calculators builds, tests and reviews its calculators, how religious calculators are handled, and how to report an error so we can fix it."
+  h1="Editorial policy"
+  updated={updated}
+>
+  <p>
+    This page explains how we decide what a calculator should do, how we make sure it gives the right
+    answer, and what happens when someone finds a mistake.
+  </p>
+
+  <h2>How a calculator is built</h2>
+  <ol>
+    <li>
+      <strong>Define the question and the method.</strong> We write down exactly what the calculator
+      answers and which formula, rule or published standard it follows, with the source.
+    </li>
+    <li>
+      <strong>Write the math on its own.</strong> The calculation is written as a small, separate piece of
+      code with no connection to the page design, so it can be tested directly.
+    </li>
+    <li>
+      <strong>Test it against known answers.</strong> Before a page goes live, the math must reproduce a
+      set of answers taken from outside sources or worked out by hand, including awkward cases such as leap
+      years, overnight shifts and values at the edge of a threshold. These tests run again every time the
+      site is updated, and a failing test stops the update from being published.
+    </li>
+    <li>
+      <strong>Explain it in plain language.</strong> Each page describes the method, walks through a worked
+      example with real numbers, and shows your own numbers in the formula as you use it.
+    </li>
+    <li>
+      <strong>Review before publishing.</strong> The page, the example and the results are checked before
+      the calculator is added to the site.
+    </li>
+  </ol>
+
+  <h2>Sources we rely on</h2>
+  <ul>
+    <li>Tax rates: figures published by the Tax Foundation, with the date they were last checked shown on the page.</li>
+    <li>Building materials: the yields and coverage that manufacturers print on their products.</li>
+    <li>Calendars: the Umm al-Qura calendar for Hijri dates, the standard Western and Orthodox methods for Easter, and the traditional Chinese lunisolar calendar for the zodiac.</li>
+    <li>Everything else: the underlying arithmetic, shown in full on each page so it can be checked.</li>
+  </ul>
+
+  <h2>Religious calculators</h2>
+  <p>
+    Zakat, Hijri dates, Easter dates and similar tools touch on religious practice, and communities do not
+    always follow the same method. For these calculators we:
+  </p>
+  <ul>
+    <li>state the method or school of thought used, near the calculator itself</li>
+    <li>let you choose where recognized methods differ, such as the gold or silver nisab for zakat</li>
+    <li>note where local practice can change the result, such as moon sighting for Hijri dates</li>
+    <li>use neutral, respectful language and do not favor one tradition over another</li>
+    <li>
+      make clear that results are a guide, not a religious ruling, and suggest consulting a qualified
+      scholar or your local religious authority
+    </li>
+  </ul>
+  <p>
+    When a qualified reviewer has checked a calculator, the page shows a "Reviewed by" line with their
+    name. We only show that line when such a review has actually taken place.
+  </p>
+
+  <h2>Keeping pages up to date</h2>
+  <p>
+    Every calculator page shows the date it was last updated. Figures that change over time, such as sales
+    tax rates, are re-checked against their source when new figures are published, and the page shows the
+    date of the last check.
+  </p>
+
+  <h2>Corrections</h2>
+  <p>
+    Every calculator page has an "Is this result wrong?" link. You can also email
+    <a href={`mailto:${site.email}`}>{site.email}</a> or use our <a href="/contact/">contact page</a>.
+    Tell us the page, the values you entered and the result you expected. We repeat your calculation,
+    and if the site is wrong we fix the math, add your case to the tests so the mistake cannot return, and
+    update the page date.
+  </p>
+
+  <h2>Advertising and independence</h2>
+  <p>
+    The site is paid for by advertising. Advertisers have no influence over which calculators we build,
+    how they work or what they say. Infinite Calculators is owned and operated by
+    <a href={site.owner.url}>{site.owner.name}</a>.
+  </p>
+</InfoLayout>
