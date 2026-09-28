@@ -1,0 +1,39 @@
+---
+// Layout for site pages (About, Contact, legal pages): breadcrumbs, H1,
+// optional "last updated" line and a prose body.
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { formatDate } from '../data/site';
+import { breadcrumbSchema, type Crumb } from '../lib/schema';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  h1: string;
+  /** ISO date (YYYY-MM-DD) shown under the heading. */
+  updated?: string;
+}
+const { title, description, h1, updated } = Astro.props;
+const crumbs: Crumb[] = [{ name: 'Home', href: '/' }, { name: h1 }];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[breadcrumbSchema(crumbs, Astro.url.pathname)]}
+>
+  <article class="wrap pt-6 pb-4">
+    <Breadcrumbs crumbs={crumbs} />
+    <h1 class="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{h1}</h1>
+    {
+      updated && (
+        <p class="mt-2 text-sm text-muted">
+          Last updated <time datetime={updated}>{formatDate(updated)}</time>
+        </p>
+      )
+    }
+    <div class="prose mt-8">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

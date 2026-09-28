@@ -1,0 +1,79 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import { site } from '../../data/site';
+
+const updated = '2026-09-28';
+---
+
+<InfoLayout
+  title="Disclaimer | Infinite Calculators"
+  description="Results from Infinite Calculators are estimates for information only, not financial, legal, medical or religious advice. Read the limits of each tool."
+  h1="Disclaimer"
+  updated={updated}
+>
+  <p>
+    Every calculator on {site.name} gives an estimate based on the values you enter and the method
+    explained on its page. We test each one against known answers, but mistakes are possible and your
+    situation may differ from the assumptions a calculator makes. Please check any result that matters
+    before you act on it.
+  </p>
+
+  <h2>Not professional advice</h2>
+  <p>
+    Results are for general information only. They are not financial, tax, legal, medical, engineering or
+    religious advice, and they are not religious rulings (fatwas or other formal opinions).
+  </p>
+
+  <h2>Money and tax</h2>
+  <p>
+    Tax rates change, and many US cities and counties add their own sales tax on top of the state rate.
+    Where a calculator uses published rates, the page shows the date they were last checked. Confirm
+    rates with the relevant tax authority, and speak to a qualified adviser about your own finances.
+  </p>
+
+  <h2>Home and building projects</h2>
+  <p>
+    Material estimates assume the shapes and sizes you enter. Real jobs need extra for waste, uneven
+    ground, spillage and surface texture. Follow local building codes and your supplier's advice, and
+    consult a professional for structural work.
+  </p>
+
+  <h2>School grades</h2>
+  <p>
+    Schools and teachers weight and round grades in different ways. Your syllabus or instructor has the
+    final word on how your grade is calculated.
+  </p>
+
+  <h2>Religious calculators</h2>
+  <p>
+    Religious calculations depend on methods and schools of thought that differ between communities. Each
+    page states the method it uses. In particular:
+  </p>
+  <ul>
+    <li>
+      <strong>Zakat:</strong> results are a guide only. Please consult a qualified scholar about your own
+      zakat, especially for business assets, debts, retirement funds and jewelry.
+    </li>
+    <li>
+      <strong>Hijri dates:</strong> converted dates follow the Umm al-Qura calendar. Local moon sighting can
+      make the actual date one day earlier or later.
+    </li>
+    <li>
+      <strong>Church calendars:</strong> Easter dates follow the standard Western and Orthodox calculation
+      methods. Your church's published calendar takes priority.
+    </li>
+  </ul>
+
+  <h2>Dates and times</h2>
+  <p>
+    Date and time results use the calendar and clock settings of your own device. Daylight saving changes
+    and time zones can affect results that span them, and each calculator page notes how it handles
+    this.
+  </p>
+
+  <h2>Report an error</h2>
+  <p>
+    If you think a result is wrong, please <a href="/contact/">contact us</a> with the page, your inputs and
+    the result you expected. We check every report.
+  </p>
+</InfoLayout>

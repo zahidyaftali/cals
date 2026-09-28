@@ -1,0 +1,93 @@
+---
+import Icon from '../components/Icon.astro';
+import SiteSearch from '../components/SiteSearch.astro';
+import { categoryTint } from '../components/categoryStyles';
+import { calculatorUrl, calculatorsIn, categories, categoryUrl } from '../data/calculators';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { organizationSchema, websiteSchema } from '../lib/schema';
+
+const title = 'Free Online Calculators | Infinite Calculators';
+const description =
+  'Free online calculators for time cards, dates, concrete, paint, tips, sales tax, grades, zakat and Easter. Instant answers in your browser, no sign-up.';
+
+const promises = [
+  { icon: 'bolt', title: 'Instant answers', text: 'Results update as you type, on any phone or computer.' },
+  { icon: 'lock', title: 'Private by design', text: 'Calculations run in your browser. Your numbers never leave your device.' },
+  { icon: 'book', title: 'Formulas explained', text: 'Every page shows how the answer is worked out, with a real example.' },
+] as const;
+---
+
+<BaseLayout title={title} description={description} jsonLd={[organizationSchema(), websiteSchema()]}>
+  <section class="border-b border-line bg-surface">
+    <div class="wrap py-12 sm:py-16">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          Free online calculators that <span class="text-brand">show their working</span>
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg text-muted">
+          Time cards, concrete, tips, grades, zakat and more. Every calculator is free, needs no sign-up,
+          and explains the formula behind the answer.
+        </p>
+        <div class="mt-8 max-w-xl">
+          <SiteSearch id="hero-search" label="Search all calculators" size="lg" />
+        </div>
+      </div>
+
+      <ul class="mt-12 grid gap-6 sm:grid-cols-3">
+        {
+          promises.map((p) => (
+            <li class="flex gap-3">
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
+                <Icon name={p.icon} size={20} />
+              </span>
+              <div>
+                <p class="font-semibold">{p.title}</p>
+                <p class="text-[0.9375rem] text-muted">{p.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="wrap py-12" aria-labelledby="all-calculators">
+    <h2 id="all-calculators" class="text-2xl font-bold tracking-tight sm:text-3xl">All calculators</h2>
+    <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {
+        categories.map((category) => (
+          <section class="flex flex-col rounded-2xl border border-line bg-surface p-6" aria-labelledby={`cat-${category.slug}`}>
+            <div class="flex items-center gap-3">
+              <span class:list={['flex size-11 shrink-0 items-center justify-center rounded-xl', categoryTint[category.slug]]}>
+                <Icon name={category.slug} size={22} />
+              </span>
+              <h3 id={`cat-${category.slug}`} class="text-xl font-semibold">
+                <a href={categoryUrl(category.slug)} class="hover:text-brand hover:underline">
+                  {category.name}
+                </a>
+              </h3>
+            </div>
+            <p class="mt-3 text-[0.9375rem] text-muted">{category.intro}</p>
+            <ul class="mt-4 space-y-1 border-t border-line pt-4">
+              {calculatorsIn(category.slug).map((c) =>
+                c.status === 'live' ? (
+                  <li>
+                    <a href={calculatorUrl(c)} class="group flex items-center justify-between gap-2 py-1.5 font-medium hover:text-brand">
+                      {c.name}
+                      <Icon name="arrow-right" size={16} class="shrink-0 text-muted group-hover:text-brand" />
+                    </a>
+                  </li>
+                ) : (
+                  <li class="flex items-center justify-between gap-2 py-1.5 text-muted">
+                    {c.name}
+                    <span class="shrink-0 whitespace-nowrap text-xs">Coming soon</span>
+                  </li>
+                ),
+              )}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

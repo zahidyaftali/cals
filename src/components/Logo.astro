@@ -1,0 +1,25 @@
+---
+// Brand mark: an infinity loop on a teal tile, with the right loop in the
+// saffron accent. The same drawing is used for public/favicon.svg.
+interface Props {
+  size?: number;
+  class?: string;
+}
+const { size = 32, class: className } = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 32 32"
+  width={size}
+  height={size}
+  class={className}
+  aria-hidden="true"
+  focusable="false"
+>
+  <rect width="32" height="32" rx="8" fill="#0a6b5f"></rect>
+  <g fill="none" stroke-width="2.6" stroke-linecap="round" transform="translate(4 4)">
+    <path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4" stroke="#ffffff"></path>
+    <path d="M12 12c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4" stroke="#f0a53a"></path>
+  </g>
+</svg>

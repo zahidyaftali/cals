@@ -1,0 +1,51 @@
+---
+import { site } from '../data/site';
+import type { JsonLd } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  ogType?: 'website' | 'article';
+  image?: { src: string; width: number; height: number; alt: string };
+  noindex?: boolean;
+  jsonLd?: JsonLd[];
+}
+
+const {
+  title,
+  description,
+  ogType = 'website',
+  image = site.defaultOgImage,
+  noindex = false,
+  jsonLd = [],
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL(image.src, Astro.site).href;
+// Escape "<" so page text can never close the script element early.
+const graph = jsonLd.length
+  ? JSON.stringify({ '@context': 'https://schema.org', '@graph': jsonLd }).replace(/</g, '\\u003c')
+  : '';
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+{noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+
+<meta property="og:site_name" content={site.name} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content="en_US" />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content={String(image.width)} />
+<meta property="og:image:height" content={String(image.height)} />
+<meta property="og:image:alt" content={image.alt} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={image.alt} />
+
+{graph && <script type="application/ld+json" set:html={graph} />}

@@ -1,0 +1,33 @@
+---
+import { site } from '../data/site';
+
+interface Props {
+  /** Reserved height in px, so the ad can't push content down when it loads. */
+  minHeight?: number;
+  class?: string;
+}
+const { minHeight = 280, class: className } = Astro.props;
+const showPlaceholder = !site.ads.enabled && import.meta.env.DEV;
+---
+
+{
+  site.ads.enabled ? (
+    <aside aria-label="Advertisement" class:list={['my-8', className]}>
+      <p class="mb-1 text-center text-xs uppercase tracking-wider text-muted">Advertisement</p>
+      {/* The <ins class="adsbygoogle"> unit goes here once AdSense approves the site. */}
+      <div class="overflow-hidden" style={`min-height:${minHeight}px`} />
+    </aside>
+  ) : (
+    showPlaceholder && (
+      <div
+        class:list={[
+          'my-8 flex items-center justify-center rounded-xl border-2 border-dashed border-line text-sm text-muted',
+          className,
+        ]}
+        style={`min-height:${minHeight}px`}
+      >
+        Ad slot ({minHeight}px reserved) — shown in development only
+      </div>
+    )
+  )
+}

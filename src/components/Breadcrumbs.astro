@@ -1,0 +1,36 @@
+---
+import type { Crumb } from '../lib/schema';
+import Icon from './Icon.astro';
+
+interface Props {
+  /** The last crumb is the current page and is not linked. */
+  crumbs: Crumb[];
+}
+const { crumbs } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="text-sm text-muted">
+  <ol class="flex flex-wrap items-center gap-x-1 gap-y-1">
+    {
+      crumbs.map((crumb, i) => {
+        const last = i === crumbs.length - 1;
+        return (
+          <li class="flex items-center gap-1">
+            {last ? (
+              <span aria-current="page" class="text-ink">
+                {crumb.name}
+              </span>
+            ) : (
+              <>
+                <a href={crumb.href} class="inline-block rounded py-1 hover:text-brand hover:underline">
+                  {crumb.name}
+                </a>
+                <Icon name="chevron-right" size={14} class="opacity-60" />
+              </>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>

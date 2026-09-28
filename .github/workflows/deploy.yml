@@ -1,0 +1,53 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never run two uploads to the server at the same time.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test calculator logic and registry
+        run: npm test
+
+      - name: Build site
+        run: npm run build
+
+      - name: Check SEO rules on built pages
+        run: npm run check
+
+      - name: Upload to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # FTP over TLS. If Hostinger rejects the connection, change to: ftp
+          protocol: ftps
+          local-dir: ./dist/
+          # Path from the FTP account's home folder. Check it in hPanel →
+          # Files → FTP Accounts; some accounts land directly in public_html,
+          # in which case this should be ./
+          server-dir: ./public_html/

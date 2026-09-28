@@ -1,0 +1,4 @@
+# ads.txt for infinitecalculators.com
+# Placeholder until Google AdSense approves the site. Then replace this file
+# with the line AdSense gives you, which looks like:
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

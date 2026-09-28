@@ -1,0 +1,82 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import { site } from '../../data/site';
+
+// TODO(owner): add a governing-law clause once you decide which
+// jurisdiction's law should apply, and have these terms reviewed.
+const updated = '2026-09-28';
+---
+
+<InfoLayout
+  title="Terms of Use | Infinite Calculators"
+  description="The terms for using Infinite Calculators: results are for information only, the site is provided as is, and the rules for using and linking to our content."
+  h1="Terms of Use"
+  updated={updated}
+>
+  <p>
+    By using {site.name} ("the site", "we", "us") you agree to these terms. If you don't agree, please don't
+    use the site.
+  </p>
+
+  <h2>Using the calculators</h2>
+  <p>
+    The calculators are free for personal and business use. You don't need an account, and you may copy,
+    print or share the results you get.
+  </p>
+
+  <h2>Results are for information only</h2>
+  <p>
+    Results are estimates based on the values you enter and the method described on each page. They are
+    not financial, tax, legal, medical, engineering or religious advice, and they are not religious
+    rulings. Check any result that matters with a qualified professional or scholar before you rely on it.
+    Our <a href="/disclaimer/">disclaimer</a> gives more detail.
+  </p>
+
+  <h2>No warranty</h2>
+  <p>
+    We test every calculator and work to keep it correct, but the site is provided "as is" and "as
+    available", without any warranty that it is accurate, complete, up to date or free of errors, or that
+    it will always be available.
+  </p>
+
+  <h2>Limitation of liability</h2>
+  <p>
+    To the fullest extent the law allows, we are not liable for any loss or damage arising from your use
+    of the site or your reliance on its results, including loss of money, materials, grades or time.
+    Nothing in these terms limits any liability that cannot legally be limited.
+  </p>
+
+  <h2>Acceptable use</h2>
+  <p>You agree not to:</p>
+  <ul>
+    <li>copy or republish our pages, text, tables or code as your own</li>
+    <li>scrape the site automatically, or send so many requests that it slows down for others</li>
+    <li>try to break, probe or get around the site's security</li>
+    <li>show our pages inside a frame on another website</li>
+  </ul>
+
+  <h2>Our content</h2>
+  <p>
+    The text, design, graphics and code on this site belong to {site.name}. You are welcome to link to any
+    page without asking.
+  </p>
+
+  <h2>Ads and links to other websites</h2>
+  <p>
+    The site shows ads from third parties and links to other websites. We don't control and aren't
+    responsible for their content, products or privacy practices. Seeing an ad here does not mean we
+    endorse it.
+  </p>
+
+  <h2>Changes</h2>
+  <p>
+    We may change or remove calculators, and we may update these terms. The date at the top of this page
+    shows when the terms last changed. Continuing to use the site after a change means you accept the
+    updated terms.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about these terms can be sent to <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+</InfoLayout>

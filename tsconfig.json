@@ -1,0 +1,11 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    // Tests run under Node's type stripping, which needs explicit .ts imports
+    // and only erasable TypeScript syntax (no enums or namespaces).
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true
+  }
+}

@@ -1,0 +1,81 @@
+# Infinite Calculators — Hostinger (LiteSpeed/Apache) configuration
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+# ── Redirects ─────────────────────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1. Force HTTPS and the bare domain in a single 301.
+  #    (X-Forwarded-Proto covers requests that arrive through a CDN/proxy.)
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://infinitecalculators.com%{REQUEST_URI} [L,R=301,NE]
+
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://infinitecalculators.com%{REQUEST_URI} [L,R=301,NE]
+
+  # 2. Add the trailing slash to page URLs (anything without a file
+  #    extension that isn't a real file), matching Astro's trailingSlash.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} !/$
+  RewriteCond %{REQUEST_URI} !\.[a-zA-Z0-9]{1,5}$
+  RewriteRule ^(.*)$ https://infinitecalculators.com/$1/ [L,R=301,NE]
+
+  # 3. Old index.html addresses point to the clean URL.
+  RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
+  RewriteRule ^(.*/)?index\.html$ https://infinitecalculators.com/$1 [L,R=301,NE]
+</IfModule>
+
+# ── Compression ───────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/xml application/javascript text/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
+
+# ── Caching ───────────────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 week"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/json "access plus 1 hour"
+  ExpiresByType application/xml "access plus 1 hour"
+  ExpiresByType text/xml "access plus 1 hour"
+  ExpiresByType text/plain "access plus 1 hour"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/avif "access plus 1 month"
+  ExpiresByType image/x-icon "access plus 1 month"
+  ExpiresByType image/vnd.microsoft.icon "access plus 1 month"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # HTML must always be revalidated so deploys show up at once.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # Astro fingerprints every CSS/JS file name in /_astro/, so they never change.
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  # geolocation stays available to this site for the planned Qibla and prayer-time tools.
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+  # Enable once HTTPS is confirmed working on the live domain:
+  # Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
+# ── Files that should never be served ─────────────────────────
+# Dotfiles, including the FTP deploy action's .ftp-deploy-sync-state.json.
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

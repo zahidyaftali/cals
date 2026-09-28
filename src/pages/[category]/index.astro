@@ -1,0 +1,82 @@
+---
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CalculatorCard from '../../components/CalculatorCard.astro';
+import Icon from '../../components/Icon.astro';
+import { categoryTint } from '../../components/categoryStyles';
+import { calculatorUrl, calculatorsIn, categories, categoryUrl, type Category } from '../../data/calculators';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { breadcrumbSchema, collectionPageSchema, type Crumb } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return categories.map((category) => ({ params: { category: category.slug }, props: { category } }));
+}
+
+interface Props {
+  category: Category;
+}
+const { category } = Astro.props;
+const path = categoryUrl(category.slug);
+const items = calculatorsIn(category.slug);
+const crumbs: Crumb[] = [{ name: 'Home', href: '/' }, { name: category.name }];
+const others = categories.filter((c) => c.slug !== category.slug);
+
+const jsonLd = [
+  collectionPageSchema({
+    name: category.h1,
+    description: category.metaDescription,
+    path,
+    items: items.filter((c) => c.status === 'live').map((c) => ({ name: c.name, path: calculatorUrl(c) })),
+  }),
+  breadcrumbSchema(crumbs, path),
+];
+---
+
+<BaseLayout
+  title={category.title}
+  description={category.metaDescription}
+  currentCategory={category.slug}
+  jsonLd={jsonLd}
+>
+  <div class="wrap pt-6">
+    <Breadcrumbs crumbs={crumbs} />
+
+    <div class="mt-5 flex items-start gap-4">
+      <span class:list={['hidden size-14 shrink-0 items-center justify-center rounded-2xl sm:flex', categoryTint[category.slug]]}>
+        <Icon name={category.slug} size={28} />
+      </span>
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{category.h1}</h1>
+        <p class="mt-2 max-w-2xl text-lg text-muted">{category.intro}</p>
+      </div>
+    </div>
+
+    <ul class="mt-8 grid gap-4 md:grid-cols-2">
+      {
+        items.map((calculator) => (
+          <li>
+            <CalculatorCard calculator={calculator} headingLevel="h2" />
+          </li>
+        ))
+      }
+    </ul>
+
+    <nav aria-labelledby="other-categories" class="mt-14 border-t border-line pt-8">
+      <h2 id="other-categories" class="text-xl font-semibold">Other categories</h2>
+      <ul class="mt-4 flex flex-wrap gap-2">
+        {
+          others.map((c) => (
+            <li>
+              <a
+                href={categoryUrl(c.slug)}
+                class="inline-flex h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 font-medium hover:border-brand hover:text-brand"
+              >
+                <Icon name={c.slug} size={18} />
+                {c.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</BaseLayout>

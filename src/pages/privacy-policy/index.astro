@@ -1,0 +1,137 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import { site } from '../../data/site';
+
+// TODO(owner): have this policy reviewed before launch. It must match how
+// ads and consent are actually set up in AdSense when the site goes live.
+const updated = '2026-09-28';
+---
+
+<InfoLayout
+  title="Privacy Policy | Infinite Calculators"
+  description="How Infinite Calculators handles your data: calculator inputs stay on your device, how Google AdSense uses cookies, and how to opt out of personalized ads."
+  h1="Privacy Policy"
+  updated={updated}
+>
+  <h2>The short version</h2>
+  <ul>
+    <li>The numbers you type into our calculators are processed in your browser and are never sent to us.</li>
+    <li>We don't ask you to create an account, and we don't sell your personal information.</li>
+    <li>
+      We show ads through Google AdSense. Google and its partners use cookies to show and measure those
+      ads. You can opt out of personalized ads at any time using the links below.
+    </li>
+  </ul>
+
+  <h2>Who we are</h2>
+  <p>
+    This policy covers {site.name} at <a href={`${site.url}/`}>{site.url.replace('https://', '')}</a>. You can
+    contact us about privacy at <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+
+  <h2>What you enter into a calculator</h2>
+  <p>
+    Every calculator on this site runs in your web browser. Dates, amounts, measurements and other values
+    you enter are not sent to our server, and we cannot see them. Closing or refreshing the page clears
+    them.
+  </p>
+
+  <h2>Settings saved on your device</h2>
+  <p>
+    To save you choosing again on your next visit, we store a few settings in your browser's local
+    storage, such as light or dark mode and your preferred units (metric or imperial). These settings stay
+    on your device, are never sent to us, and can be removed by clearing your browser's site data.
+  </p>
+
+  <h2>Server logs</h2>
+  <p>
+    Like almost every website, our hosting provider (Hostinger) automatically records basic technical
+    information when a page is requested: your IP address, browser type, the page requested, the
+    referring page and the date and time. This is used to keep the site secure and working, and is kept
+    for a limited time under the host's own retention rules.
+  </p>
+
+  <h2>Advertising and cookies</h2>
+  <p>
+    We use Google AdSense to show ads, which is how we keep the site free. Cookies are small text files
+    that a website stores in your browser. When ads appear on this site:
+  </p>
+  <ul>
+    <li>
+      Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this
+      website or other websites.
+    </li>
+    <li>
+      Google's use of advertising cookies enables it and its partners to serve ads to you based on your
+      visits to this site and/or other sites on the internet.
+    </li>
+    <li>
+      Other third-party vendors and ad networks may also serve ads on this site, and may use cookies,
+      web beacons or similar technologies to do so.
+    </li>
+  </ul>
+  <p>
+    Even if you turn off personalized ads, Google may still use cookies for non-personalized ads, for
+    example to limit how often you see the same ad and to detect fraud. You can read more in
+    <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">How Google uses information from sites or apps that use its services</a>
+    and <a href="https://policies.google.com/technologies/ads" rel="noopener">how Google uses cookies in advertising</a>.
+  </p>
+
+  <h2>How to opt out of personalized ads</h2>
+  <ul>
+    <li>
+      <strong>Google:</strong> turn off personalized ads in
+      <a href="https://adssettings.google.com/" rel="noopener">Google's Ads Settings</a>.
+    </li>
+    <li>
+      <strong>Other vendors (US):</strong> use the Digital Advertising Alliance's
+      <a href="https://optout.aboutads.info/" rel="noopener">WebChoices tool</a>.
+    </li>
+    <li>
+      <strong>Canada:</strong> use the <a href="https://youradchoices.ca/" rel="noopener">AdChoices program</a>.
+    </li>
+    <li>
+      <strong>UK and EU:</strong> use <a href="https://www.youronlinechoices.eu/" rel="noopener">Your Online Choices</a>.
+    </li>
+    <li>
+      <strong>Any browser:</strong> block or delete cookies in your browser settings. Blocking all cookies
+      may stop some websites from working properly.
+    </li>
+  </ul>
+
+  <h2>Visitors in the UK, EEA and Switzerland</h2>
+  <p>
+    If you visit from the United Kingdom, the European Economic Area or Switzerland, you will be asked
+    for consent before any cookies are used for personalized ads. This consent message is provided
+    through a Google-certified consent management platform, and you can change your choice at any time
+    from the privacy settings link that appears with the message.
+  </p>
+
+  <h2>Your privacy rights</h2>
+  <p>
+    Depending on where you live, including the UK, the EU, Canada and several US states such as
+    California, you may have the right to ask what personal information is held about you, to have it
+    deleted, and to opt out of its use for targeted advertising. We do not keep visitor profiles
+    ourselves; advertising data is held by Google and its partners, and the opt-out tools above are the
+    quickest way to control it. For any other request, email us at
+    <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    This site is not directed at children under 13, and we do not knowingly collect personal information
+    from them.
+  </p>
+
+  <h2>Links to other websites</h2>
+  <p>
+    Some pages link to other websites. Their privacy practices are their own, so please read their
+    policies when you visit them.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>
+    If we change how the site handles data, for example by adding analytics, we will update this page and
+    the date at the top.
+  </p>
+</InfoLayout>

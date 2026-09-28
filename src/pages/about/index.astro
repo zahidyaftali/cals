@@ -1,0 +1,61 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import { site } from '../../data/site';
+---
+
+<InfoLayout
+  title="About Infinite Calculators"
+  description="Who runs Infinite Calculators, why the site exists, how each calculator is checked before it goes live, and how the site is paid for. Free, no sign-up."
+  h1="About Infinite Calculators"
+>
+  <p>
+    Infinite Calculators publishes free calculators for everyday questions: how many hours are on a time
+    card, how much concrete a slab needs, what to tip, what score you need on a final exam, how much zakat
+    is due, and when Easter falls in a given year.
+  </p>
+
+  <h2>Why this site exists</h2>
+  <p>
+    Many calculator sites give you a number without showing how they got it. We build every calculator
+    to the same four rules:
+  </p>
+  <ul>
+    <li>It gives the answer as you type, on a phone as well as a computer.</li>
+    <li>It explains the formula in plain language, with a worked example you can check by hand.</li>
+    <li>It runs entirely in your browser, so the numbers you enter are never sent to us.</li>
+    <li>It is free to use, with no account or sign-up.</li>
+  </ul>
+
+  <h2>How we check our calculators</h2>
+  <p>
+    The math behind each calculator is written as a small, separate piece of code and tested against
+    known answers before the page goes live. Depending on the calculator, those answers come from
+    published dates, official rate tables or examples worked out by hand.
+  </p>
+  <p>
+    Where the answer depends on a choice of method, the page says which method it uses. For example, the
+    zakat calculator lets you choose between the gold and silver nisab, and the Hijri date converter
+    explains that local moon sighting can move a date by a day.
+  </p>
+
+  <h2>Who runs the site</h2>
+  {/* TODO(owner): replace this paragraph with a short, real description of who runs the site. */}
+  <p>
+    Infinite Calculators is an independent website. It is not owned by, or affiliated with, any bank,
+    retailer, school or religious organization.
+  </p>
+
+  <h2>How the site is paid for</h2>
+  <p>
+    The site is free to use. Its running costs are covered by advertising shown through Google AdSense.
+    Advertisers have no say in how any calculator works or what it tells you. Our
+    <a href="/privacy-policy/">privacy policy</a> explains how ads and cookies work on this site.
+  </p>
+
+  <h2>Found a mistake?</h2>
+  <p>
+    If a result looks wrong, please <a href="/contact/">tell us</a> or email
+    <a href={`mailto:${site.email}`}>{site.email}</a>. Include the page, the numbers you entered and the
+    answer you expected, and we will check it.
+  </p>
+</InfoLayout>

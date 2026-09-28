@@ -1,0 +1,186 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  id: string;
+  /** Names the search landmark; must differ when a page has two boxes. */
+  label?: string;
+  size?: 'md' | 'lg';
+}
+const { id, label = 'Site search', size = 'md' } = Astro.props;
+const lg = size === 'lg';
+---
+
+<div class="relative" role="search" aria-label={label} data-site-search>
+  <label for={id} class="sr-only">Search calculators</label>
+  <div class="relative">
+    <Icon
+      name="search"
+      size={lg ? 22 : 18}
+      class:list={['pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted', lg ? 'left-4' : 'left-3']}
+    />
+    <input
+      id={id}
+      type="search"
+      autocomplete="off"
+      spellcheck="false"
+      enterkeyhint="go"
+      placeholder="Search calculators"
+      aria-controls={`${id}-results`}
+      class:list={[
+        'w-full rounded-xl border border-line bg-surface text-ink placeholder:text-muted',
+        'focus:border-brand focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-0',
+        lg ? 'h-14 pl-12 pr-4 text-lg shadow-sm' : 'h-11 pl-10 pr-3 text-base',
+      ]}
+    />
+  </div>
+  <p class="sr-only" role="status" aria-live="polite" data-status></p>
+  <div
+    id={`${id}-results`}
+    class="absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-xl border border-line bg-surface shadow-lg"
+    hidden
+    data-results
+  >
+    <ul class="max-h-[60vh] overflow-y-auto py-1" data-list></ul>
+  </div>
+</div>
+
+<script>
+  interface Entry {
+    t: 'calc' | 'cat';
+    n: string;
+    u: string;
+    c: string;
+    k: string;
+  }
+
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+  let indexPromise: Promise<Entry[]> | undefined;
+  function loadIndex(): Promise<Entry[]> {
+    indexPromise ??= fetch('/search-index.json')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .catch(() => {
+        indexPromise = undefined; // allow a retry on the next keystroke
+        return [];
+      });
+    return indexPromise;
+  }
+
+  function score(entry: Entry, query: string, tokens: string[]): number {
+    const name = normalize(entry.n);
+    const haystack = normalize(`${entry.n} ${entry.c} ${entry.k}`);
+    if (!tokens.every((t) => haystack.includes(t))) return 0;
+    let s = 1;
+    if (name.startsWith(query)) s += 4;
+    else if (name.includes(query)) s += 2;
+    if (tokens.every((t) => name.includes(t))) s += 2;
+    if (entry.t === 'calc') s += 0.5;
+    return s;
+  }
+
+  function renderResult(entry: Entry): HTMLLIElement {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = entry.u;
+    a.className =
+      'block px-4 py-2.5 hover:bg-surface-2 focus:bg-surface-2 focus:outline-none focus-visible:outline-none';
+    const name = document.createElement('span');
+    name.className = 'block font-medium text-ink';
+    name.textContent = entry.n;
+    const meta = document.createElement('span');
+    meta.className = 'block text-sm text-muted';
+    meta.textContent = entry.t === 'cat' ? 'Category' : entry.c;
+    a.append(name, meta);
+    li.append(a);
+    return li;
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-site-search]')) {
+    const input = root.querySelector('input')!;
+    const panel = root.querySelector<HTMLElement>('[data-results]')!;
+    const list = root.querySelector<HTMLUListElement>('[data-list]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const links = () => [...list.querySelectorAll('a')];
+
+    const open = (isOpen: boolean) => {
+      panel.hidden = !isOpen;
+    };
+
+    async function update() {
+      const query = normalize(input.value);
+      if (!query) {
+        list.replaceChildren();
+        status.textContent = '';
+        open(false);
+        return;
+      }
+      const index = await loadIndex();
+      if (normalize(input.value) !== query) return; // a newer keystroke won
+      const tokens = query.split(/\s+/);
+      const results = index
+        .map((entry) => ({ entry, s: score(entry, query, tokens) }))
+        .filter((r) => r.s > 0)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 8)
+        .map((r) => r.entry);
+
+      if (results.length) {
+        list.replaceChildren(...results.map(renderResult));
+      } else {
+        const li = document.createElement('li');
+        li.className = 'px-4 py-3 text-muted';
+        li.textContent = 'No calculators match that search yet.';
+        list.replaceChildren(li);
+      }
+      status.textContent = results.length
+        ? `${results.length} result${results.length === 1 ? '' : 's'}`
+        : 'No results';
+      open(true);
+    }
+
+    input.addEventListener('input', update);
+    input.addEventListener('focus', (e) => {
+      loadIndex();
+      // Reopen results when returning to a filled box, but not when focus
+      // comes back from the results list (e.g. after Escape).
+      const from = e.relatedTarget as Node | null;
+      if (input.value.trim() && !(from && root.contains(from))) update();
+    });
+    input.addEventListener('keydown', (e) => {
+      const first = links()[0];
+      if (e.key === 'ArrowDown' && first) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.key === 'Enter' && first) {
+        e.preventDefault();
+        first.click();
+      } else if (e.key === 'Escape') {
+        open(false);
+      }
+    });
+    list.addEventListener('keydown', (e) => {
+      const items = links();
+      const i = items.indexOf(document.activeElement as HTMLAnchorElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        items[Math.min(i + 1, items.length - 1)]?.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        (i <= 0 ? input : items[i - 1]).focus();
+      } else if (e.key === 'Escape') {
+        open(false);
+        input.focus();
+      }
+    });
+    // Pointer: close on taps outside. Keyboard: close when focus leaves.
+    document.addEventListener('pointerdown', (e) => {
+      if (!root.contains(e.target as Node)) open(false);
+    });
+    root.addEventListener('focusout', (e) => {
+      const next = e.relatedTarget as Node | null;
+      if (next && !root.contains(next)) open(false);
+    });
+  }
+</script>

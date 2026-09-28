@@ -1,0 +1,36 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import { site } from '../../data/site';
+---
+
+<InfoLayout
+  title="Contact Us | Infinite Calculators"
+  description="Contact Infinite Calculators to report a wrong result, suggest a new calculator or ask a question about the site. Here is what to include so we can help."
+  h1="Contact us"
+>
+  <p>
+    Email us at <a href={`mailto:${site.email}`}><strong>{site.email}</strong></a>.
+  </p>
+
+  <h2>Reporting a wrong result</h2>
+  <p>Please include:</p>
+  <ul>
+    <li>the address of the calculator page</li>
+    <li>the values you entered, and any units or options you chose</li>
+    <li>the result you got and the result you expected</li>
+  </ul>
+  <p>With those details we can repeat your calculation exactly and find the cause.</p>
+
+  <h2>Suggesting a calculator</h2>
+  <p>
+    Tell us what you were trying to work out and where you looked first. Requests that many people
+    share help us decide what to build next.
+  </p>
+
+  <h2>What we can't help with</h2>
+  <p>
+    We can't give personal financial, tax, legal, medical or religious advice. For those questions,
+    please speak to a qualified professional or scholar. Our <a href="/disclaimer/">disclaimer</a>
+    explains the limits of the results on this site.
+  </p>
+</InfoLayout>

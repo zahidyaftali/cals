@@ -1,0 +1,67 @@
+---
+import { categories, categoryUrl } from '../data/calculators';
+import { site } from '../data/site';
+import Logo from './Logo.astro';
+
+const sitePages = [
+  { name: 'About', href: '/about/' },
+  { name: 'Contact', href: '/contact/' },
+  { name: 'Privacy Policy', href: '/privacy-policy/' },
+  { name: 'Terms of Use', href: '/terms/' },
+  { name: 'Disclaimer', href: '/disclaimer/' },
+];
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-16 border-t border-line bg-surface">
+  <div class="wrap grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
+    <div class="max-w-sm">
+      <a href="/" class="inline-flex items-center gap-2.5 font-semibold">
+        <Logo size={30} />
+        <span>{site.name}</span>
+      </a>
+      <p class="mt-3 text-[0.9375rem] text-muted">
+        Free calculators that run entirely in your browser. Nothing you enter is sent to our server, and
+        every page explains how its answer is worked out.
+      </p>
+    </div>
+
+    <nav aria-labelledby="footer-categories">
+      <h2 id="footer-categories" class="text-sm font-semibold uppercase tracking-wider text-muted">
+        Calculators
+      </h2>
+      <ul class="mt-3 space-y-1">
+        {
+          categories.map((c) => (
+            <li>
+              <a href={categoryUrl(c.slug)} class="inline-block py-1 hover:text-brand hover:underline">
+                {c.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-labelledby="footer-site">
+      <h2 id="footer-site" class="text-sm font-semibold uppercase tracking-wider text-muted">Site</h2>
+      <ul class="mt-3 space-y-1">
+        {
+          sitePages.map((p) => (
+            <li>
+              <a href={p.href} class="inline-block py-1 hover:text-brand hover:underline">
+                {p.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <div class="border-t border-line">
+    <p class="wrap py-5 text-sm text-muted">
+      © {year} {site.name}. Results are estimates for information only. See our
+      <a href="/disclaimer/" class="link">disclaimer</a>.
+    </p>
+  </div>
+</footer>

@@ -1,0 +1,45 @@
+---
+import { calculatorUrl, type Calculator } from '../data/calculators';
+import Icon from './Icon.astro';
+import { categoryTint } from './categoryStyles';
+
+interface Props {
+  calculator: Calculator;
+  /** Heading level for the card title, to keep the page outline in order. */
+  headingLevel?: 'h2' | 'h3';
+}
+const { calculator: c, headingLevel: Heading = 'h3' } = Astro.props;
+const live = c.status === 'live';
+---
+
+{
+  live ? (
+    <a
+      href={calculatorUrl(c)}
+      class="group flex h-full gap-4 rounded-2xl border border-line bg-surface p-5 transition-colors hover:border-brand"
+    >
+      <span class:list={['flex size-11 shrink-0 items-center justify-center rounded-xl', categoryTint[c.category]]}>
+        <Icon name={c.category} size={22} />
+      </span>
+      <div class="min-w-0">
+        <Heading class="font-semibold text-ink group-hover:text-brand">{c.name}</Heading>
+        <p class="mt-1 text-[0.9375rem] text-muted">{c.description}</p>
+      </div>
+    </a>
+  ) : (
+    <div class="flex h-full gap-4 rounded-2xl border border-dashed border-line p-5">
+      <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-muted">
+        <Icon name={c.category} size={22} />
+      </span>
+      <div class="min-w-0">
+        <Heading class="font-semibold text-muted">
+          {c.name}
+          <span class="ml-1.5 rounded-full bg-surface-2 px-2 py-0.5 align-middle text-xs font-medium">
+            Coming soon
+          </span>
+        </Heading>
+        <p class="mt-1 text-[0.9375rem] text-muted">{c.description}</p>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,52 @@
+---
+import '../styles/global.css';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import SEO from '../components/SEO.astro';
+import type { CategorySlug } from '../data/calculators';
+import type { JsonLd } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  jsonLd?: JsonLd[];
+  ogType?: 'website' | 'article';
+  /** Highlights this category in the header navigation. */
+  currentCategory?: CategorySlug;
+}
+const { title, description, noindex, jsonLd, ogType, currentCategory } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f5f1" />
+    <script is:inline>
+      // Apply the saved or system theme before first paint to avoid a flash.
+      (function () {
+        var saved = null;
+        try {
+          saved = localStorage.getItem('theme');
+        } catch (e) {}
+        var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.classList.add('dark');
+      })();
+    </script>
+    <SEO title={title} description={description} noindex={noindex} jsonLd={jsonLd} ogType={ogType} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body class="flex min-h-dvh flex-col font-sans antialiased">
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Header currentCategory={currentCategory} />
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
